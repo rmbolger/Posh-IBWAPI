@@ -1,0 +1,11 @@
+PSTOPIC
+    about_Posh-IBWAPI
+
+SHORT DESCRIPTION
+    PowerShell module for interacting with the Infoblox WAPI (REST API)
+
+LONG DESCRIPTION
+    PowerShell module for interacting with the Infoblox WAPI (REST API)
+
+DETAILED DESCRIPTION
+    This PowerShell module makes it easier to automate Infoblox WAPI requests and functions. It is not intended to wrap every object into a set of custom cmdlets. Instead, it aims to hide some of the tedious complexity in calling a REST API via PowerShell.
