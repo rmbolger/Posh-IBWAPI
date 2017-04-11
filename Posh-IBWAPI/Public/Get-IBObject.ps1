@@ -6,7 +6,7 @@ function Get-IBObject
         [string]$ObjectName,
         [string]$ApiBase,
         [PSCredential]$Credential,
-        [string[]]$SearchFields,
+        [string[]]$SearchFilters,
         [string[]]$ReturnFields,
         [switch]$IncludeBasicFields,
         [int]$MaxResults=[int]::MaxValue,
@@ -16,8 +16,8 @@ function Get-IBObject
     $queryargs = @()
 
     # process the search fields
-    if ($SearchFields.Count -gt 0) {
-        $queryargs += $SearchFields
+    if ($SearchFilters.Count -gt 0) {
+        $queryargs += $SearchFilters
     }
 
     # process the return fields
@@ -54,7 +54,10 @@ function Get-IBObject
         do {
             $i++
             Write-Verbose "Fetching page $i"
-            $querystring = "?_paging=1&_return_as_object=1&_max_results=1000&$($queryargs -join '&')"
+            $querystring = "?_paging=1&_return_as_object=1&_max_results=1000"
+            if ($queryargs.Count -gt 0) {
+                $querystring += "&$($queryargs -join '&')"
+            }
             if ($i -gt 1) {
                 $querystring = "?_page_id=$($response.next_page_id)"
             }
