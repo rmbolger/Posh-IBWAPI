@@ -1,5 +1,27 @@
 #Requires -Version 3.0
 
+# Add our custom type for manipulating .NET cert validation
+if (-not ([System.Management.Automation.PSTypeName]'CertValidation').Type)
+{
+    Add-Type @"
+        using System.Net;
+        using System.Net.Security;
+        using System.Security.Cryptography.X509Certificates;
+        public class CertValidation
+        {
+            static bool IgnoreValidation(object o, X509Certificate c, X509Chain ch, SslPolicyErrors e) {
+                return true;
+            }
+            public static void Ignore() {
+                ServicePointManager.ServerCertificateValidationCallback = IgnoreValidation;
+            }
+            public static void Restore() {
+                ServicePointManager.ServerCertificateValidationCallback = null;
+            }
+        }
+"@
+}
+
 # Get public and private function definition files.
 $Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue )
 $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )

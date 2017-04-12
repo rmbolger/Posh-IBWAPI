@@ -9,7 +9,8 @@ function Invoke-IBWAPI
         [Object]$Body,
         [string]$ContentType,
         [string]$SessionVariable,
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession
+        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
+        [bool]$IgnoreCertificateValidation
     )
 
     ###########################################################################
@@ -19,6 +20,12 @@ function Invoke-IBWAPI
     # any context. But Infoblox returns details about *why* the request was bad in
     # the response body. So we swallow the original exception and throw a new one
     # with the specific error details.
+    #
+    # We also allow for disabling certificate validation on a per-call basis.
+    # However, due to how the underlying .NET framework caches cert validation
+    # results, URLs that were explicitly ignored may continue to be ignored for
+    # a period of time after the initial call even if validation is turned
+    # back on.
     ###########################################################################
 
     # Build a hashtable out of our optional parameters that we will later
@@ -49,11 +56,18 @@ function Invoke-IBWAPI
 
     try
     {
-        Invoke-RestMethod -Uri $Uri @opts
+        if ($IgnoreCertificateValidation) { [CertValidation]::Ignore() }
 
-        # make sure to send our session variable up to the caller scope if defined
-        if ($SessionVariable) {
-            Set-Variable -Name $SessionVariable -Value $innerSession -Scope 2
+        try {
+            Invoke-RestMethod -Uri $Uri @opts
+
+            # make sure to send our session variable up to the caller scope if defined
+            if ($SessionVariable) {
+                Set-Variable -Name $SessionVariable -Value $innerSession -Scope 2
+            }
+        }
+        finally {
+            if ($IgnoreCertificateValidation) { [CertValidation]::Restore() }
         }
     }
     catch

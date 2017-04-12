@@ -5,7 +5,8 @@ function Initialize-CallVars
         [string]$ComputerName,
         [string]$APIVersion,
         [PSCredential]$Credential,
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession
+        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
+        [bool]$IgnoreCertificateValidation
     )
 
     # Rather than putting this logic in every function that uses it,
@@ -69,9 +70,17 @@ function Initialize-CallVars
         $WebSession = New-Object Microsoft.PowerShell.Commands.WebRequestSession
     }
 
+    if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) {
+        $certIgnore = $IgnoreCertificateValidation
+    }
+    else {
+        $certIgnore = $script:IgnoreCertificateValidation
+    }
+
     # return the results
     [PSCustomObject]@{
         APIBase=$APIBase;
         WebSession=$WebSession;
+        IgnoreCertificateValidation=[bool]$certIgnore;
     }
 }

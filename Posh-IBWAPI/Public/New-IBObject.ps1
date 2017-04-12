@@ -11,11 +11,14 @@ function New-IBObject
         [string]$ComputerName,
         [string]$APIVersion,
         [PSCredential]$Credential,
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession
+        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
+        [bool]$IgnoreCertificateValidation
     )
 
     # grab the variables we'll be using for our REST calls
-    $cfg = Initialize-CallVars $ComputerName $APIVersion $Credential $WebSession
+    $common = $ComputerName,$APIVersion,$Credential,$WebSession
+    if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
+    $cfg = Initialize-CallVars @common
 
     $querystring = [String]::Empty
 
@@ -31,8 +34,6 @@ function New-IBObject
 
     $bodyJson = $Object | ConvertTo-Json -Compress
 
-    Invoke-IBWAPI -Method Post -Uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -ContentType 'application/json'
-
-
+    Invoke-IBWAPI -Method Post -Uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -ContentType 'application/json' -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
 
 }

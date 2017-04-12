@@ -5,7 +5,8 @@ function Set-IBWAPIConfig
         [string]$ComputerName,
         [string]$APIVersion,
         [PSCredential]$Credential,
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession
+        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
+        [bool]$IgnoreCertificateValidation
     )
 
     # We want to allow callers to save some of the normally tedious parameters
@@ -34,6 +35,10 @@ function Set-IBWAPIConfig
 
     if ($WebSession) {
         $script.WebSession = $WebSession
+    }
+
+    if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) {
+        $script:IgnoreCertificateValidation = $IgnoreCertificateValidation
     }
 
     if (![String]::IsNullOrWhiteSpace($APIVersion)) {
@@ -93,15 +98,18 @@ function Set-IBWAPIConfig
     .PARAMETER WebSession
         A WebRequestSession object as returned by Get-IBSession or when using Invoke-IBWAPI or Invoke-RestMethod using the -SessionVariable parameter.
 
+    .PARAMETER IgnoreCertificateValidation
+        If $true, SSL/TLS certificate validation will be disabled.
+
     .EXAMPLE
         Set-IBWAPIConfig -ComputerName 'gridmaster.example.com'
 
         Set the hostname of the Infoblox API endpoint.
 
     .EXAMPLE
-        Set-IBWAPIConfig -ComputerName $gridmaster -APIVersion 2.2 -Credential (Get-Credential)
+        Set-IBWAPIConfig -ComputerName $gridmaster -APIVersion 2.2 -Credential (Get-Credential) -IgnoreCertificateValidation $true
 
-        Set all of the basic parameters for an Infoblox WAPI connection and prompt for the credentials.
+        Set all of the basic parameters for an Infoblox WAPI connection, prompt for the credentials, and ignore certificate validation.
 
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI

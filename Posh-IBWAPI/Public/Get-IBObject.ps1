@@ -12,11 +12,14 @@ function Get-IBObject
         [string]$ComputerName,
         [string]$APIVersion,
         [PSCredential]$Credential,
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession
+        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
+        [bool]$IgnoreCertificateValidation
     )
 
     # grab the variables we'll be using for our REST calls
-    $cfg = Initialize-CallVars $ComputerName $APIVersion $Credential $WebSession
+    $common = $ComputerName,$APIVersion,$Credential,$WebSession
+    if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
+    $cfg = Initialize-CallVars @common
 
     $queryargs = @()
 
@@ -66,7 +69,7 @@ function Get-IBObject
             if ($i -gt 1) {
                 $querystring = "?_page_id=$($response.next_page_id)"
             }
-            $response = Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectName)$($querystring)" -WebSession $cfg.WebSession -ContentType 'application/json'
+            $response = Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectName)$($querystring)" -WebSession $cfg.WebSession -ContentType 'application/json' -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
             $results += $response.result
         } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
 
@@ -83,7 +86,7 @@ function Get-IBObject
     }
     else {
         # no paging, just a single query
-        Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectName)?$($queryargs -join '&')" -WebSession $cfg.WebSession -ContentType 'application/json'
+        Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectName)?$($queryargs -join '&')" -WebSession $cfg.WebSession -ContentType 'application/json' -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
     }
 
 }
