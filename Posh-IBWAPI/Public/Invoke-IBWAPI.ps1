@@ -26,6 +26,9 @@ function Invoke-IBWAPI
     # https://msdn.microsoft.com/en-us/powershell/reference/5.1/microsoft.powershell.core/about/about_splatting
     $opts = @{}
 
+    if ($Method) {
+        $opts.Method = $Method
+    }
     if ($Credential) {
         $opts.Credential = $Credential
     }

@@ -2,42 +2,36 @@ function New-IBObject
 {
     [CmdletBinding()]
     param(
+        [Parameter(Mandatory=$True)]
         [string]$ObjectType,
+        [Parameter(Mandatory=$True)]
         [hashtable]$Object,
-        [string]$ApiBase,
-        [PSCredential]$Credential,
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [string[]]$ReturnFields,
-        [switch]$IncludeBasicFields
+        [switch]$IncludeBasicFields,
+        [string]$ComputerName,
+        [string]$APIVersion,
+        [PSCredential]$Credential,
+        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession
     )
 
-    # To simplify code later, we always want to authenticate using a $WebSession
-    # object. So we'll create one if it doesn't exist. We'll also embed/overwrite
-    # the Credential parameter (if it exists) into to session object. If neither
-    # Credential or WebSession are passed in, the user will get a authentication
-    # error from Infoblox. But that's not our problem.
-    if (!$WebSession) {
-        $WebSession = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    }
-    if ($Credential) {
-        $WebSession.Credentials = $Credential.GetNetworkCredential()
-    }
+    # grab the variables we'll be using for our REST calls
+    $cfg = Initialize-CallVars $ComputerName $APIVersion $Credential $WebSession
 
-    $queryargs = @()
+    $querystring = [String]::Empty
 
     # process the return fields
     if ($ReturnFields.Count -gt 0) {
         if ($IncludeBasicFields) {
-            $queryargs += "_return_fields%2B=$($ReturnFields -join ',')"
+            $querystring = "?_return_fields%2B=$($ReturnFields -join ',')"
         }
         else {
-            $queryargs += "_return_fields=$($ReturnFields -join ',')"
+            $querystring = "?_return_fields=$($ReturnFields -join ',')"
         }
     }
 
     $bodyJson = $Object | ConvertTo-Json -Compress
 
-    Invoke-IBWAPI -Method Post -Uri "$ApiBase/$($ObjectType)?$($queryargs -join '&')" -Body $bodyJson -WebSession $WebSession -ContentType 'application/json'
+    Invoke-IBWAPI -Method Post -Uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -ContentType 'application/json'
 
 
 
