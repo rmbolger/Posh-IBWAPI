@@ -48,7 +48,7 @@ function Set-IBWAPIConfig
         # we'll query the latest version from Infoblox and set that.
         if ($APIVersion -eq 'latest') {
             # Query the grid master schema for the list of supported versions
-            $versions = (Invoke-IBWAPI -Uri "https://$($script:ComputerName)/wapi/v1.0/?_schema" -WebSession $script:WebSession).supported_versions
+            $versions = (Invoke-IBWAPI -Uri "https://$($script:ComputerName)/wapi/v1.0/?_schema" -WebSession $script:WebSession -IgnoreCertificateValidation $script:IgnoreCertificateValidation).supported_versions
 
             # Historically, these are returned in order. But just in case they aren't, we'll
             # explicitly sort them via the [Version] cast which is an easy way to make sure you
