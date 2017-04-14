@@ -31,10 +31,13 @@ function New-IBObject
             $querystring = "?_return_fields=$($ReturnFields -join ',')"
         }
     }
+    elseif ($IncludeBasicFields) {
+        $querystring = "?_return_fields%2B"
+    }
 
     $bodyJson = $Object | ConvertTo-Json -Compress
 
-    Invoke-IBWAPI -Method Post -Uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -ContentType 'application/json' -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+    Invoke-IBWAPI -Method Post -Uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
 
 
 
@@ -53,28 +56,28 @@ function New-IBObject
         A PSObject with the required fields for the specified type. Optional fields may also be included.
 
     .PARAMETER ReturnFields
-        TODO
+        The set of fields that should be returned in addition to the object reference.
 
     .PARAMETER IncludeBasicFields
-        TODO
+        If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.
 
     .PARAMETER ComputerName
-        TODO
+        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBWAPIConfig.
 
     .PARAMETER APIVersion
-        TODO
+        The version of the Infoblox WAPI to make calls against (e.g. '2.2').
 
     .PARAMETER Credential
-        TODO
+        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBWAPIConfig.
 
     .PARAMETER WebSession
-        TODO
+        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBWAPIConfig.
 
     .PARAMETER IgnoreCertificateValidation
-        TODO
+        If $true, SSL/TLS certificate validation will be disabled.
 
     .OUTPUTS
-        The object reference string of the created item or a custom object if return fields were specified.
+        The object reference string of the created item or a custom object if -ReturnFields or -IncludeBasicFields was used.
 
     .EXAMPLE
         $mynetwork = @{network='10.10.12.0/24';comment='my network'}

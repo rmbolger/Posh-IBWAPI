@@ -87,16 +87,16 @@ function Set-IBWAPIConfig
         Rather than specifying the same common parameter values to most of the function calls in this module, you can pre-set them with this function instead. They will be used automatically by other functions that support them unless overridden by the function's own parameters.
 
     .PARAMETER ComputerName
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint. This is usually the grid master.
+        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
 
     .PARAMETER APIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version. This will only work if ComputerName and Credential or WebSession are already configured.
+        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version. This will only work if ComputerName and Credential or WebSession are included or already configured.
 
     .PARAMETER Credential
-        Username and password for the Infoblox appliance. If -WebSession is not specified and not already configured, setting this will also configure a new WebSession object with these credentials.
+        Username and password for the Infoblox appliance. If -WebSession is not specified and not already configured, setting this will also set WebSession with these credentials.
 
     .PARAMETER WebSession
-        A WebRequestSession object as returned by Get-IBSession or when using Invoke-IBWAPI or Invoke-RestMethod using the -SessionVariable parameter.
+        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter.
 
     .PARAMETER IgnoreCertificateValidation
         If $true, SSL/TLS certificate validation will be disabled.

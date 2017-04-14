@@ -16,7 +16,7 @@ function Remove-IBObject
     if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
     $cfg = Initialize-CallVars @common
 
-    Invoke-IBWAPI -Method Delete -Uri "$($cfg.APIBase)$($ObjectRef)" -WebSession $cfg.WebSession -ContentType 'application/json' -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+    Invoke-IBWAPI -Method Delete -Uri "$($cfg.APIBase)$($ObjectRef)" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
 
 
 
@@ -32,19 +32,19 @@ function Remove-IBObject
         Object reference string. This is usually found in the "_ref" field of returned objects.
 
     .PARAMETER ComputerName
-        TODO
+        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBWAPIConfig.
 
     .PARAMETER APIVersion
-        TODO
+        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version. This will only work if ComputerName and Credential or WebSession are already configured.
 
     .PARAMETER Credential
-        TODO
+        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBWAPIConfig.
 
     .PARAMETER WebSession
-        TODO
+        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBWAPIConfig.
 
     .PARAMETER IgnoreCertificateValidation
-        TODO
+        If $true, SSL/TLS certificate validation will be disabled.
 
     .OUTPUTS
         The object reference string of the deleted item.

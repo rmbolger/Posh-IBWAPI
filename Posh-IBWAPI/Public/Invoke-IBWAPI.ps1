@@ -7,7 +7,7 @@ function Invoke-IBWAPI
         [Microsoft.PowerShell.Commands.WebRequestMethod]$Method=([Microsoft.PowerShell.Commands.WebRequestMethod]::Get),
         [PSCredential]$Credential,
         [Object]$Body,
-        [string]$ContentType,
+        [string]$ContentType='application/json',
         [string]$SessionVariable,
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [bool]$IgnoreCertificateValidation

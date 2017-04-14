@@ -27,7 +27,7 @@ function New-IBSession
         This command calls a generic WAPI endpoint in order to login and generate an authentication cookie that can be used for subsequent requests. It is returned as a WebRequestSession object.
 
     .PARAMETER ComputerName
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint. This is usually the grid master.
+        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
 
     .PARAMETER Credential
         Username and password for the Infoblox appliance.
