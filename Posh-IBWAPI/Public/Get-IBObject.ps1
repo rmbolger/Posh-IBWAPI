@@ -97,7 +97,7 @@ function Get-IBObject
         Search for or read specific objects in Infoblox.
 
     .DESCRIPTION
-        There are two ways to use this function. You can get a single object's details by querying its object reference. You can also search for a set of objects based on their metadata using search filters. For large result sets, this function will automatically use query pagination to fetch all results. The maximum result quantity is only limited by the -MaxValue parameter.
+        There are two ways to use this function. You can get a single object's details by querying its object reference. You can also search for a set of objects based on their metadata using search filters. For large result sets, query pagination will automatically be used to fetch all results. The result count can be limited with the -MaxResults parameter.
 
     .PARAMETER ObjectName
         Either an object reference string (e.g. record:host/XxXxXxXxXxXxXxX) or an object type string (e.g. record:host).
