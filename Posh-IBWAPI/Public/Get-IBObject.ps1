@@ -146,7 +146,7 @@ function Get-IBObject
         Project: https://github.com/rmbolger/Posh-IBWAPI
 
     .LINK
-        Get-IBObject
+        Set-IBWAPIConfig
 
     #>
 }
