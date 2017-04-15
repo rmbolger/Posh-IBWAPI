@@ -23,7 +23,7 @@ function Invoke-IBWAPI
     #
     # We also allow for disabling certificate validation on a per-call basis.
     # However, due to how the underlying .NET framework caches cert validation
-    # results, URLs that were explicitly ignored may continue to be ignored for
+    # results, hosts that were ignored may continue to be ignored for
     # a period of time after the initial call even if validation is turned
     # back on.
     ###########################################################################

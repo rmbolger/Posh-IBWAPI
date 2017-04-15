@@ -2,9 +2,12 @@ function Initialize-CallVars
 {
     [CmdletBinding()]
     param(
-        [string]$ComputerName,
-        [string]$APIVersion,
+        [Alias('host')]
+        [string]$WAPIHost,
+        [Alias('version')]
+        [string]$WAPIVersion,
         [PSCredential]$Credential,
+        [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [bool]$IgnoreCertificateValidation
     )
@@ -20,22 +23,22 @@ function Initialize-CallVars
 
     # let the saved module variables pass through if explicit the
     # explicit parameters are not defined
-    if ([String]::IsNullOrWhiteSpace($ComputerName)) {
-        $ComputerName = $script:ComputerName
+    if ([String]::IsNullOrWhiteSpace($WAPIHost)) {
+        $WAPIHost = $script:WAPIHost
     }
-    if ([String]::IsNullOrWhiteSpace($APIVersion)) {
-        $APIVersion = $script:APIVersion
+    if ([String]::IsNullOrWhiteSpace($WAPIVersion)) {
+        $WAPIVersion = $script:WAPIVersion
     }
     else {
         # sanity check the version string
 
         # strip the 'v' prefix if they used it on accident
-        if ($APIVersion[0] -eq 'v') {
-            $APIVersion = $APIVersion.Substring(1)
+        if ($WAPIVersion[0] -eq 'v') {
+            $WAPIVersion = $WAPIVersion.Substring(1)
         }
 
         # auto-parse it using the [Version] cast
-        [Version]$APIVersion | Out-Null
+        [Version]$WAPIVersion | Out-Null
     }
     if (!$Credential) {
         $Credential = $script:Credential
@@ -45,7 +48,7 @@ function Initialize-CallVars
     }
 
     # build the APIBase URL
-    $APIBase = "https://$ComputerName/wapi/v$APIVersion/"
+    $APIBase = "https://$WAPIHost/wapi/v$WAPIVersion/"
 
     # build a valid WebSession
     if ($WebSession) {

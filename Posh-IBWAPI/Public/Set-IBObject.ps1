@@ -3,20 +3,26 @@ function Set-IBObject
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
+        [Alias('_ref','ref')]
         [string]$ObjectRef,
         [Parameter(Mandatory=$True)]
         [PSObject]$Object,
+        [Alias('fields')]
         [string[]]$ReturnFields,
-        [switch]$IncludeBasicFields,
-        [string]$ComputerName,
-        [string]$APIVersion,
+        [Alias('base')]
+        [switch]$ReturnBaseFields,
+        [Alias('host')]
+        [string]$WAPIHost,
+        [Alias('version')]
+        [string]$WAPIVersion,
         [PSCredential]$Credential,
+        [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [bool]$IgnoreCertificateValidation
     )
 
     # grab the variables we'll be using for our REST calls
-    $common = $ComputerName,$APIVersion,$Credential,$WebSession
+    $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
     if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
     $cfg = Initialize-CallVars @common
 
@@ -24,14 +30,14 @@ function Set-IBObject
 
     # process the return fields
     if ($ReturnFields.Count -gt 0) {
-        if ($IncludeBasicFields) {
+        if ($ReturnBaseFields) {
             $querystring = "?_return_fields%2B=$($ReturnFields -join ',')"
         }
         else {
             $querystring = "?_return_fields=$($ReturnFields -join ',')"
         }
     }
-    elseif ($IncludeBasicFields) {
+    elseif ($ReturnBaseFields) {
         $querystring = "?_return_fields%2B"
     }
 
@@ -58,13 +64,13 @@ function Set-IBObject
     .PARAMETER ReturnFields
         The set of fields that should be returned in addition to the object reference.
 
-    .PARAMETER IncludeBasicFields
+    .PARAMETER ReturnBaseFields
         If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.
 
-    .PARAMETER ComputerName
+    .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBWAPIConfig.
 
-    .PARAMETER APIVersion
+    .PARAMETER WAPIVersion
         The version of the Infoblox WAPI to make calls against (e.g. '2.2').
 
     .PARAMETER Credential
@@ -77,10 +83,10 @@ function Set-IBObject
         If $true, SSL/TLS certificate validation will be disabled.
 
     .OUTPUTS
-        The object reference string of the modified item or a custom object if -ReturnFields or -IncludeBasicFields was used.
+        The object reference string of the modified item or a custom object if -ReturnFields or -ReturnBaseFields was used.
 
     .EXAMPLE
-        $myhost = Get-IBObject -ObjectName 'record:host' -SearchFilters 'name=myhost' -ReturnFields 'comment'
+        $myhost = Get-IBObject -ObjectName 'record:host' -Filters 'name=myhost' -ReturnFields 'comment'
         PS C:\>$myhost.comment = 'new comment'
         PS C:\>Set-IBObject -ObjectRef $myhost._ref -Object $myhost
 

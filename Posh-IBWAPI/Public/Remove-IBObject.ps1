@@ -3,16 +3,20 @@ function Remove-IBObject
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
+        [Alias('_ref','ref')]
         [string]$ObjectRef,
-        [string]$ComputerName,
-        [string]$APIVersion,
+        [Alias('host')]
+        [string]$WAPIHost,
+        [Alias('version')]
+        [string]$WAPIVersion,
         [PSCredential]$Credential,
+        [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [bool]$IgnoreCertificateValidation
     )
 
     # grab the variables we'll be using for our REST calls
-    $common = $ComputerName,$APIVersion,$Credential,$WebSession
+    $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
     if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
     $cfg = Initialize-CallVars @common
 
@@ -31,11 +35,11 @@ function Remove-IBObject
     .PARAMETER ObjectRef
         Object reference string. This is usually found in the "_ref" field of returned objects.
 
-    .PARAMETER ComputerName
+    .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBWAPIConfig.
 
-    .PARAMETER APIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version. This will only work if ComputerName and Credential or WebSession are already configured.
+    .PARAMETER WAPIVersion
+        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version. This will only work if WAPIHost and Credential or WebSession are already configured.
 
     .PARAMETER Credential
         Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBWAPIConfig.
@@ -50,7 +54,7 @@ function Remove-IBObject
         The object reference string of the deleted item.
 
     .EXAMPLE
-        $myhost = Get-IBObject -ObjectName 'record:host' -SearchFilters 'name=myhost'
+        $myhost = Get-IBObject -ObjectName 'record:host' -Filters 'name=myhost'
         PS C:\>Remove-IBObject -ObjectRef $myhost._ref
 
         Search for a host record called 'myhost' and delete it.

@@ -4,8 +4,8 @@ function Get-IBWAPIConfig
     param()
 
     [PSCustomObject]@{
-        ComputerName=[string]$script:ComputerName;
-        APIVersion=[string]$script:APIVersion;
+        WAPIHost=[string]$script:WAPIHost;
+        WAPIVersion=[string]$script:WAPIVersion;
         Credential=[PSCredential]$script:Credential;
         WebSession=[Microsoft.PowerShell.Commands.WebRequestSession]$script:WebSession;
         IgnoreCertificateValidation=[bool]$script:IgnoreCertificateValidation;

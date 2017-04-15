@@ -2,35 +2,73 @@ function Get-IBObject
 {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$True)]
-        [string]$ObjectName,
-        [string[]]$SearchFilters,
-        [string[]]$ReturnFields,
-        [switch]$IncludeBasicFields,
+        [Parameter(ParameterSetName='ByRef',Mandatory=$True,Position=0)]
+        [Alias('_ref','ref')]
+        [string]$ObjectRef,
+
+        [Parameter(ParameterSetName='ByType',Mandatory=$True,Position=0)]
+        [Alias('type')]
+        [string]$ObjectType,
+
+        [Parameter(ParameterSetName='ByType')]
+        [string[]]$Filters,
+
+        [Parameter(ParameterSetName='ByType')]
         [int]$MaxResults=[int]::MaxValue,
+
+        [Parameter(ParameterSetName='ByRef')]
+        [Parameter(ParameterSetName='ByType')]
+        [Alias('fields')]
+        [string[]]$ReturnFields,
+
+        [Parameter(ParameterSetName='ByRef')]
+        [Parameter(ParameterSetName='ByType')]
+        [Alias('base')]
+        [switch]$ReturnBaseFields,
+
+        [Parameter(ParameterSetName='ByRef')]
+        [Parameter(ParameterSetName='ByType')]
         [switch]$ProxySearch,
-        [string]$ComputerName,
-        [string]$APIVersion,
+
+        [Parameter(ParameterSetName='ByRef')]
+        [Parameter(ParameterSetName='ByType')]
+        [Alias('host')]
+        [string]$WAPIHost,
+
+        [Parameter(ParameterSetName='ByRef')]
+        [Parameter(ParameterSetName='ByType')]
+        [Alias('version')]
+        [string]$WAPIVersion,
+
+        [Parameter(ParameterSetName='ByRef')]
+        [Parameter(ParameterSetName='ByType')]
         [PSCredential]$Credential,
+
+        [Parameter(ParameterSetName='ByRef')]
+        [Parameter(ParameterSetName='ByType')]
+        [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
+
+        [Parameter(ParameterSetName='ByRef')]
+        [Parameter(ParameterSetName='ByType')]
         [bool]$IgnoreCertificateValidation
     )
 
     # grab the variables we'll be using for our REST calls
-    $common = $ComputerName,$APIVersion,$Credential,$WebSession
+    $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
     if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
     $cfg = Initialize-CallVars @common
 
     $queryargs = @()
 
     # process the search fields
-    if ($SearchFilters.Count -gt 0) {
-        $queryargs += $SearchFilters
+    if ($Filters.Count -gt 0) {
+        $queryargs += $Filters
     }
 
     # process the return fields
     if ($ReturnFields.Count -gt 0) {
-        if ($IncludeBasicFields) {
+        if ($ReturnBaseFields) {
             $queryargs += "_return_fields%2B=$($ReturnFields -join ',')"
         }
         else {
@@ -43,14 +81,7 @@ function Get-IBObject
         $queryargs += "_proxy_search=GM"
     }
 
-    # Normally, we want to automatically page our results. But paging is not allowed
-    # when specifying a specific object reference. So we need to determine whether
-    # $ObjectName is a specific object reference or not. For now, we're just going
-    # to assume anything with a '/' is an object ref. But we might need to get more
-    # fancy with regex if this proves to be a problem.
-    $DoPaging = ($ObjectName -notlike '*/*')
-
-    if ($DoPaging) {
+    if ($ObjectType) {
 
         # By default, the WAPI will return an error if the result count exceeds 1000
         # unless you make multiple calls using paging. We want to remove this
@@ -69,7 +100,7 @@ function Get-IBObject
             if ($i -gt 1) {
                 $querystring = "?_page_id=$($response.next_page_id)"
             }
-            $response = Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectName)$($querystring)" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+            $response = Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
             $results += $response.result
         } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
 
@@ -85,8 +116,8 @@ function Get-IBObject
 
     }
     else {
-        # no paging, just a single query
-        Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectName)?$($queryargs -join '&')" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+        # no paging, just a single query on the object reference
+        Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectRef)?$($queryargs -join '&')" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
     }
 
 
@@ -94,30 +125,33 @@ function Get-IBObject
 
     <#
     .SYNOPSIS
-        Search for or read specific objects in Infoblox.
+        Retrieve objects from the Infoblox database.
 
     .DESCRIPTION
-        There are two ways to use this function. You can get a single object's details by querying its object reference. You can also search for a set of objects based on their metadata using search filters. For large result sets, query pagination will automatically be used to fetch all results. The result count can be limited with the -MaxResults parameter.
+        Query a specific object's details by specifying ObjectRef or search for a set of objects using ObjectType and optionall Filters. For large result sets, query pagination will automatically be used to fetch all results. The result count can be limited with the -MaxResults parameter.
 
-    .PARAMETER ObjectName
-        Either an object reference string (e.g. record:host/XxXxXxXxXxXxXxX) or an object type string (e.g. record:host).
+    .PARAMETER ObjectRef
+        Object reference string. This is usually found in the "_ref" field of returned objects.
 
-    .PARAMETER SearchFilters
+    .PARAMETER ObjectType
+        Object type string. (e.g. network, record:host, range)
+
+    .PARAMETER Filters
         An array of search filter conditions. (e.g. "name~=myhost","ipv4addr=10.10.10.10") Only usable when specifying an object type for -ObjectName. All conditions must be satisfied to match an object. See Infoblox WAPI documentation for advanced usage details.
-
-    .PARAMETER ReturnFields
-        The set of fields that should be returned in addition to the object reference.
-
-    .PARAMETER IncludeBasicFields
-        If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields. If -ReturnFields is not used, this defaults to $true.
 
     .PARAMETER MaxResults
         If set to a positive number, the results list will be truncated to that number if necessary. If set to a negative number and the results would exceed the absolute value, an error is thrown.
 
-    .PARAMETER ComputerName
+    .PARAMETER ReturnFields
+        The set of fields that should be returned in addition to the object reference.
+
+    .PARAMETER ReturnBaseFields
+        If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields. If -ReturnFields is not used, this defaults to $true.
+
+    .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBWAPIConfig.
 
-    .PARAMETER APIVersion
+    .PARAMETER WAPIVersion
         The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parameter is required if not already set using Set-IBWAPIConfig.
 
     .PARAMETER Credential
@@ -133,12 +167,12 @@ function Get-IBObject
         Zero or more objects found by the search or object reference. If an object reference is specified that doesn't exist, an error will be thrown.
 
     .EXAMPLE
-        Get-IBObject -ObjectName 'record:host/XxXxXxXxXxXxXxX'
+        Get-IBObject -ObjectRef 'record:host/XxXxXxXxXxXxXxX'
 
         Get the basic fields for a specific Host record.
 
     .EXAMPLE
-        Get-IBObject 'record:a' -SearchFilters 'name~=.*\.example.com' -MaxResults 100 -ReturnFields 'comment' -IncludeBasicFields
+        Get-IBObject 'record:a' -Filters 'name~=.*\.example.com' -MaxResults 100 -ReturnFields 'comment' -ReturnBaseFields
 
         Get the first 100 A records in the example.com DNS zone and return the comment field in addition to the basic fields.
 

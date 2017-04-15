@@ -3,7 +3,8 @@ function New-IBSession
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true,Position=0)]
-        [string]$ComputerName,
+        [Alias('host')]
+        [string]$WAPIHost,
         [Parameter(Mandatory=$true,Position=1)]
         [PSCredential]$Credential
     )
@@ -12,7 +13,7 @@ function New-IBSession
     # call the oldest backward compatible schema endpoint which should should
     # be sufficiently generic as to work on pretty much any NIOS endpoint.
 
-    Invoke-IBWAPI -uri "https://$ComputerName/wapi/v1.0/?_schema" -cred $Credential -SessionVariable ibsession | Out-Null
+    Invoke-IBWAPI -uri "https://$WAPIHost/wapi/v1.0/?_schema" -cred $Credential -SessionVariable ibsession | Out-Null
 
     Write-Output $ibsession
 
@@ -26,7 +27,7 @@ function New-IBSession
     .DESCRIPTION
         This command calls a generic WAPI endpoint in order to login and generate an authentication cookie that can be used for subsequent requests. It is returned as a WebRequestSession object.
 
-    .PARAMETER ComputerName
+    .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
 
     .PARAMETER Credential
@@ -36,7 +37,7 @@ function New-IBSession
         Microsoft.PowerShell.Commands.WebRequestSession. This object can be used with other commands with the -WebSession parameter.
 
     .EXAMPLE
-        $session = Get-IBSession -ComputerName 'gridmaster.example.com' -Credential (Get-Credential)
+        $session = Get-IBSession -WAPIHost 'gridmaster.example.com' -Credential (Get-Credential)
 
         Open a session for the specified grid master and using credentials gathered interactively at run time.
 
