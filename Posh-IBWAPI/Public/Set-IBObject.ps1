@@ -2,48 +2,91 @@ function Set-IBObject
 {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$True)]
+        [Parameter(ParameterSetName='ObjectOnly',Mandatory=$True,ValueFromPipeline=$True)]
+        [PSObject[]]$IBObject,
+
+        [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
-        [string]$ObjectRef,
-        [Parameter(Mandatory=$True)]
-        [PSObject]$Object,
+        [string[]]$ObjectRef,
+
+        [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True)]
+        [Alias('template')]
+        [PSObject]$TemplateObject,
+
+        [Parameter(ParameterSetName='ObjectOnly')]
+        [Parameter(ParameterSetName='RefAndTemplate')]
         [Alias('fields')]
         [string[]]$ReturnFields,
+        [Parameter(ParameterSetName='ObjectOnly')]
+        [Parameter(ParameterSetName='RefAndTemplate')]
         [Alias('base')]
         [switch]$ReturnBaseFields,
+        [Parameter(ParameterSetName='ObjectOnly')]
+        [Parameter(ParameterSetName='RefAndTemplate')]
         [Alias('host')]
         [string]$WAPIHost,
+        [Parameter(ParameterSetName='ObjectOnly')]
+        [Parameter(ParameterSetName='RefAndTemplate')]
         [Alias('version')]
         [string]$WAPIVersion,
+        [Parameter(ParameterSetName='ObjectOnly')]
+        [Parameter(ParameterSetName='RefAndTemplate')]
         [PSCredential]$Credential,
+        [Parameter(ParameterSetName='ObjectOnly')]
+        [Parameter(ParameterSetName='RefAndTemplate')]
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
+        [Parameter(ParameterSetName='ObjectOnly')]
+        [Parameter(ParameterSetName='RefAndTemplate')]
         [bool]$IgnoreCertificateValidation
     )
 
-    # grab the variables we'll be using for our REST calls
-    $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
-    if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
-    $cfg = Initialize-CallVars @common
+    Begin {
+        # grab the variables we'll be using for our REST calls
+        $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
+        if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
+        $cfg = Initialize-CallVars @common
 
-    $querystring = [String]::Empty
+        $querystring = [String]::Empty
 
-    # process the return fields
-    if ($ReturnFields.Count -gt 0) {
-        if ($ReturnBaseFields) {
-            $querystring = "?_return_fields%2B=$($ReturnFields -join ',')"
+        # process the return fields
+        if ($ReturnFields.Count -gt 0) {
+            if ($ReturnBaseFields) {
+                $querystring = "?_return_fields%2B=$($ReturnFields -join ',')"
+            }
+            else {
+                $querystring = "?_return_fields=$($ReturnFields -join ',')"
+            }
         }
-        else {
-            $querystring = "?_return_fields=$($ReturnFields -join ',')"
+        elseif ($ReturnBaseFields) {
+            $querystring = "?_return_fields%2B"
         }
-    }
-    elseif ($ReturnBaseFields) {
-        $querystring = "?_return_fields%2B"
+
     }
 
-    $bodyJson = $Object | ConvertTo-Json -Compress
+    Process {
 
-    Invoke-IBWAPI -Method Put -Uri "$($cfg.APIBase)$($ObjectRef)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+        switch ($PsCmdlet.ParameterSetName) {
+            "ObjectOnly" {
+                if (!$IBObject._ref) {
+                    throw "IBObject is missing '_ref' field."
+                }
+                # copy out the ObjectRef from the object
+                $ObjectRef = $IBObject._ref
+
+                # create the json body
+                $bodyJson = $IBObject | ConvertTo-Json -Compress
+                Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json)"
+            }
+            "RefAndTemplate" {
+                # create the json body
+                $bodyJson = $TemplateObject | ConvertTo-Json -Compress
+                Write-Verbose "JSON body:`n$($TemplateObject | ConvertTo-Json)"
+            }
+        }
+        Invoke-IBWAPI -Method Put -Uri "$($cfg.APIBase)$($ObjectRef)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+
+    }
 
 
 
@@ -55,11 +98,14 @@ function Set-IBObject
     .DESCRIPTION
         Modify an object by specifying its object reference and a PSObject with the fields to change.
 
+    .PARAMETER IBObject
+        An object with the fields to be modified. This must include a '_ref' with the object reference string to modify. All included fields will be modified even if they are empty.
+
     .PARAMETER ObjectRef
         Object reference string. This is usually found in the "_ref" field of returned objects.
 
-    .PARAMETER Object
-        A PSObject with the fields to be modified. All included fields will be modified even if they are empty.
+    .PARAMETER TemplateObject
+        An object with the fields to be modified. A '_ref' field in this object will be ignored. This is only usable with a separate -ObjectRef parameter.
 
     .PARAMETER ReturnFields
         The set of fields that should be returned in addition to the object reference.
@@ -86,11 +132,23 @@ function Set-IBObject
         The object reference string of the modified item or a custom object if -ReturnFields or -ReturnBaseFields was used.
 
     .EXAMPLE
-        $myhost = Get-IBObject -ObjectName 'record:host' -Filters 'name=myhost' -ReturnFields 'comment'
+        $myhost = Get-IBObject -ObjectType 'record:host' -Filters 'name=myhost' -ReturnFields 'comment'
         PS C:\>$myhost.comment = 'new comment'
         PS C:\>Set-IBObject -ObjectRef $myhost._ref -Object $myhost
 
         Search for a host record called 'myhost', update the comment field, and save it.
+
+    .EXAMPLE
+        $toChange = Get-IBObject -type 'record:host' -Filters 'name~=oldname' -fields 'name'
+        PS C:\>$toChange | %{ $_.name = $_.name.Replace('oldname','newname'); $_ } | Set-IBObject
+
+        Find all hosts with 'oldname' in the name, change the references to 'newname', and send them through the pipeline to Set-IBObject for saving.
+
+    .EXAMPLE
+        $myhosts = Get-IBObject 'record:host' -Filters 'comment=web server'
+        PS C:\>$myhosts | Set-IBObject -TemplateObject @{comment='db server'}
+
+        Find all host records with comment 'web server' and change them to 'db server' with a manually created template
 
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI

@@ -2,9 +2,9 @@ function Get-IBObject
 {
     [CmdletBinding()]
     param(
-        [Parameter(ParameterSetName='ByRef',Mandatory=$True,Position=0)]
+        [Parameter(ParameterSetName='ByRef',Mandatory=$True,Position=0,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
-        [string]$ObjectRef,
+        [string[]]$ObjectRef,
 
         [Parameter(ParameterSetName='ByType',Mandatory=$True,Position=0)]
         [Alias('type')]
@@ -20,104 +20,103 @@ function Get-IBObject
         [Parameter(ParameterSetName='ByType')]
         [Alias('fields')]
         [string[]]$ReturnFields,
-
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
         [Alias('base')]
         [switch]$ReturnBaseFields,
-
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
         [switch]$ProxySearch,
-
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
         [Alias('host')]
         [string]$WAPIHost,
-
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
         [Alias('version')]
         [string]$WAPIVersion,
-
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
         [PSCredential]$Credential,
-
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
         [bool]$IgnoreCertificateValidation
     )
 
-    # grab the variables we'll be using for our REST calls
-    $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
-    if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
-    $cfg = Initialize-CallVars @common
+    Begin {
+        # grab the variables we'll be using for our REST calls
+        $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
+        if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
+        $cfg = Initialize-CallVars @common
 
-    $queryargs = @()
+        $queryargs = @()
 
-    # process the search fields
-    if ($Filters.Count -gt 0) {
-        $queryargs += $Filters
-    }
-
-    # process the return fields
-    if ($ReturnFields.Count -gt 0) {
-        if ($ReturnBaseFields) {
-            $queryargs += "_return_fields%2B=$($ReturnFields -join ',')"
+        # process the search fields
+        if ($Filters.Count -gt 0) {
+            $queryargs += $Filters
         }
-        else {
-            $queryargs += "_return_fields=$($ReturnFields -join ',')"
-        }
-    }
 
-    # deal with ProxySearch flag (defaults to LOCAL)
-    if ($ProxySearch) {
-        $queryargs += "_proxy_search=GM"
-    }
-
-    if ($ObjectType) {
-
-        # By default, the WAPI will return an error if the result count exceeds 1000
-        # unless you make multiple calls using paging. We want to remove this
-        # limitation by automatically paging on behalf of the caller. This will also
-        # allow the MaxResults parameter in this function to be arbitrarily large (within
-        # the bounds of Int32) and not capped at 1000.
-        $i = 0
-        $results = @()
-        do {
-            $i++
-            Write-Verbose "Fetching page $i"
-            $querystring = "?_paging=1&_return_as_object=1&_max_results=1000"
-            if ($queryargs.Count -gt 0) {
-                $querystring += "&$($queryargs -join '&')"
+        # process the return fields
+        if ($ReturnFields.Count -gt 0) {
+            if ($ReturnBaseFields) {
+                $queryargs += "_return_fields%2B=$($ReturnFields -join ',')"
             }
-            if ($i -gt 1) {
-                $querystring = "?_page_id=$($response.next_page_id)"
+            else {
+                $queryargs += "_return_fields=$($ReturnFields -join ',')"
             }
-            $response = Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
-            $results += $response.result
-        } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
-
-        # Throw an error if they specified a negative MaxResults value and the result
-        # count exceeds that value. Otherwise, just truncate the results to the MaxResults
-        # value. This is basically copying how the _max_results query string argument works.
-        if ($MaxResults -lt 0 -and $results.Count -gt [Math]::Abs($MaxResults)) {
-            throw [Exception] "Result count exceeded MaxResults parameter."
-        }
-        else {
-            $results | Select-Object -first $MaxResults
         }
 
+        # deal with ProxySearch flag (defaults to LOCAL)
+        if ($ProxySearch) {
+            $queryargs += "_proxy_search=GM"
+        }
     }
-    else {
-        # no paging, just a single query on the object reference
-        Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectRef)?$($queryargs -join '&')" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+
+    Process {
+        switch ($PsCmdlet.ParameterSetName) {
+            "ByRef" {
+                # no paging, just a single query on the object reference
+                Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectRef)?$($queryargs -join '&')" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+            }
+            "ByType" {
+
+                # By default, the WAPI will return an error if the result count exceeds 1000
+                # unless you make multiple calls using paging. We want to remove this
+                # limitation by automatically paging on behalf of the caller. This will also
+                # allow the MaxResults parameter in this function to be arbitrarily large (within
+                # the bounds of Int32) and not capped at 1000.
+                $i = 0
+                $results = @()
+                do {
+                    $i++
+                    Write-Verbose "Fetching page $i"
+                    $querystring = "?_paging=1&_return_as_object=1&_max_results=1000"
+                    if ($queryargs.Count -gt 0) {
+                        $querystring += "&$($queryargs -join '&')"
+                    }
+                    if ($i -gt 1) {
+                        $querystring = "?_page_id=$($response.next_page_id)"
+                    }
+                    $response = Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+                    $results += $response.result
+                } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
+
+                # Throw an error if they specified a negative MaxResults value and the result
+                # count exceeds that value. Otherwise, just truncate the results to the MaxResults
+                # value. This is basically copying how the _max_results query string argument works.
+                if ($MaxResults -lt 0 -and $results.Count -gt [Math]::Abs($MaxResults)) {
+                    throw [Exception] "Result count exceeded MaxResults parameter."
+                }
+                else {
+                    $results | Select-Object -first $MaxResults
+                }
+
+            }
+        }
     }
 
 
@@ -137,7 +136,7 @@ function Get-IBObject
         Object type string. (e.g. network, record:host, range)
 
     .PARAMETER Filters
-        An array of search filter conditions. (e.g. "name~=myhost","ipv4addr=10.10.10.10") Only usable when specifying an object type for -ObjectName. All conditions must be satisfied to match an object. See Infoblox WAPI documentation for advanced usage details.
+        An array of search filter conditions. (e.g. "name~=myhost","ipv4addr=10.10.10.10"). All conditions must be satisfied to match an object. See Infoblox WAPI documentation for advanced usage details.
 
     .PARAMETER MaxResults
         If set to a positive number, the results list will be truncated to that number if necessary. If set to a negative number and the results would exceed the absolute value, an error is thrown.

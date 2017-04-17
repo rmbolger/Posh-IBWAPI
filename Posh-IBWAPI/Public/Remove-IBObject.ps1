@@ -2,9 +2,9 @@ function Remove-IBObject
 {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$True)]
+        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
-        [string]$ObjectRef,
+        [string[]]$ObjectRef,
         [Alias('host')]
         [string]$WAPIHost,
         [Alias('version')]
@@ -15,12 +15,16 @@ function Remove-IBObject
         [bool]$IgnoreCertificateValidation
     )
 
-    # grab the variables we'll be using for our REST calls
-    $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
-    if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
-    $cfg = Initialize-CallVars @common
+    Begin {
+        # grab the variables we'll be using for our REST calls
+        $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
+        if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
+        $cfg = Initialize-CallVars @common
+    }
 
-    Invoke-IBWAPI -Method Delete -Uri "$($cfg.APIBase)$($ObjectRef)" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+    Process {
+        Invoke-IBWAPI -Method Delete -Uri "$($cfg.APIBase)$($ObjectRef)" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+    }
 
 
 
@@ -54,10 +58,16 @@ function Remove-IBObject
         The object reference string of the deleted item.
 
     .EXAMPLE
-        $myhost = Get-IBObject -ObjectName 'record:host' -Filters 'name=myhost'
+        $myhost = Get-IBObject -ObjectType 'record:host' -Filters 'name=myhost'
         PS C:\>Remove-IBObject -ObjectRef $myhost._ref
 
         Search for a host record called 'myhost' and delete it.
+
+    .EXAMPLE
+        $hostsToDelete = Get-IBObject 'record:host' -Filters 'comment=decommissioned'
+        PS C:\>$hostsToDelete | Remove-IBObject
+
+        Search for hosts with their comment set to 'decommissioned' and delete them all.
 
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI
