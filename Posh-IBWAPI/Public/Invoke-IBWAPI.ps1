@@ -93,4 +93,53 @@ function Invoke-IBWAPI
         }
     }
 
+
+
+
+    <#
+    .SYNOPSIS
+        Send a request to the Infoblox WAPI (REST API).
+
+    .DESCRIPTION
+        This function is largely just a wrapper around Invoke-RestMethod that supports trapping and exposing syntax errors with the WAPI and the ability to ignore certificate validation. It is what all of the *-IBObject functions use under the hood and shouldn't be necessary to call directly most of the time.
+
+    .PARAMETER Uri
+        The full Uri of the WAPI endpoint. (e.g. https://gridmaster.example.com/wapi/v2.2/network)
+
+    .PARAMETER Method
+        The HTTP method to use in the request. Default is GET.
+
+    .PARAMETER Credential
+        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified.
+
+    .PARAMETER Body
+        The body of the request. This is usually a JSON string if needed.
+
+    .PARAMETER ContentType
+        The Content-Type header for the request. Default is 'application/json'.
+
+    .PARAMETER SessionVariable
+        Specifies a variable for which this cmdlet creates a web request session and saves it in the value. Enter a variable name without the dollar sign ($) symbol.
+
+    .PARAMETER IgnoreCertificateValidation
+        If $true, SSL/TLS certificate validation will be disabled.
+
+    .EXAMPLE
+        Invoke-IBWAPI -Uri 'https://gridmaster.example.com/wapi/v2.2/network' -Credential (Get-Credential)
+
+        Retrieve the list of network objects from the grid master using interactive credentials.
+
+    .LINK
+        Project: https://github.com/rmbolger/Posh-IBWAPI
+
+    .LINK
+        New-IBObject
+
+    .LINK
+        Get-IBObject
+
+    .LINK
+        Invoke-RestMethod
+
+    #>
 }
