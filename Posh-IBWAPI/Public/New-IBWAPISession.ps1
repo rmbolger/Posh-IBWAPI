@@ -1,4 +1,4 @@
-function New-IBSession
+function New-IBWAPISession
 {
     [CmdletBinding()]
     param(
@@ -6,14 +6,15 @@ function New-IBSession
         [Alias('host')]
         [string]$WAPIHost,
         [Parameter(Mandatory=$true,Position=1)]
-        [PSCredential]$Credential
+        [PSCredential]$Credential,
+        [switch]$IgnoreCertificateValidation
     )
 
     # There's no explicit logon endpoint in the WAPI, so we're just going to
     # call the oldest backward compatible schema endpoint which should should
     # be sufficiently generic as to work on pretty much any NIOS endpoint.
 
-    Invoke-IBWAPI -uri "https://$WAPIHost/wapi/v1.0/?_schema" -cred $Credential -SessionVariable ibsession | Out-Null
+    Invoke-IBWAPI -uri "https://$WAPIHost/wapi/v1.0/?_schema" -cred $Credential -SessionVariable ibsession -IgnoreCertificateValidation:$IgnoreCertificateValidation | Out-Null
 
     Write-Output $ibsession
 
@@ -33,13 +34,16 @@ function New-IBSession
     .PARAMETER Credential
         Username and password for the Infoblox appliance.
 
+    .PARAMETER IgnoreCertificateValidation
+        If set, SSL/TLS certificate validation will be disabled.
+
     .OUTPUTS
         Microsoft.PowerShell.Commands.WebRequestSession. This object can be used with other commands with the -WebSession parameter.
 
     .EXAMPLE
         $session = Get-IBSession -WAPIHost 'gridmaster.example.com' -Credential (Get-Credential)
 
-        Open a session for the specified grid master and using credentials gathered interactively at run time.
+        Open a session for the specified grid master and using interactive credentials.
 
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI
