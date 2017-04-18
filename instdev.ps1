@@ -17,12 +17,15 @@ if ([String]::IsNullOrWhiteSpace($PSScriptRoot)) {
     Write-Host "Uncompressing the Zip file to $($targetondisk)" -ForegroundColor Cyan
     $destination = $shell_app.namespace($targetondisk)
     $destination.Copyhere($zip_file.items(), 0x10)
+    Write-Host "Removing any old copy" -ForegroundColor Cyan
+    Remove-Item "$targetondisk\Posh-IBWAPI" -Recurse -Force -EA SilentlyContinue
     Write-Host "Renaming folder" -ForegroundColor Cyan
-    Copy-Item "$($targetondisk)\Posh-IBWAPI-master\Posh-IBWAPI" $targetondisk -Recurse -Force
-    Remove-Item "$($targetondisk)\Posh-IBWAPI-master" -recurse -confirm:$false
+    Copy-Item "$targetondisk\Posh-IBWAPI-master\Posh-IBWAPI" $targetondisk -Recurse -Force
+    Remove-Item "$targetondisk\Posh-IBWAPI-master" -recurse -confirm:$false
     Import-Module -Name Posh-IBWAPI
 } else {
     # running locally
+    Remove-Item "$targetondisk\Posh-IBWAPI" -Recurse -Force -EA SilentlyContinue
     Copy-Item "$PSScriptRoot\Posh-IBWAPI" $targetondisk -Recurse -Force
     # force re-load the module (assuming you're editing locally and want to see changes)
     Import-Module -Name Posh-IBWAPI -Force
