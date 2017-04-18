@@ -9,7 +9,7 @@ function Set-IBWAPIConfig
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [bool]$IgnoreCertificateValidation
+        [switch]$IgnoreCertificateValidation
     )
 
     # We want to allow callers to save some of the normally tedious parameters
@@ -40,6 +40,7 @@ function Set-IBWAPIConfig
         $script.WebSession = $WebSession
     }
 
+    # deal with setting IgnoreCertificateValidation
     if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) {
         $script:IgnoreCertificateValidation = $IgnoreCertificateValidation
     }
@@ -51,7 +52,7 @@ function Set-IBWAPIConfig
         # we'll query the latest version from Infoblox and set that.
         if ($WAPIVersion -eq 'latest') {
             # Query the grid master schema for the list of supported versions
-            $versions = (Invoke-IBWAPI -Uri "https://$($script:WAPIHost)/wapi/v1.0/?_schema" -WebSession $script:WebSession -IgnoreCertificateValidation $script:IgnoreCertificateValidation).supported_versions
+            $versions = (Invoke-IBWAPI -Uri "https://$($script:WAPIHost)/wapi/v1.0/?_schema" -WebSession $script:WebSession -IgnoreCertificateValidation:($script:IgnoreCertificateValidation)).supported_versions
 
             # Historically, these are returned in order. But just in case they aren't, we'll
             # explicitly sort them via the [Version] cast which is an easy way to make sure you
@@ -102,7 +103,7 @@ function Set-IBWAPIConfig
         A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter.
 
     .PARAMETER IgnoreCertificateValidation
-        If $true, SSL/TLS certificate validation will be disabled.
+        If set, SSL/TLS certificate validation will be disabled.
 
     .EXAMPLE
         Set-IBWAPIConfig -WAPIHost 'gridmaster.example.com'
@@ -110,7 +111,7 @@ function Set-IBWAPIConfig
         Set the hostname of the Infoblox API endpoint.
 
     .EXAMPLE
-        Set-IBWAPIConfig -WAPIHost $gridmaster -WAPIVersion 2.2 -Credential (Get-Credential) -IgnoreCertificateValidation $true
+        Set-IBWAPIConfig -WAPIHost $gridmaster -WAPIVersion 2.2 -Credential (Get-Credential) -IgnoreCertificateValidation
 
         Set all of the basic parameters for an Infoblox WAPI connection, prompt for the credentials, and ignore certificate validation.
 

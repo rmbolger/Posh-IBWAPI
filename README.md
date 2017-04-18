@@ -29,7 +29,7 @@ Install-Module -Name Posh-IBWAPI
 Every WAPI call needs a host, version, and credentials. Set them once for the session with `Set-IBWAPIConfig` and you won't need to add them to every call. If your grid is still using self-signed certs, you may also need to use the `-IgnoreCertificateValidate` parameter. The `-WAPIVersion` parameter also accepts `'latest'` and will query the grid master for the latest supported version.
 
 ```powershell
-Set-IBWAPIConfig -host gridmaster.example.com -version latest -cred (Get-Credential) -IgnoreCert $True
+Set-IBWAPIConfig -host gridmaster.example.com -version latest -cred (Get-Credential) -IgnoreCert
 ```
 
 Retrieve a set of objects using `Get-IBObject`. The only required parameter is `-ObjectType`. Everything else like filters and return fields are optional.

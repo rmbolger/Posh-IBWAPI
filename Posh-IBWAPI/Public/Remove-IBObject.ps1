@@ -12,18 +12,18 @@ function Remove-IBObject
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [bool]$IgnoreCertificateValidation
+        [switch]$IgnoreCertificateValidation
     )
 
     Begin {
         # grab the variables we'll be using for our REST calls
-        $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
-        if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
-        $cfg = Initialize-CallVars @common
+        $directParams = @{WAPIHost=$WAPIHost;WAPIVersion=$WAPIVersion;Credential=$Credential;WebSession=$WebSession}
+        if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $directParams.IgnoreCertificateValidation = $IgnoreCertificateValidation }
+        $cfg = Initialize-CallVars @directParams
     }
 
     Process {
-        Invoke-IBWAPI -Method Delete -Uri "$($cfg.APIBase)$($ObjectRef)" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+        Invoke-IBWAPI -Method Delete -Uri "$($cfg.APIBase)$($ObjectRef)" -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
     }
 
 
@@ -52,7 +52,7 @@ function Remove-IBObject
         A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBWAPIConfig.
 
     .PARAMETER IgnoreCertificateValidation
-        If $true, SSL/TLS certificate validation will be disabled.
+        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBWAPIConfig.
 
     .OUTPUTS
         The object reference string of the deleted item.

@@ -18,15 +18,15 @@ function New-IBObject
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [bool]$IgnoreCertificateValidation
+        [switch]$IgnoreCertificateValidation
     )
 
     Begin {
 
         # grab the variables we'll be using for our REST calls
-        $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
-        if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
-        $cfg = Initialize-CallVars @common
+        $directParams = @{WAPIHost=$WAPIHost;WAPIVersion=$WAPIVersion;Credential=$Credential;WebSession=$WebSession}
+        if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $directParams.IgnoreCertificateValidation = $IgnoreCertificateValidation }
+        $cfg = Initialize-CallVars @directParams
 
         $querystring = [String]::Empty
 
@@ -49,7 +49,7 @@ function New-IBObject
         $bodyJson = $IBObject | ConvertTo-Json -Compress
         Write-Verbose "Sending $bodyJson"
 
-        Invoke-IBWAPI -Method Post -Uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+        Invoke-IBWAPI -Method Post -Uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
     }
 
 
@@ -88,7 +88,7 @@ function New-IBObject
         A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBWAPIConfig.
 
     .PARAMETER IgnoreCertificateValidation
-        If $true, SSL/TLS certificate validation will be disabled.
+        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBWAPIConfig.
 
     .OUTPUTS
         The object reference string of the created item or a custom object if -ReturnFields or -ReturnBaseFields was used.

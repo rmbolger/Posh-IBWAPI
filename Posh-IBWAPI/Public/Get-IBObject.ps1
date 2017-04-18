@@ -44,14 +44,14 @@ function Get-IBObject
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
-        [bool]$IgnoreCertificateValidation
+        [switch]$IgnoreCertificateValidation
     )
 
     Begin {
         # grab the variables we'll be using for our REST calls
-        $common = $WAPIHost,$WAPIVersion,$Credential,$WebSession
-        if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $common += $IgnoreCertificateValidation }
-        $cfg = Initialize-CallVars @common
+        $directParams = @{WAPIHost=$WAPIHost;WAPIVersion=$WAPIVersion;Credential=$Credential;WebSession=$WebSession}
+        if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $directParams.IgnoreCertificateValidation = $IgnoreCertificateValidation }
+        $cfg = Initialize-CallVars @directParams
 
         $queryargs = @()
 
@@ -80,7 +80,7 @@ function Get-IBObject
         switch ($PsCmdlet.ParameterSetName) {
             "ByRef" {
                 # no paging, just a single query on the object reference
-                Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectRef)?$($queryargs -join '&')" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+                Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectRef)?$($queryargs -join '&')" -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
             }
             "ByType" {
 
@@ -101,7 +101,7 @@ function Get-IBObject
                     if ($i -gt 1) {
                         $querystring = "?_page_id=$($response.next_page_id)"
                     }
-                    $response = Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -WebSession $cfg.WebSession -IgnoreCertificateValidation $cfg.IgnoreCertificateValidation
+                    $response = Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
                     $results += $response.result
                 } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
 
@@ -160,7 +160,7 @@ function Get-IBObject
         A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBWAPIConfig.
 
     .PARAMETER IgnoreCertificateValidation
-        If $true, SSL/TLS certificate validation will be disabled.
+        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBWAPIConfig.
 
     .OUTPUTS
         Zero or more objects found by the search or object reference. If an object reference is specified that doesn't exist, an error will be thrown.

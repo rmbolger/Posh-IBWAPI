@@ -8,7 +8,7 @@ function Get-IBWAPIConfig
         WAPIVersion=[string]$script:WAPIVersion;
         Credential=[PSCredential]$script:Credential;
         WebSession=[Microsoft.PowerShell.Commands.WebRequestSession]$script:WebSession;
-        IgnoreCertificateValidation=[bool]$script:IgnoreCertificateValidation;
+        IgnoreCertificateValidation=$script:IgnoreCertificateValidation;
     }
 
 
