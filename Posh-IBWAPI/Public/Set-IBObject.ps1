@@ -134,7 +134,7 @@ function Set-IBObject
     .EXAMPLE
         $myhost = Get-IBObject -ObjectType 'record:host' -Filters 'name=myhost' -ReturnFields 'comment'
         PS C:\>$myhost.comment = 'new comment'
-        PS C:\>Set-IBObject -ObjectRef $myhost._ref -Object $myhost
+        PS C:\>Set-IBObject -ObjectRef $myhost._ref -IBObject $myhost
 
         Search for a host record called 'myhost', update the comment field, and save it.
 

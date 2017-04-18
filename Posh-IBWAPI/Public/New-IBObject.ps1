@@ -95,7 +95,7 @@ function New-IBObject
 
     .EXAMPLE
         $mynetwork = @{network='10.10.12.0/24';comment='my network'}
-        PS C:\>New-IBObject -ObjectType 'network' -Object $mynetwork
+        PS C:\>New-IBObject -ObjectType 'network' -IBObject $mynetwork
 
         Create a basic new network with a comment.
 
