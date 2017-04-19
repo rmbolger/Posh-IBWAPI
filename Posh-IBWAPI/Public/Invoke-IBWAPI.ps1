@@ -1,6 +1,6 @@
 function Invoke-IBWAPI
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory=$true,Position=0)]
         [Uri]$Uri,
@@ -59,11 +59,13 @@ function Invoke-IBWAPI
         if ($IgnoreCertificateValidation) { [CertValidation]::Ignore(); Write-Verbose "Disabled cert validation" }
 
         try {
-            Invoke-RestMethod -Uri $Uri @opts
+            if ($PSCmdlet.ShouldProcess($Uri, $opts.Method)) {
+                Invoke-RestMethod -Uri $Uri @opts
 
-            # make sure to send our session variable up to the caller scope if defined
-            if ($SessionVariable) {
-                Set-Variable -Name $SessionVariable -Value $innerSession -Scope 2
+                # make sure to send our session variable up to the caller scope if defined
+                if ($SessionVariable) {
+                    Set-Variable -Name $SessionVariable -Value $innerSession -Scope 2
+                }
             }
         }
         finally {

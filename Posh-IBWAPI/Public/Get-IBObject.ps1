@@ -1,6 +1,6 @@
 function Get-IBObject
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(ParameterSetName='ByRef',Mandatory=$True,Position=0,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
@@ -79,8 +79,12 @@ function Get-IBObject
     Process {
         switch ($PsCmdlet.ParameterSetName) {
             "ByRef" {
-                # no paging, just a single query on the object reference
-                Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectRef)?$($queryargs -join '&')" -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+                $uri = "$($cfg.APIBase)$($ObjectRef)?$($queryargs -join '&')"
+
+                if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
+                    # no paging, just a single query on the object reference
+                    Invoke-IBWAPI -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+                }
             }
             "ByType" {
 
@@ -101,8 +105,13 @@ function Get-IBObject
                     if ($i -gt 1) {
                         $querystring = "?_page_id=$($response.next_page_id)"
                     }
-                    $response = Invoke-IBWAPI -uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
-                    $results += $response.result
+
+                    $uri = "$($cfg.APIBase)$($ObjectType)$($querystring)"
+
+                    if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
+                        $response = Invoke-IBWAPI -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+                        $results += $response.result
+                    }
                 } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
 
                 # Throw an error if they specified a negative MaxResults value and the result

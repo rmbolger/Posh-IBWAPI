@@ -1,6 +1,6 @@
 function New-IBObject
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory=$True)]
         [Alias('type')]
@@ -47,9 +47,13 @@ function New-IBObject
 
     Process {
         $bodyJson = $IBObject | ConvertTo-Json -Compress
-        Write-Verbose "Sending $bodyJson"
+        Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json)"
 
-        Invoke-IBWAPI -Method Post -Uri "$($cfg.APIBase)$($ObjectType)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+        $uri = "$($cfg.APIBase)$($ObjectType)$($querystring)"
+
+        if ($PSCmdlet.ShouldProcess($uri, "POST")) {
+            Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+        }
     }
 
 

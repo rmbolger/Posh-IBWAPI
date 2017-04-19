@@ -1,6 +1,6 @@
 function Remove-IBObject
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
@@ -23,7 +23,10 @@ function Remove-IBObject
     }
 
     Process {
-        Invoke-IBWAPI -Method Delete -Uri "$($cfg.APIBase)$($ObjectRef)" -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+        $uri = "$($cfg.APIBase)$($ObjectRef)"
+        if ($PSCmdlet.ShouldProcess($uri, 'DELETE')) {
+            Invoke-IBWAPI -Method Delete -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+        }
     }
 
 

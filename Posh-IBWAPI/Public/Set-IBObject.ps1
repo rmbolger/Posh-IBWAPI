@@ -1,6 +1,6 @@
 function Set-IBObject
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(ParameterSetName='ObjectOnly',Mandatory=$True,ValueFromPipeline=$True)]
         [PSObject[]]$IBObject,
@@ -84,7 +84,10 @@ function Set-IBObject
                 Write-Verbose "JSON body:`n$($TemplateObject | ConvertTo-Json)"
             }
         }
-        Invoke-IBWAPI -Method Put -Uri "$($cfg.APIBase)$($ObjectRef)$($querystring)" -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+        $uri = "$($cfg.APIBase)$($ObjectRef)$($querystring)"
+        if ($PsCmdlet.ShouldProcess($uri, 'PUT')) {
+            Invoke-IBWAPI -Method Put -Uri $uri -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+        }
 
     }
 
