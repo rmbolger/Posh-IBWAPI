@@ -10,7 +10,6 @@ function Set-IBObject
         [string[]]$ObjectRef,
 
         [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True)]
-        [Alias('template')]
         [PSObject]$TemplateObject,
 
         [Parameter(ParameterSetName='ObjectOnly')]
