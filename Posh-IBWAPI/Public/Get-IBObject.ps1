@@ -77,55 +77,73 @@ function Get-IBObject
     }
 
     Process {
+        # default to using paging
+        $UsePaging = $true
+
         switch ($PsCmdlet.ParameterSetName) {
             "ByRef" {
-                $uri = "$($cfg.APIBase)$($ObjectRef)?$($queryargs -join '&')"
+                # paging not supported on objref queries
+                $UsePaging = $false
 
-                if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
-                    # no paging, just a single query on the object reference
-                    Invoke-IBWAPI -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
-                }
+                $queryObj = $ObjectRef
             }
             "ByType" {
-
-                # By default, the WAPI will return an error if the result count exceeds 1000
-                # unless you make multiple calls using paging. We want to remove this
-                # limitation by automatically paging on behalf of the caller. This will also
-                # allow the MaxResults parameter in this function to be arbitrarily large (within
-                # the bounds of Int32) and not capped at 1000.
-                $i = 0
-                $results = @()
-                do {
-                    $i++
-                    Write-Verbose "Fetching page $i"
-                    $querystring = "?_paging=1&_return_as_object=1&_max_results=1000"
-                    if ($queryargs.Count -gt 0) {
-                        $querystring += "&$($queryargs -join '&')"
-                    }
-                    if ($i -gt 1) {
-                        $querystring = "?_page_id=$($response.next_page_id)"
-                    }
-
-                    $uri = "$($cfg.APIBase)$($ObjectType)$($querystring)"
-
-                    if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
-                        $response = Invoke-IBWAPI -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
-                        $results += $response.result
-                    }
-                } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
-
-                # Throw an error if they specified a negative MaxResults value and the result
-                # count exceeds that value. Otherwise, just truncate the results to the MaxResults
-                # value. This is basically copying how the _max_results query string argument works.
-                if ($MaxResults -lt 0 -and $results.Count -gt [Math]::Abs($MaxResults)) {
-                    throw [Exception] "Result count exceeded MaxResults parameter."
-                }
-                else {
-                    $results | Select-Object -first $MaxResults
+                # WAPI versions older than 1.5 don't support paging
+                if ([Version]$cfg.WAPIVersion -lt [Version]'1.5') {
+                    Write-Verbose "Paging disabled for WAPIVersion $($cfg.WAPIVersion)"
+                    $UsePaging = $false
                 }
 
+                $queryObj = $ObjectType
             }
         }
+
+        if ($UsePaging) {
+            # By default, the WAPI will return an error if the result count exceeds 1000
+            # unless you make multiple calls using paging. We want to remove this
+            # limitation by automatically paging on behalf of the caller. This will also
+            # allow the MaxResults parameter in this function to be arbitrarily large (within
+            # the bounds of Int32) and not capped at 1000.
+            $i = 0
+            $results = @()
+            $querystring = "?_paging=1&_return_as_object=1&_max_results=1000"
+            if ($queryargs.Count -gt 0) {
+                $querystring += "&$($queryargs -join '&')"
+            }
+            do {
+                $i++
+                Write-Verbose "Fetching page $i"
+                if ($i -gt 1) {
+                    $querystring = "?_page_id=$($response.next_page_id)"
+                }
+
+                $uri = "$($cfg.APIBase)$($queryObj)$($querystring)"
+
+                if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
+                    $response = Invoke-IBWAPI -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+                    $results += $response.result
+                }
+            } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
+
+            # Throw an error if they specified a negative MaxResults value and the result
+            # count exceeds that value. Otherwise, just truncate the results to the MaxResults
+            # value. This is basically copying how the _max_results query string argument works.
+            if ($MaxResults -lt 0 -and $results.Count -gt [Math]::Abs($MaxResults)) {
+                throw [Exception] "Result count exceeded MaxResults parameter."
+            }
+            else {
+                $results | Select-Object -first $MaxResults
+            }
+        }
+        else {
+            # no paging, just a single query on the object reference
+            $uri = "$($cfg.APIBase)$($queryObj)?$($queryargs -join '&')"
+
+            if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
+                Invoke-IBWAPI -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+            }
+        }
+
     }
 
 

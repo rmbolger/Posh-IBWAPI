@@ -85,5 +85,6 @@ function Initialize-CallVars
         APIBase=$APIBase;
         WebSession=$WebSession;
         IgnoreCertificateValidation=$certIgnore;
+        WAPIVersion=$WAPIVersion;
     }
 }
