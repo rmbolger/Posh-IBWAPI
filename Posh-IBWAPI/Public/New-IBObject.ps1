@@ -46,8 +46,8 @@ function New-IBObject
     }
 
     Process {
-        $bodyJson = $IBObject | ConvertTo-Json -Compress
-        Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json)"
+        $bodyJson = $IBObject | ConvertTo-Json -Compress -Depth 5
+        Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json -Depth 5)"
 
         $uri = "$($cfg.APIBase)$($ObjectType)$($querystring)"
 

@@ -74,13 +74,13 @@ function Set-IBObject
                 $ObjectRef = $IBObject._ref
 
                 # create the json body
-                $bodyJson = $IBObject | ConvertTo-Json -Compress
-                Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json)"
+                $bodyJson = $IBObject | ConvertTo-Json -Compress -Depth 5
+                Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json -Depth 5)"
             }
             "RefAndTemplate" {
                 # create the json body
-                $bodyJson = $TemplateObject | ConvertTo-Json -Compress
-                Write-Verbose "JSON body:`n$($TemplateObject | ConvertTo-Json)"
+                $bodyJson = $TemplateObject | ConvertTo-Json -Compress -Depth 5
+                Write-Verbose "JSON body:`n$($TemplateObject | ConvertTo-Json -Depth 5)"
             }
         }
         $uri = "$($cfg.APIBase)$($ObjectRef)$($querystring)"
