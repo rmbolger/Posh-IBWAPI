@@ -12,7 +12,7 @@
 RootModule = 'Posh-IBWAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1'
+ModuleVersion = '1.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,17 @@ FormatsToProcess = 'Posh-IBWAPI.Format.ps1xml'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = '*'
+FunctionsToExport = @(
+    'Get-IBObject',
+    'Get-IBWAPIConfig',
+    'Invoke-IBFunction',
+    'Invoke-IBWAPI',
+    'New-IBObject',
+    'New-IBWAPISession',
+    'Remove-IBObject',
+    'Set-IBObject',
+    'Set-IBWAPIConfig'
+)
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -95,7 +105,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Infoblox','IPAM'
+        Tags = 'Infoblox','IPAM','WAPI','REST'
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/rmbolger/Posh-IBWAPI/blob/master/LICENSE'
