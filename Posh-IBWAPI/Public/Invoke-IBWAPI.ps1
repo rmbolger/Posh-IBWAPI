@@ -8,6 +8,7 @@ function Invoke-IBWAPI
         [PSCredential]$Credential,
         [Object]$Body,
         [string]$ContentType='application/json',
+        [string]$OutFile,
         [string]$SessionVariable,
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [switch]$IgnoreCertificateValidation
@@ -44,6 +45,9 @@ function Invoke-IBWAPI
     }
     if ($ContentType) {
         $opts.ContentType = $ContentType
+    }
+    if ($OutFile) {
+        $opts.OutFile = $OutFile
     }
     if ($SessionVariable) {
         # change the name internally so we don't have trouble
@@ -119,6 +123,9 @@ function Invoke-IBWAPI
 
     .PARAMETER ContentType
         The Content-Type header for the request. Default is 'application/json'.
+
+    .PARAMETER OutFile
+        Specifies the output file that this cmdlet saves the response body. Enter a path and file name. If you omit the path, the default is the current location.
 
     .PARAMETER SessionVariable
         Specifies a variable for which this cmdlet creates a web request session and saves it in the value. Enter a variable name without the dollar sign ($) symbol.
