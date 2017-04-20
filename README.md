@@ -97,6 +97,8 @@ $toDelete = Get-IBObject -type record:host -Filters 'comment=decommission'
 $toDelete | Remove-IBObject
 ```
 
+For more examples, check the wiki page [The definitive list of REST examples](https://github.com/rmbolger/Posh-IBWAPI/wiki/The-definitive-list-of-REST-examples).
+
 
 # Requirements and Platform Support
 
