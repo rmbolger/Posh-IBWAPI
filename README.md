@@ -39,6 +39,12 @@ Get-IBObject -type record:host
 Get-IBObject -type record:host -Filters "name~=example.com" -Max 10 -fields extattrs
 ```
 
+If you're just exploring the WAPI object model, it can be helpful to convert the resulting objects back to JSON for readability.
+
+```powershell
+Get-IBObject -type record:host | Select -First 1 | ConvertTo-Json -Depth 5
+```
+
 You may notice that all objects returned by Infoblox have a `_ref` field. That is known as the object reference and can be used in any function that accepts `-ObjectRef`. In the case of `Get-IBObject`, it will return that specific object.
 
 ```powershell
@@ -72,6 +78,9 @@ $myhost = Get-IBObject -type record:host -Filters 'name=web1.example.com'
 
 # Modify the first listed IP address
 $myhost.ipv4addrs[0] = @{ ipv4addr='10.10.10.100' }
+
+# remove the read-only 'host' field from the nested 'record:host_ipv4addr' object
+$myhost.ipv4addrs[0].PSObject.Properties.Remove('host')
 
 # Save the result
 $myhost | Set-IBObject
