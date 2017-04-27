@@ -21,27 +21,36 @@ function Set-IBWAPIConfig
     # to the callers of module functions.
 
     if (![String]::IsNullOrWhiteSpace($WAPIHost)) {
+        Write-Verbose "Saving WAPIHost as $WAPIHost"
         $script:WAPIHost = $WAPIHost
     }
 
+    if ($WebSession) {
+        Write-Verbose "Saving new WebSession with Credential for $($WebSession.Credentials.UserName)"
+        $script:WebSession = $WebSession
+    }
+
     if ($Credential) {
+        Write-Verbose "Saving Credential for $($Credential.UserName)"
         $script:Credential = $Credential
 
-        # Configure an empty WebSession if we don't have one already and a separate
-        # one wasn't passed in.
-        if (!$WebSession -and !$script:WebSession) {
+        if (!$script:WebSession) {
+            # Configure an empty WebSession if we don't have one already
+            Write-Verbose "Creating empty WebSession with Credential for $($Credential.UserName)"
             $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
             $session.Credentials = $Credential.GetNetworkCredential()
             $script:WebSession = $session
         }
-    }
-
-    if ($WebSession) {
-        $script.WebSession = $WebSession
+        else {
+            # Update the credential in our existing WebSession
+            Write-Verbose "Updating existing WebSession with Credential for $($Credential.UserName)"
+            ($script:WebSession).Credentials = $Credential.GetNetworkCredential()
+        }
     }
 
     # deal with setting IgnoreCertificateValidation
     if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) {
+        Write-Verbose "Saving IgnoreCertificateValidation $IgnoreCertificateValidation"
         $script:IgnoreCertificateValidation = $IgnoreCertificateValidation
     }
 
@@ -52,6 +61,7 @@ function Set-IBWAPIConfig
         # we'll query the latest version from Infoblox and set that.
         if ($WAPIVersion -eq 'latest') {
             # Query the grid master schema for the list of supported versions
+            Write-Verbose "Querying schema for supported versions"
             $versions = (Invoke-IBWAPI -Uri "https://$($script:WAPIHost)/wapi/v1.0/?_schema" -WebSession $script:WebSession -IgnoreCertificateValidation:($script:IgnoreCertificateValidation)).supported_versions
 
             # Historically, these are returned in order. But just in case they aren't, we'll
@@ -61,6 +71,7 @@ function Set-IBWAPIConfig
 
             # set the most recent (last) one in the sorted list
             $script:WAPIVersion = $versions | Select-Object -Last 1
+            Write-Verbose "Saved WAPIVersion as $($script:WAPIVersion)"
         }
         else {
             # Users familiar with the Infoblox WAPI might include a 'v' in their version
