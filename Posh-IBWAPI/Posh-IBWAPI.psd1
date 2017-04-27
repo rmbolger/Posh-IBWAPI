@@ -12,7 +12,7 @@
 RootModule = 'Posh-IBWAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0'
+ModuleVersion = '1.0.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ Author = 'Ryan Bolger'
 Copyright = '(c) 2017 Ryan Bolger. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'PowerShell module for interacting with the Infoblox WAPI (REST API).'
+Description = 'Infoblox WAPI (REST API) related commands.'
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '3.0'
@@ -117,7 +117,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'initial release'
+        ReleaseNotes = 'Readme tweaks and potential fix for 401 errors using Set-IBWAPIConfig -ver latest'
 
     } # End of PSData hashtable
 
