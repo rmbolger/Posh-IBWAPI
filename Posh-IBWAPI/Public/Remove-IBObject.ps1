@@ -5,6 +5,8 @@ function Remove-IBObject
         [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
         [string[]]$ObjectRef,
+        [Alias('args')]
+        [string[]]$DeleteArgs,
         [Alias('host')]
         [string]$WAPIHost,
         [Alias('version')]
@@ -20,10 +22,14 @@ function Remove-IBObject
         $directParams = @{WAPIHost=$WAPIHost;WAPIVersion=$WAPIVersion;Credential=$Credential;WebSession=$WebSession}
         if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $directParams.IgnoreCertificateValidation = $IgnoreCertificateValidation }
         $cfg = Initialize-CallVars @directParams
+
+        if ($DeleteArgs) {
+            $querystring = "?$($DeleteArgs -join '&')"
+        }
     }
 
     Process {
-        $uri = "$($cfg.APIBase)$($ObjectRef)"
+        $uri = "$($cfg.APIBase)$($ObjectRef)$querystring"
         if ($PSCmdlet.ShouldProcess($uri, 'DELETE')) {
             Invoke-IBWAPI -Method Delete -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
         }
@@ -41,6 +47,9 @@ function Remove-IBObject
 
     .PARAMETER ObjectRef
         Object reference string. This is usually found in the "_ref" field of returned objects.
+
+    .PARAMETER DeleteArgs
+        Additional delete arguments for this object. For example, 'remove_associated_ptr=true' can be used with record:a. Requires WAPI 2.1+.
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBWAPIConfig.
