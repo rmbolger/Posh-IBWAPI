@@ -9,7 +9,8 @@ function Set-IBWAPIConfig
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation
+        [switch]$IgnoreCertificateValidation,
+        [switch]$ForAll
     )
 
     # We want to allow callers to save some of the normally tedious parameters
@@ -20,10 +21,43 @@ function Set-IBWAPIConfig
     # So $script:blah should be accessible within any module function but not directly
     # to the callers of module functions.
 
-    if (![String]::IsNullOrWhiteSpace($WAPIHost)) {
-        Write-Verbose "Saving WAPIHost as $WAPIHost"
-        $script:WAPIHost = $WAPIHost
+    # make sure we've got some basics setup
+    if (!$script:CurrentHost) {
+        $script:CurrentHost = ''
     }
+    if (!$script:Config) {
+        $script:Config = @{}
+    }
+
+    # deal with hostname
+    if (![String]::IsNullOrWhiteSpace($WAPIHost)) {
+        $cfgOld = $script:Config.$script:CurrentHost
+
+        # initialize a hashtable for this host if it doesn't exist
+        if (!$script:Config.$WAPIHost) {
+            $cfgNew = $script:Config.$WAPIHost = @{}
+            if ($cfgOld) {
+                # copy some of the values from the old host
+                if ($cfgOld.WAPIVersion) { $cfgNew.WAPIVersion = $cfgOld.WAPIVersion }
+                if ($cfgOld.Credential) { $cfgNew.Credential = $cfgOld.Credential }
+                if ($cfgOld.WebSession) { $cfgNew.WebSession = $cfgOld.WebSession }
+                if ($cfgOld.ContainsKey('IgnoreCertificateValidation')) { $cfgNew.IgnoreCertificateValidation = $cfgOld.IgnoreCertificateValidation }
+            }
+        }
+
+        # switch the current host if necessary
+        if ($WAPIHost -ne $script:CurrentHost) {
+            if ($script:CurrentHost -eq '' -and $cfgOld) {
+                # remove the entry for the empty host
+                $script:Config.Remove('')
+            }
+            Write-Verbose "Switching WAPIHost to $WAPIHost"
+            $script:CurrentHost = $WAPIHost
+        }
+    }
+
+    # make a shortcut variable to the current host config
+    $cfg = $script:Config.$script:CurrentHost
 
     if ($WebSession) {
         Write-Verbose "Saving new WebSession with Credential for $($WebSession.Credentials.UserName)"
