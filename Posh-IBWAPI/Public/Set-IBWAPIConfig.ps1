@@ -22,7 +22,8 @@ function Set-IBWAPIConfig
 
     # make sure we've got some basics setup
     if (!$script:CurrentHost) { $script:CurrentHost = '' }
-    if (!$script:Config) { $script:Config = @{$script:CurrentHost=@{WAPIHost=$script:CurrentHost}} }
+    if (!$script:Config) { $script:Config = @{} }
+    if (!$script:Config.$script:CurrentHost) { $script:Config.$script:CurrentHost = @{WAPIHost=$script:CurrentHost} }
 
     # deal with hostname
     if (![String]::IsNullOrWhiteSpace($WAPIHost)) {
@@ -30,8 +31,7 @@ function Set-IBWAPIConfig
 
         # initialize a hashtable for this host if it doesn't exist
         if (!$script:Config.$WAPIHost) {
-            $cfgNew = $script:Config.$WAPIHost = @{}
-            $cfgNew.WAPIHost = $WAPIHost
+            $cfgNew = $script:Config.$WAPIHost = @{WAPIHost=$WAPIHost}
             if ($cfgOld) {
                 # copy some of the values from the old host
                 Write-Verbose "Copying config from $($script:CurrentHost)"
