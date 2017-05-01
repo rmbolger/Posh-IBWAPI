@@ -21,13 +21,19 @@ function Initialize-CallVars
     # parameters from the function call. Explicit parameters always
     # override saved module variables.
 
-    # let the saved module variables pass through if explicit the
-    # explicit parameters are not defined
+    # Resolve the host target first so we know which saved config set to use
+    if (!$script:CurrentHost) { $script:CurrentHost = '' }
     if ([String]::IsNullOrWhiteSpace($WAPIHost)) {
-        $WAPIHost = $script:WAPIHost
+        $WAPIHost = $script:CurrentHost
     }
+
+    # Make sure we have at least an empty config defined for this host
+    if (!$script:Config) { $script:Config = @{} }
+    if (!$script:Config.$WAPIHost) { $script:Config.$WAPIHost = @{WAPIHost=$WAPIHost} }
+    $cfg = $script:Config.$WAPIHost
+
     if ([String]::IsNullOrWhiteSpace($WAPIVersion)) {
-        $WAPIVersion = $script:WAPIVersion
+        $WAPIVersion = $cfg.WAPIVersion
     }
     else {
         # sanity check the version string
@@ -41,10 +47,10 @@ function Initialize-CallVars
         [Version]$WAPIVersion | Out-Null
     }
     if (!$Credential) {
-        $Credential = $script:Credential
+        $Credential = $cfg.Credential
     }
     if (!$WebSession) {
-        $WebSession = $script:WebSession
+        $WebSession = $cfg.WebSession
     }
 
     # build the APIBase URL
@@ -77,7 +83,7 @@ function Initialize-CallVars
         $certIgnore = $IgnoreCertificateValidation
     }
     else {
-        $certIgnore = $script:IgnoreCertificateValidation
+        $certIgnore = $cfg.IgnoreCertificateValidation
     }
 
     # return the results

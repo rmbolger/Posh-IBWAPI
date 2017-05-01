@@ -20,38 +20,69 @@ function Set-IBWAPIConfig
     # So $script:blah should be accessible within any module function but not directly
     # to the callers of module functions.
 
+    # make sure we've got some basics setup
+    if (!$script:CurrentHost) { $script:CurrentHost = '' }
+    if (!$script:Config) { $script:Config = @{} }
+    if (!$script:Config.$script:CurrentHost) { $script:Config.$script:CurrentHost = @{WAPIHost=$script:CurrentHost} }
+
+    # deal with hostname
     if (![String]::IsNullOrWhiteSpace($WAPIHost)) {
-        Write-Verbose "Saving WAPIHost as $WAPIHost"
-        $script:WAPIHost = $WAPIHost
+        $cfgOld = $script:Config.$script:CurrentHost
+
+        # initialize a hashtable for this host if it doesn't exist
+        if (!$script:Config.$WAPIHost) {
+            $cfgNew = $script:Config.$WAPIHost = @{WAPIHost=$WAPIHost}
+            if ($cfgOld) {
+                # copy some of the values from the old host
+                Write-Verbose "Copying config from $($script:CurrentHost)"
+                if ($cfgOld.WAPIVersion) { $cfgNew.WAPIVersion = $cfgOld.WAPIVersion }
+                if ($cfgOld.Credential) { $cfgNew.Credential = $cfgOld.Credential }
+                if ($cfgOld.WebSession) { $cfgNew.WebSession = $cfgOld.WebSession }
+                if ($cfgOld.ContainsKey('IgnoreCertificateValidation')) { $cfgNew.IgnoreCertificateValidation = $cfgOld.IgnoreCertificateValidation }
+            }
+        }
+
+        # switch the current host if necessary
+        if ($WAPIHost -ne $script:CurrentHost) {
+            if ($script:CurrentHost -eq '' -and $cfgOld) {
+                # remove the entry for the empty host
+                $script:Config.Remove('')
+            }
+            Write-Verbose "Switching WAPIHost to $WAPIHost"
+            $script:CurrentHost = $WAPIHost
+        }
     }
+
+    # make a shortcut variable to the current host config
+    $cfg = $script:Config.$script:CurrentHost
 
     if ($WebSession) {
         Write-Verbose "Saving new WebSession with Credential for $($WebSession.Credentials.UserName)"
-        $script:WebSession = $WebSession
+        $cfg.WebSession = $WebSession
     }
 
     if ($Credential) {
         Write-Verbose "Saving Credential for $($Credential.UserName)"
-        $script:Credential = $Credential
+        $cfg.Credential = $Credential
 
-        if (!$script:WebSession) {
+        if (!$cfg.WebSession) {
             # Configure an empty WebSession if we don't have one already
             Write-Verbose "Creating empty WebSession with Credential for $($Credential.UserName)"
             $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
             $session.Credentials = $Credential.GetNetworkCredential()
-            $script:WebSession = $session
+            $cfg.WebSession = $session
         }
         else {
             # Update the credential in our existing WebSession
             Write-Verbose "Updating existing WebSession with Credential for $($Credential.UserName)"
-            ($script:WebSession).Credentials = $Credential.GetNetworkCredential()
+            $cfg.WebSession.Credentials = $Credential.GetNetworkCredential()
         }
     }
 
     # deal with setting IgnoreCertificateValidation
     if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) {
         Write-Verbose "Saving IgnoreCertificateValidation $IgnoreCertificateValidation"
-        $script:IgnoreCertificateValidation = $IgnoreCertificateValidation
+        $cfg.IgnoreCertificateValidation = $IgnoreCertificateValidation
     }
 
     if (![String]::IsNullOrWhiteSpace($WAPIVersion)) {
@@ -62,7 +93,7 @@ function Set-IBWAPIConfig
         if ($WAPIVersion -eq 'latest') {
             # Query the grid master schema for the list of supported versions
             Write-Verbose "Querying schema for supported versions"
-            $versions = (Invoke-IBWAPI -Uri "https://$($script:WAPIHost)/wapi/v1.0/?_schema" -WebSession $script:WebSession -IgnoreCertificateValidation:($script:IgnoreCertificateValidation)).supported_versions
+            $versions = (Invoke-IBWAPI -Uri "https://$($cfg.WAPIHost)/wapi/v1.0/?_schema" -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)).supported_versions
 
             # Historically, these are returned in order. But just in case they aren't, we'll
             # explicitly sort them via the [Version] cast which is an easy way to make sure you
@@ -70,8 +101,8 @@ function Set-IBWAPIConfig
             $versions = $versions | Sort-Object @{E={[Version]$_}}
 
             # set the most recent (last) one in the sorted list
-            $script:WAPIVersion = $versions | Select-Object -Last 1
-            Write-Verbose "Saved WAPIVersion as $($script:WAPIVersion)"
+            $cfg.WAPIVersion = $versions | Select-Object -Last 1
+            Write-Verbose "Saved WAPIVersion as $($cfg.WAPIVersion)"
         }
         else {
             # Users familiar with the Infoblox WAPI might include a 'v' in their version
@@ -83,7 +114,7 @@ function Set-IBWAPIConfig
 
             # validate it can actually be parsed by the Version object
             if ([Version]$WAPIVersion) {
-                $script:WAPIVersion = $WAPIVersion
+                $cfg.WAPIVersion = $WAPIVersion
             }
 
             # WARNING: Both the sorting and the [Version] validation may break
