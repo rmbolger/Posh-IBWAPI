@@ -20,11 +20,6 @@ function Set-IBWAPIConfig
     # So $script:blah should be accessible within any module function but not directly
     # to the callers of module functions.
 
-    # make sure we've got some basics setup
-    if (!$script:CurrentHost) { $script:CurrentHost = '' }
-    if (!$script:Config) { $script:Config = @{} }
-    if (!$script:Config.$script:CurrentHost) { $script:Config.$script:CurrentHost = @{WAPIHost=$script:CurrentHost} }
-
     # deal with hostname
     if (![String]::IsNullOrWhiteSpace($WAPIHost)) {
         $cfgOld = $script:Config.$script:CurrentHost
