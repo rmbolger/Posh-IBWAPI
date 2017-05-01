@@ -21,16 +21,17 @@ function Initialize-CallVars
     # parameters from the function call. Explicit parameters always
     # override saved module variables.
 
-    # make sure we've got some basics setup
+    # Resolve the host target first so we know which saved config set to use
     if (!$script:CurrentHost) { $script:CurrentHost = '' }
-    if (!$script:Config) { $script:Config = @{$script:CurrentHost=@{WAPIHost=$script:CurrentHost}} }
-    $cfg = $script:Config.$script:CurrentHost
-
-    # let the saved module variables pass through if explicit the
-    # explicit parameters are not defined
     if ([String]::IsNullOrWhiteSpace($WAPIHost)) {
-        $WAPIHost = $cfg.WAPIHost
+        $WAPIHost = $script:CurrentHost
     }
+
+    # Make sure we have at least an empty config defined for this host
+    if (!$script:Config) { $script:Config = @{} }
+    if (!$script:Config.$WAPIHost) { $script:Config.$WAPIHost = @{WAPIHost=$WAPIHost} }
+    $cfg = $script:Config.$WAPIHost
+
     if ([String]::IsNullOrWhiteSpace($WAPIVersion)) {
         $WAPIVersion = $cfg.WAPIVersion
     }
