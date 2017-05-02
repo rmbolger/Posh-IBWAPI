@@ -23,15 +23,16 @@ function Invoke-IBFunction
     Begin {
 
         # grab the variables we'll be using for our REST calls
-        $directParams = @{}
-        $PSBoundParameters.Keys | ?{ $_ -in $script:CommonParams } | %{ $directParams.$_ = $PSBoundParameters.$_ }
-        $cfg = Initialize-CallVars @directParams
+        $cfg = Initialize-CallVars @PSBoundParameters
+        $APIBase = Base @cfg
+        $cfg.Remove('WAPIHost') | Out-Null
+        $cfg.Remove('WAPIVersion') | Out-Null
 
     }
 
     Process {
 
-        $uri = "$($cfg.APIBase)$($ObjectRef)?_function=$($FunctionName)"
+        $uri = "$APIBase$($ObjectRef)?_function=$($FunctionName)"
 
         if ($FunctionArgs) {
             # convert the function body to json
@@ -40,13 +41,13 @@ function Invoke-IBFunction
 
             # make the call
             if ($PSCmdlet.ShouldProcess($uri, "POST")) {
-                Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+                Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @cfg
             }
         }
         else {
             # make the call
             if ($PSCmdlet.ShouldProcess($uri, "POST")) {
-                Invoke-IBWAPI -Method Post -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+                Invoke-IBWAPI -Method Post -Uri $uri @cfg
             }
         }
 

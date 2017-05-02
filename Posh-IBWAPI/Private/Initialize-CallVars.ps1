@@ -9,88 +9,85 @@ function Initialize-CallVars
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation
+        [switch]$IgnoreCertificateValidation,
+        [Parameter(ValueFromRemainingArguments = $true)]
+        $Splat
     )
 
-    # Rather than putting this logic in every function that uses it,
-    # we'll consolidate it in a private function here that everything
-    # else can use.
+    $psb = $PSBoundParameters
 
-    # We're essentially building an $APIBase and $WebSession object
-    # out of the existing saved module variables and the explicit
-    # parameters from the function call. Explicit parameters always
-    # override saved module variables.
+    # The purpose of this function is to provide an easy way to get the
+    # merged set of common connection parameters to use against
+    # Invoke-IBWAPI. Calling functions will pass their set of explicit
+    # parameters and we will merge them with the saved set for the
+    # currently active WAPIHost.  Explicit params always override saved
+    # set params.
 
-    # Resolve the host target and config set
-    if ([String]::IsNullOrWhiteSpace($WAPIHost)) {
-        $WAPIHost = $script:CurrentHost
-    } else {
-        # remove the empty string config if it exists
-        if ($script:Config.ContainsKey('')) { $script:Config.Remove('') }
+    # The $Splat param is a dummy var so that calling functions can pass
+    # their $PSBoundParameters variable without modification. So get rid
+    # of it.
+    $psb.Remove('Splat') | Out-Null
+
+    # make sure we have a non-empty WAPIHost
+    if ([String]::IsNullOrWhiteSpace($psb.WAPIHost)) {
+        if ([String]::IsNullOrWhiteSpace($script:CurrentHost)) {
+            throw "WAPIHost missing or empty."
+        }
+        else {
+            # use the saved value
+            $psb.WAPIHost = $script:CurrentHost
+            Write-Verbose "using saved WAPIHost $($psb.WAPIHost)"
+
+            # remove the empty string config if it exists
+            $script:Config.Remove('') | Out-Null
+        }
     }
-    # make sure a barebones config exists for this host
-    if (!$script:Config.$WAPIHost) { $script:Config.$WAPIHost = @{WAPIHost=$WAPIHost} }
-    $cfg = $script:Config.$WAPIHost
 
-    if ([String]::IsNullOrWhiteSpace($WAPIVersion)) {
-        $WAPIVersion = $cfg.WAPIVersion
+    # make sure a barebones config exists for this host
+    if (!$script:Config[$psb.WAPIHost]) { $script:Config[$psb.WAPIHost] = @{WAPIHost=($psb.WAPIHost)} }
+    $cfg = $script:Config[$psb.WAPIHost]
+
+    # check the version
+    if ([String]::IsNullOrWhiteSpace($psb.WAPIVersion)) {
+        if ([String]::IsNullOrWhiteSpace($cfg.WAPIVersion)) {
+            throw "WAPIVersion missing or empty."
+        }
+        else {
+            # use the saved value
+            $psb.WAPIVersion = $cfg.WAPIVersion
+            Write-Verbose "using saved WAPIVersion $($psb.WAPIVersion)"
+        }
     }
     else {
-        # sanity check the version string
+        # sanity check the explicit version string
 
         # strip the 'v' prefix if they used it on accident
-        if ($WAPIVersion[0] -eq 'v') {
-            $WAPIVersion = $WAPIVersion.Substring(1)
+        if ($psb.WAPIVersion[0] -eq 'v') {
+            $psb.WAPIVersion = $psb.WAPIVersion.Substring(1)
         }
 
-        # auto-parse it using the [Version] cast
-        [Version]$WAPIVersion | Out-Null
-    }
-    if (!$Credential) {
-        $Credential = $cfg.Credential
-    }
-    if (!$WebSession) {
-        $WebSession = $cfg.WebSession
-    }
-
-    # build the APIBase URL
-    $APIBase = "https://$WAPIHost/wapi/v$WAPIVersion/"
-
-    # build a valid WebSession
-    if ($WebSession) {
-        if ($Credential) {
-            # override the credential embedded in the existing WebSession
-            # if it's empty or doesn't match the username
-            if (!($WebSession.Credentials -and 
-                $WebSession.Credentials.UserName -eq $Credential.GetNetworkCredential().UserName)) {
-                Write-Verbose "overriding WebSession.Credentials"
-                $WebSession.Credentials = $Credential.GetNetworkCredential()
-            }
+        # check format using a [Version] cast
+        if (!($psb.WAPIVersion -as [Version])) {
+            throw "WAPIVersion is not a valid version string."
         }
     }
-    elseif ($Credential) {
-        # create a WebSession with the specified credential
-        $WebSession = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-        $WebSession.Credentials = $Credential.GetNetworkCredential()
+
+    # check Credential and WebSession
+    if (!$psb.Credential -and $cfg.Credential) {
+        $psb.Credential = $cfg.Credential
+        Write-Verbose "using saved Credential for $($psb.Credential.UserName)"
     }
-    else {
-        # the caller hasn't defined any credential to use, so just create
-        # an empty WebSession that will ultimately generate a 401 error.
-        $WebSession = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+    if (!$psb.WebSession -and $cfg.WebSession) {
+        $psb.WebSession = $cfg.WebSession
+        Write-Verbose "using saved WebSession for $($psb.WebSession.Credentials.UserName)"
     }
 
-    if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) {
-        $certIgnore = $IgnoreCertificateValidation
-    }
-    else {
-        $certIgnore = $cfg.IgnoreCertificateValidation
+    if (!$psb.ContainsKey('IgnoreCertificateValidation') -and
+        $cfg.ContainsKey('IgnoreCertificateValidation')) {
+        $psb.IgnoreCertificateValidation = $cfg.IgnoreCertificateValidation
+        Write-Verbose "using saved Ignore value $($psb.IgnoreCertificateValidation)"
     }
 
-    # return the results
-    [PSCustomObject]@{
-        APIBase=$APIBase;
-        WebSession=$WebSession;
-        IgnoreCertificateValidation=$certIgnore;
-        WAPIVersion=$WAPIVersion;
-    }
+    # return our modified PSBoundParameters
+    $psb
 }

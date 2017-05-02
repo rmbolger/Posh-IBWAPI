@@ -36,6 +36,10 @@ function Invoke-IBWAPI
     $paramNames = 'Method','Credential','Body','ContentType','OutFile','WebSession'
     $PSBoundParameters.Keys | ?{ $_ -in $paramNames } | %{ $opts.$_ = $PSBoundParameters.$_ }
 
+    # parameters with default values don't appear in $PSBoundParameters, so we need to add manually
+    if (!$opts.Method) { $opts.Method = $Method }
+    if (!$opts.ContentType) { $opts.ContentType = $ContentType }
+
     if ($SessionVariable) {
         # change the name internally so we don't have trouble
         # with colliding variable names

@@ -49,9 +49,11 @@ function Get-IBObject
 
     Begin {
         # grab the variables we'll be using for our REST calls
-        $directParams = @{}
-        $PSBoundParameters.Keys | ?{ $_ -in $script:CommonParams } | %{ $directParams.$_ = $PSBoundParameters.$_ }
-        $cfg = Initialize-CallVars @directParams
+        $cfg = Initialize-CallVars @PSBoundParameters
+        $APIBase = Base @cfg
+        $WAPIVersion = $cfg.WAPIVersion
+        $cfg.Remove('WAPIHost') | Out-Null
+        $cfg.Remove('WAPIVersion') | Out-Null
 
         $queryargs = @()
 
@@ -89,8 +91,8 @@ function Get-IBObject
             }
             "ByType" {
                 # WAPI versions older than 1.5 don't support paging
-                if ([Version]$cfg.WAPIVersion -lt [Version]'1.5') {
-                    Write-Verbose "Paging disabled for WAPIVersion $($cfg.WAPIVersion)"
+                if ([Version]$WAPIVersion -lt [Version]'1.5') {
+                    Write-Verbose "Paging disabled for WAPIVersion $($WAPIVersion)"
                     $UsePaging = $false
                 }
 
@@ -117,10 +119,10 @@ function Get-IBObject
                     $querystring = "?_page_id=$($response.next_page_id)"
                 }
 
-                $uri = "$($cfg.APIBase)$($queryObj)$($querystring)"
+                $uri = "$APIBase$($queryObj)$($querystring)"
 
                 if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
-                    $response = Invoke-IBWAPI -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+                    $response = Invoke-IBWAPI -Uri $uri @cfg
                     $results += $response.result
                 }
             } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
@@ -137,10 +139,10 @@ function Get-IBObject
         }
         else {
             # no paging, just a single query on the object reference
-            $uri = "$($cfg.APIBase)$($queryObj)?$($queryargs -join '&')"
+            $uri = "$APIBase$($queryObj)?$($queryargs -join '&')"
 
             if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
-                Invoke-IBWAPI -Uri $uri -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+                Invoke-IBWAPI -Uri $uri @cfg
             }
         }
 

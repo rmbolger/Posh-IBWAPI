@@ -97,7 +97,6 @@ function Set-IBWAPIConfig
 
             # set the most recent (last) one in the sorted list
             $cfg.WAPIVersion = $versions | Select-Object -Last 1
-            Write-Verbose "Saved WAPIVersion as $($cfg.WAPIVersion)"
         }
         else {
             # Users familiar with the Infoblox WAPI might include a 'v' in their version
@@ -108,13 +107,16 @@ function Set-IBWAPIConfig
             }
 
             # validate it can actually be parsed by the Version object
-            if ([Version]$WAPIVersion) {
-                $cfg.WAPIVersion = $WAPIVersion
+            if (!($WAPIVersion -as [Version])) {
+                throw "WAPIVersion is not a valid version string."
             }
 
-            # WARNING: Both the sorting and the [Version] validation may break
-            # in the future if Infoblox ever changes the way they name versions.
+            $cfg.WAPIVersion = $WAPIVersion
         }
+        Write-Verbose "Saved WAPIVersion as $($cfg.WAPIVersion)"
+
+        # WARNING: Both the sorting and the [Version] validation may break
+        # in the future if Infoblox ever changes the way they name versions.
     }
 
 

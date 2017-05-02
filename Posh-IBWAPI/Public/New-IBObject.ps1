@@ -24,9 +24,10 @@ function New-IBObject
     Begin {
 
         # grab the variables we'll be using for our REST calls
-        $directParams = @{}
-        $PSBoundParameters.Keys | ?{ $_ -in $script:CommonParams } | %{ $directParams.$_ = $PSBoundParameters.$_ }
-        $cfg = Initialize-CallVars @directParams
+        $cfg = Initialize-CallVars @PSBoundParameters
+        $APIBase = Base @cfg
+        $cfg.Remove('WAPIHost') | Out-Null
+        $cfg.Remove('WAPIVersion') | Out-Null
 
         $querystring = [String]::Empty
 
@@ -49,10 +50,10 @@ function New-IBObject
         $bodyJson = $IBObject | ConvertTo-Json -Compress -Depth 5
         Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json -Depth 5)"
 
-        $uri = "$($cfg.APIBase)$($ObjectType)$($querystring)"
+        $uri = "$APIBase$($ObjectType)$($querystring)"
 
         if ($PSCmdlet.ShouldProcess($uri, "POST")) {
-            Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)
+            Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @cfg
         }
     }
 
