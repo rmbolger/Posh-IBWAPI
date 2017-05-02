@@ -43,9 +43,9 @@ function Initialize-CallVars
         }
     }
 
-    # make sure a barebones config exists for this host
-    if (!$script:Config[$psb.WAPIHost]) { $script:Config[$psb.WAPIHost] = @{WAPIHost=($psb.WAPIHost)} }
-    $cfg = $script:Config[$psb.WAPIHost]
+    # make sure a config exists for this host
+    if ($script:Config[$psb.WAPIHost]) { $cfg = $script:Config[$psb.WAPIHost] }
+    else { $cfg = $script:Config[''] }
 
     # check the version
     if ([String]::IsNullOrWhiteSpace($psb.WAPIVersion)) {
