@@ -33,29 +33,13 @@ function Invoke-IBWAPI
     # send to Invoke-RestMethod via Splatting
     # https://msdn.microsoft.com/en-us/powershell/reference/5.1/microsoft.powershell.core/about/about_splatting
     $opts = @{}
+    $paramNames = 'Method','Credential','Body','ContentType','OutFile','WebSession'
+    $PSBoundParameters.Keys | ?{ $_ -in $paramNames } | %{ $opts.$_ = $PSBoundParameters.$_ }
 
-    if ($Method) {
-        $opts.Method = $Method
-    }
-    if ($Credential) {
-        $opts.Credential = $Credential
-    }
-    if ($Body) {
-        $opts.Body = $Body
-    }
-    if ($ContentType) {
-        $opts.ContentType = $ContentType
-    }
-    if ($OutFile) {
-        $opts.OutFile = $OutFile
-    }
     if ($SessionVariable) {
         # change the name internally so we don't have trouble
         # with colliding variable names
         $opts.SessionVariable = 'innerSession'
-    }
-    if ($WebSession) {
-        $opts.WebSession = $WebSession
     }
 
     try

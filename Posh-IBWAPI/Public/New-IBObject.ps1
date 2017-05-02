@@ -24,8 +24,8 @@ function New-IBObject
     Begin {
 
         # grab the variables we'll be using for our REST calls
-        $directParams = @{WAPIHost=$WAPIHost;WAPIVersion=$WAPIVersion;Credential=$Credential;WebSession=$WebSession}
-        if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) { $directParams.IgnoreCertificateValidation = $IgnoreCertificateValidation }
+        $directParams = @{}
+        $PSBoundParameters.Keys | ?{ $_ -in $script:CommonParams } | %{ $directParams.$_ = $PSBoundParameters.$_ }
         $cfg = Initialize-CallVars @directParams
 
         $querystring = [String]::Empty
