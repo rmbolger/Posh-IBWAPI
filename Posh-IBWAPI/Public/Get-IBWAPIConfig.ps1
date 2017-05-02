@@ -6,13 +6,13 @@ function Get-IBWAPIConfig
         [switch]$List
     )
 
-    if ($List -and $script:Config) {
+    if ($List) {
         # list all configs
         foreach ($hostConfig in $script:Config.Values) {
             [PSCustomObject]$hostConfig | Select-Object WAPIHost,WAPIVersion,Credential,WebSession,IgnoreCertificateValidation
         }
     }
-    elseif ($script:Config -and $WAPIHost) {
+    elseif ($PSBoundParameters.ContainsKey('WAPIHost')) {
         if ($script:Config.$WAPIHost) {
             # show the specified config
             [PSCustomObject]$script:Config.$WAPIHost | Select-Object WAPIHost,WAPIVersion,Credential,WebSession,IgnoreCertificateValidation
@@ -27,21 +27,10 @@ function Get-IBWAPIConfig
             }
         }
     }
-    elseif ($script:Config -and $script:CurrentHost) {
+    else {
         # show the current config
         [PSCustomObject]$script:Config.$script:CurrentHost | Select-Object WAPIHost,WAPIVersion,Credential,WebSession,IgnoreCertificateValidation
     }
-    else {
-        # show empty config
-        [PSCustomObject]@{
-            WAPIHost=$null;
-            WAPIVersion=$null;
-            Credential=$null;
-            WebSession=$null;
-            IgnoreCertificateValidation=$null;
-        }
-    }
-
 
 
 
