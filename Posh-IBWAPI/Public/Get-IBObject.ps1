@@ -123,6 +123,7 @@ function Get-IBObject
 
                 if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
                     $response = Invoke-IBWAPI -Uri $uri @cfg
+                    if (!$response.result) { throw "Unexpected response from server: No result object found." }
                     $results += $response.result
                 }
             } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
