@@ -49,11 +49,11 @@ function Get-IBObject
 
     Begin {
         # grab the variables we'll be using for our REST calls
-        $cfg = Initialize-CallVars @PSBoundParameters
-        $APIBase = Base @cfg
-        $WAPIVersion = $cfg.WAPIVersion
-        $cfg.Remove('WAPIHost') | Out-Null
-        $cfg.Remove('WAPIVersion') | Out-Null
+        $opts = Initialize-CallVars @PSBoundParameters
+        $APIBase = Base @opts
+        $WAPIVersion = $opts.WAPIVersion
+        $opts.Remove('WAPIHost') | Out-Null
+        $opts.Remove('WAPIVersion') | Out-Null
 
         $queryargs = @()
 
@@ -122,7 +122,7 @@ function Get-IBObject
                 $uri = "$APIBase$($queryObj)$($querystring)"
 
                 if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
-                    $response = Invoke-IBWAPI -Uri $uri @cfg
+                    $response = Invoke-IBWAPI -Uri $uri @opts
                     if (!$response.result) { throw "Unexpected response from server: No result object found." }
                     $results += $response.result
                 }
@@ -143,7 +143,7 @@ function Get-IBObject
             $uri = "$APIBase$($queryObj)?$($queryargs -join '&')"
 
             if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
-                Invoke-IBWAPI -Uri $uri @cfg
+                Invoke-IBWAPI -Uri $uri @opts
             }
         }
 
