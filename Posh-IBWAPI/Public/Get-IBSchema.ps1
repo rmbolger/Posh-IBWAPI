@@ -18,34 +18,57 @@ function Get-IBSchema {
     )
 
     # grab the variables we'll be using for our REST calls
-    $cfg = Initialize-CallVars @PSBoundParameters
-    $APIBase = Base @cfg
-    $cfg.Remove('WAPIHost') | Out-Null
-    $cfg.Remove('WAPIVersion') | Out-Null
+    $opts = Initialize-CallVars @PSBoundParameters
+    $APIBase = Base @opts
+    $WAPIHost = $opts.WAPIHost
+    $WAPIVersion = $opts.WAPIVersion
+    $opts.Remove('WAPIHost') | Out-Null
+    $opts.Remove('WAPIVersion') | Out-Null
+
+    # make sure there's a config set reference for this host
+    # and get a reference to it
+    Set-IBWAPIConfig -WAPIHost $WAPIHost -NoSwitchProfile
+    $cfg = $script:Config.$WAPIHost
+
+    # cache some base schema stuff that we'll potentially need later
+    if (!$cfg.SupportedVersions -or !$cfg.HighestVersion -or !$cfg[$WAPIVersion]) {
+        $schema = Invoke-IBWAPI -Uri "$APIBase/?_schema" @opts
+
+        # set supported versions
+        $cfg.SupportedVersions = $schema.supported_versions | Sort-Object @{E={[Version]$_}}
+
+        # set highest version
+        $cfg.HighestVersion = $cfg.SupportedVersions | Select-Object -Last 1
+
+        # set supported objects for this version
+        $cfg[$WAPIVersion] = $schema.supported_objects | Sort-Object
+    }
+
+    # The 'request' object is a weird outlier that only accepts POST requests against it
+    # and I haven't been able to figure out how to query it's schema using POST. So for
+    # now, just warn and exit if we've been asked to query it.
+    if ($ObjectType -eq 'request') {
+        Write-Warning "The 'request' object is not currently supported for schema queries"
+        return
+    }
+
+    # We want to support wildcard searches and partial matching on object types.
+    # TODO
 
     # As of WAPI 2.6 (NIOS 8.1), schema queries get a lot more helpful with the addition of
     # _schema_version, _schema_searchable, and _get_doc. The odd thing is that those fields
-    # are even available if you specify old WAPI versions. But if you're *actually* on an
+    # are even available if you query old WAPI versions. But if you're *actually* on an
     # old WAPI version, they generate an error.
     #
     # We want to give people as much information as possible. So instead of conditionally
     # using the additional schema options if the requested WAPI version supports it, we want
-    # to always do it as long as the latest *supported* WAPI version supports them. But we
-    # don't want to query for the latest supported version every time. So we'll do it once
-    # and save the value.
-    if (!$script:HighestWAPISupported) {
-        $versions = (Invoke-IBWAPI -Uri "$APIBase/?_schema" @cfg).supported_versions
-        $versions = $versions | Sort-Object @{E={[Version]$_}}
-        $script:HighestWAPISupported = $versions | Select-Object -Last 1
-    }
-
+    # to always do it as long as the latest *supported* WAPI version supports them.
     $uri = "$APIBase$($ObjectType)?_schema=1"
-
-    if ([Version]$script:HighestWAPISupported -ge [Version]'2.6') {
+    if ([Version]$cfg.HighestVersion -ge [Version]'2.6') {
         $uri += "&_schema_version=2&_schema_searchable=1&_get_doc=1"
     }
 
-    $schema = Invoke-IBWAPI -Uri $uri @cfg
+    $schema = Invoke-IBWAPI -Uri $uri @opts
 
     # return the schema object directly, if asked
     if ($Raw) {
