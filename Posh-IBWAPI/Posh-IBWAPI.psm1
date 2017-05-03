@@ -23,10 +23,9 @@ if (-not ([System.Management.Automation.PSTypeName]'CertValidation').Type)
 }
 
 # initialize the config container related stuff
-if (!$script:CurrentHost) { $script:CurrentHost = [string]::Empty }
+$script:CurrentHost = [string]::Empty
 if (!$script:Config) { $script:Config = @{} }
 if (!$script:Config.$script:CurrentHost) { $script:Config.$script:CurrentHost = @{WAPIHost=$script:CurrentHost} }
-$script:CommonParams = 'WAPIHost','WAPIVersion','Credentials','WebSesion','IgnoreCertificateValidation'
 
 # Get public and private function definition files.
 $Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue )
