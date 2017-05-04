@@ -36,24 +36,66 @@ function Get-IBSchema {
 
         # set supported versions
         $cfg.SupportedVersions = $schema.supported_versions | Sort-Object @{E={[Version]$_}}
+        Write-Verbose "Set supported versions: $($cfg.SupportedVersions -join ', ')"
 
         # set highest version
         $cfg.HighestVersion = $cfg.SupportedVersions | Select-Object -Last 1
+        Write-Verbose "Set highest version: $($cfg.HighestVersion)"
 
         # set supported objects for this version
         $cfg[$WAPIVersion] = $schema.supported_objects | Sort-Object
+        Write-Verbose "Set supported objects: $($cfg[$WAPIVersion] -join ', ')"
     }
 
     # The 'request' object is a weird outlier that only accepts POST requests against it
-    # and I haven't been able to figure out how to query it's schema using POST. So for
+    # and I haven't been able to figure out how to query its schema using POST. So for
     # now, just warn and exit if we've been asked to query it.
     if ($ObjectType -eq 'request') {
         Write-Warning "The 'request' object is not currently supported for schema queries"
         return
     }
 
-    # We want to support wildcard searches and partial matching on object types.
-    # TODO
+    # prep some stuff we'll need for pretty printing
+    $prettyColors = @{ForegroundColor='Cyan';BackgroundColor='Black'}
+    $consoleWidth = $host.ui.RawUI.maxWindowSize.Width - 1
+
+    if (![String]::IsNullOrWhiteSpace($ObjectType)) {
+        # We want to support wildcard searches and partial matching on object types.
+        Write-Verbose "ObjectType: $ObjectType"
+        $objMatches = $cfg[$WAPIVersion] | %{ if ($_ -like $ObjectType) { $_ } }
+        Write-Verbose "Matches: $($objMatches.Count)"
+        if ($objMatches.count -gt 1) {
+            # multiple matches
+            $message = "Multiple object matches found for $($ObjectType)"
+            if ($Raw) { throw $message }
+            "$($message):" | Word-Wrap -Pad | Write-Host @prettyColors
+            $objMatches | %{ $_ | Word-Wrap -Pad | Write-Host @prettyColors }
+            return
+        }
+        elseif ($objMatches.count -eq 0 ) {
+            # retry matching with implied wildcards
+            $objMatches = $cfg[$WAPIVersion] | %{ if ($_ -like "*$ObjectType*") { $_ } }
+            if ($objMatches.count -gt 1) {
+                # multiple matches
+                $message = "Multiple object matches found for $($ObjectType)"
+                if ($Raw) { throw $message }
+                "$($message):" | Word-Wrap -Pad | Write-Host @prettyColors
+                $objMatches | %{ $_ | Word-Wrap -Pad | Write-Host @prettyColors }
+                return
+            }
+            elseif ($objMatches.count -eq 0) {
+                # no matches, even with wildcards
+                $message = "No matches found for $($ObjectType)"
+                if ($Raw) { throw $message }
+                else { $message | Word-Wrap -Pad | Write-Debug @prettyColors }
+                return
+            }
+        }
+        else {
+            # only one match
+            $ObjectType = $objMatches
+        }
+    }
 
     # As of WAPI 2.6 (NIOS 8.1), schema queries get a lot more helpful with the addition of
     # _schema_version, _schema_searchable, and _get_doc. The odd thing is that those fields
@@ -71,13 +113,7 @@ function Get-IBSchema {
     $schema = Invoke-IBWAPI -Uri $uri @opts
 
     # return the schema object directly, if asked
-    if ($Raw) {
-        return $schema
-    }
-
-    # prep some stuff we'll need for pretty printing
-    $prettyColors = @{ForegroundColor='Cyan';BackgroundColor='Black'}
-    $consoleWidth = $host.ui.RawUI.maxWindowSize.Width - 1
+    if ($Raw) { return $schema }
 
     function BlankLine() { ' ' | Word-Wrap -Pad | Write-Host @prettyColors }
     function PrettifySupports([string]$supports) {
