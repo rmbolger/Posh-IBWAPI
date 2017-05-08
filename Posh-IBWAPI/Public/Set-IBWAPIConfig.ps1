@@ -9,7 +9,8 @@ function Set-IBWAPIConfig
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation
+        [switch]$IgnoreCertificateValidation,
+        [switch]$NoSwitchProfile
     )
 
     # We want to allow callers to save some of the normally tedious parameters
@@ -37,19 +38,22 @@ function Set-IBWAPIConfig
             }
         }
 
-        # switch the current host if necessary
-        if ($WAPIHost -ne $script:CurrentHost) {
-            if ($script:CurrentHost -eq '' -and $cfgOld) {
-                # remove the entry for the empty host
-                $script:Config.Remove('')
-            }
-            Write-Verbose "Switching WAPIHost to $WAPIHost"
-            $script:CurrentHost = $WAPIHost
-        }
-    }
+        # remove the old empty string config if it exists
+        $script:Config.Remove('') | Out-Null
 
-    # make a shortcut variable to the current host config
-    $cfg = $script:Config.$script:CurrentHost
+        # switch the current host if necessary
+        if ($WAPIHost -ne $script:CurrentHost -and !$NoSwitchProfile) {
+            $script:CurrentHost = $WAPIHost
+            Write-Verbose "Switched config to $WAPIHost"
+        }
+
+        # make a shorthand reference to the host config to be modified
+        $cfg = $script:Config.$WAPIHost
+    }
+    else {
+        # make a shorthand reference to the host config to be modified
+        $cfg = $script:Config.$script:CurrentHost
+    }
 
     if ($WebSession) {
         Write-Verbose "Saving new WebSession with Credential for $($WebSession.Credentials.UserName)"
@@ -114,10 +118,12 @@ function Set-IBWAPIConfig
 
     <#
     .SYNOPSIS
-        Set configuration values for this module.
+        Save configuration values for a WAPI host that will persist for the duration of this Powershell session.
 
     .DESCRIPTION
         Rather than specifying the same common parameter values to most of the function calls in this module, you can pre-set them with this function instead. They will be used automatically by other functions that support them unless overridden by the function's own parameters.
+
+        Config values are saved per unique WAPIHost value. Calling this function with a new WAPIHost will switch the "current" config to the new host unless -NoSwitchProfile is used.
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
@@ -133,6 +139,9 @@ function Set-IBWAPIConfig
 
     .PARAMETER IgnoreCertificateValidation
         If set, SSL/TLS certificate validation will be disabled.
+
+    .PARAMETER NoSwitchProfile
+        If set, the "current" WAPI host config will not switch to the specified -WAPIHost if different.
 
     .EXAMPLE
         Set-IBWAPIConfig -WAPIHost 'gridmaster.example.com'

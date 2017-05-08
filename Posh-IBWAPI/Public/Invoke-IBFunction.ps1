@@ -23,10 +23,10 @@ function Invoke-IBFunction
     Begin {
 
         # grab the variables we'll be using for our REST calls
-        $cfg = Initialize-CallVars @PSBoundParameters
-        $APIBase = Base @cfg
-        $cfg.Remove('WAPIHost') | Out-Null
-        $cfg.Remove('WAPIVersion') | Out-Null
+        $opts = Initialize-CallVars @PSBoundParameters
+        $APIBase = Base @opts
+        $opts.Remove('WAPIHost') | Out-Null
+        $opts.Remove('WAPIVersion') | Out-Null
 
     }
 
@@ -41,13 +41,13 @@ function Invoke-IBFunction
 
             # make the call
             if ($PSCmdlet.ShouldProcess($uri, "POST")) {
-                Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @cfg
+                Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
             }
         }
         else {
             # make the call
             if ($PSCmdlet.ShouldProcess($uri, "POST")) {
-                Invoke-IBWAPI -Method Post -Uri $uri @cfg
+                Invoke-IBWAPI -Method Post -Uri $uri @opts
             }
         }
 

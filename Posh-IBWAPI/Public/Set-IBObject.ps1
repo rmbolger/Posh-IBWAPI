@@ -42,10 +42,10 @@ function Set-IBObject
 
     Begin {
         # grab the variables we'll be using for our REST calls
-        $cfg = Initialize-CallVars @PSBoundParameters
-        $APIBase = Base @cfg
-        $cfg.Remove('WAPIHost') | Out-Null
-        $cfg.Remove('WAPIVersion') | Out-Null
+        $opts = Initialize-CallVars @PSBoundParameters
+        $APIBase = Base @opts
+        $opts.Remove('WAPIHost') | Out-Null
+        $opts.Remove('WAPIVersion') | Out-Null
 
         $querystring = [String]::Empty
 
@@ -86,7 +86,7 @@ function Set-IBObject
         }
         $uri = "$APIBase$($ObjectRef)$($querystring)"
         if ($PsCmdlet.ShouldProcess($uri, 'PUT')) {
-            Invoke-IBWAPI -Method Put -Uri $uri -Body $bodyJson @cfg
+            Invoke-IBWAPI -Method Put -Uri $uri -Body $bodyJson @opts
         }
 
     }

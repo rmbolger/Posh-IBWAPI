@@ -19,10 +19,10 @@ function Remove-IBObject
 
     Begin {
         # grab the variables we'll be using for our REST calls
-        $cfg = Initialize-CallVars @PSBoundParameters
-        $APIBase = Base @cfg
-        $cfg.Remove('WAPIHost') | Out-Null
-        $cfg.Remove('WAPIVersion') | Out-Null
+        $opts = Initialize-CallVars @PSBoundParameters
+        $APIBase = Base @opts
+        $opts.Remove('WAPIHost') | Out-Null
+        $opts.Remove('WAPIVersion') | Out-Null
 
         if ($DeleteArgs) {
             $querystring = "?$($DeleteArgs -join '&')"
@@ -32,7 +32,7 @@ function Remove-IBObject
     Process {
         $uri = "$APIBase$($ObjectRef)$querystring"
         if ($PSCmdlet.ShouldProcess($uri, 'DELETE')) {
-            Invoke-IBWAPI -Method Delete -Uri $uri @cfg
+            Invoke-IBWAPI -Method Delete -Uri $uri @opts
         }
     }
 
