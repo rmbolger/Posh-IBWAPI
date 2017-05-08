@@ -11,10 +11,13 @@ function New-IBWAPISession
     )
 
     # There's no explicit logon endpoint in the WAPI, so we're just going to
-    # call the oldest backward compatible schema endpoint which should should
-    # be sufficiently generic as to work on pretty much any NIOS endpoint.
+    # call the oldest backward compatible endpoint which should should
+    # be sufficiently generic as to work on pretty much any NIOS endpoint. The
+    # oldest WAPI docs I could find were for 1.1. So we're gonna go with this
+    # until someone comes along who has a problem with an ancient 1.0 based
+    # NIOS install.
 
-    Invoke-IBWAPI -uri "https://$WAPIHost/wapi/v1.0/?_schema" -cred $Credential -SessionVariable ibsession -IgnoreCertificateValidation:$IgnoreCertificateValidation | Out-Null
+    Invoke-IBWAPI -uri "https://$WAPIHost/wapi/v1.1/member" -cred $Credential -SessionVariable ibsession -IgnoreCertificateValidation:$IgnoreCertificateValidation | Out-Null
 
     Write-Output $ibsession
 

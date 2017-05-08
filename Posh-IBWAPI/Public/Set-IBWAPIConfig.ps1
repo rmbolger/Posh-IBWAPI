@@ -86,17 +86,7 @@ function Set-IBWAPIConfig
         # version without explicitly knowing what it is. So if they specify 'latest',
         # we'll query the latest version from Infoblox and set that.
         if ($WAPIVersion -eq 'latest') {
-            # Query the grid master schema for the list of supported versions
-            Write-Verbose "Querying schema for supported versions"
-            $versions = (Invoke-IBWAPI -Uri "https://$($cfg.WAPIHost)/wapi/v1.0/?_schema" -WebSession $cfg.WebSession -IgnoreCertificateValidation:($cfg.IgnoreCertificateValidation)).supported_versions
-
-            # Historically, these are returned in order. But just in case they aren't, we'll
-            # explicitly sort them via the [Version] cast which is an easy way to make sure you
-            # end up with 1,2,11,22 instead of 1,11,2,22.
-            $versions = $versions | Sort-Object @{E={[Version]$_}}
-
-            # set the most recent (last) one in the sorted list
-            $cfg.WAPIVersion = $versions | Select-Object -Last 1
+            $cfg.WAPIVersion = (HighestVer $cfg.WAPIHost $cfg.WebSession)
         }
         else {
             # Users familiar with the Infoblox WAPI might include a 'v' in their version
