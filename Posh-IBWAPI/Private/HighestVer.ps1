@@ -47,19 +47,5 @@ function HighestVer
             # just re-throw everything else
             throw
         }
-        # $response = $_.Exception.Response
-
-        # if ($response.StatusCode -eq [System.Net.HttpStatusCode]::BadRequest) {
-
-        #     # get the response body so we can pull out the WAPI's error message
-        #     $stream = $response.GetResponseStream()
-        #     $reader = New-Object System.IO.StreamReader($stream)
-        #     $reader.BaseStream.Position = 0
-        #     $reader.DiscardBufferedData()
-        #     $responseBody = $reader.ReadToEnd();
-
-        #     Write-Verbose $responseBody
-        #     $wapiErr = ConvertFrom-Json $responseBody
-        #     throw [Exception] "$($wapiErr.Error)"
     }
 }
