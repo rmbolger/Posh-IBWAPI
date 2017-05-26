@@ -13,17 +13,27 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 
 # Install
 
-To install the latest development version from git, use the following command in PowerShell v3 or later:
+The [latest release version](https://www.powershellgallery.com/packages/Posh-IBWAPI) can found in the PowerShell Gallery. Installing from the gallery requires the PowerShellGet module which is installed by default on Windows 10 or later. See the *Getting Started with the Gallery* section at https://www.powershellgallery.com/ for instructions on earlier OSes. Zip/Tar versions can also be downloaded from the [GitHub releases page](https://github.com/rmbolger/Posh-IBWAPI/releases).
 
 ```powershell
+# install for all users (requires elevated privs)
+Install-Module -Name Posh-IBWAPI
+
+# install for current user
+Install-Module -Name Posh-IBWAPI -Scope CurrentUser
+```
+
+To install the latest *development* version from the git master branch, use the following command in PowerShell v3 or later. This method assumes a default Powershell environment that includes the [`PSModulePath`](https://msdn.microsoft.com/en-us/library/dd878326.aspx) environment variable which contains a reference to `$HOME\Documents\WindowsPowerShell\Modules`. You must also make sure `Get-ExecutionPolicy` is not set to `Restricted` or `AllSigned`.
+
+```powershell
+# (optional) set less restrictive execution policy
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+
+# install latest dev version
 iex (invoke-restmethod https://raw.githubusercontent.com/rmbolger/Posh-IBWAPI/master/instdev.ps1)
 ```
 
-You can also find the [latest release](https://www.powershellgallery.com/packages/Posh-IBWAPI) version in the PowerShell Gallery. If you're on PowerShell v5 or later, you can install it with `Install-Module`.
 
-```powershell
-Install-Module -Name Posh-IBWAPI
-```
 
 # Quick Start
 
