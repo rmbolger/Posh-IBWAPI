@@ -12,7 +12,7 @@
 RootModule = 'Posh-IBWAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.1'
+ModuleVersion = '1.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -117,7 +117,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Readme tweaks and potential fix for 401 errors using Set-IBWAPIConfig -ver latest'
+        ReleaseNotes = 'Multi-Host config support, Added -DeleteArgs to Remove-IBObject, Fix for issue #15 regarding errors when TLS 1.0 is disabled in Infoblox'
 
     } # End of PSData hashtable
 
