@@ -1,3 +1,6 @@
+## 1.1.1 (2017-05-26)
+* Fix for issue #16 (regression bug with Set-IBWAPIConfig and -IgnoreCertificateValidation
+
 ## 1.1 (2017-05-26)
 * Multi-Host config support
   * Set-IBWAPIConfig now supports saving values per-WAPIHost

@@ -117,7 +117,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Multi-Host config support, Added -DeleteArgs to Remove-IBObject, Fix for issue #15 regarding errors when TLS 1.0 is disabled in Infoblox'
+        ReleaseNotes = 'Multi-Host config support, Added -DeleteArgs to Remove-IBObject, Fix for issue #15 regarding errors when TLS 1.0 is disabled in Infoblox, Fix for issue #16 (regression bug with Set-IBWAPIConfig and -IgnoreCertificateValidation'
 
     } # End of PSData hashtable
 
