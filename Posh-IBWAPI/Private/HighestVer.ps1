@@ -5,13 +5,14 @@ function HighestVer
         [Parameter(Mandatory=$true)]
         [string]$WAPIHost,
         [Parameter(Mandatory=$true)]
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession
+        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
+        [switch]$IgnoreCertificateValidation
     )
 
     try {
         # Query the grid master schema for the list of supported versions
         Write-Verbose "Querying schema for supported versions"
-        $versions = (Invoke-IBWAPI -Uri "https://$WAPIHost/wapi/v1.1/?_schema" -WebSession $WebSession).supported_versions
+        $versions = (Invoke-IBWAPI -Uri "https://$WAPIHost/wapi/v1.1/?_schema" -WebSession $WebSession -IgnoreCertificateValidation:$IgnoreCertificateValidation).supported_versions
 
         # Historically, these are returned in order. But just in case they aren't, we'll
         # explicitly sort them via the [Version] cast which is an easy way to make sure you

@@ -90,7 +90,7 @@ function Set-IBWAPIConfig
         # version without explicitly knowing what it is. So if they specify 'latest',
         # we'll query the latest version from Infoblox and set that.
         if ($WAPIVersion -eq 'latest') {
-            $cfg.WAPIVersion = (HighestVer $cfg.WAPIHost $cfg.WebSession)
+            $cfg.WAPIVersion = (HighestVer $cfg.WAPIHost $cfg.WebSession -IgnoreCertificateValidation:$cfg.IgnoreCertificateValidation)
         }
         else {
             # Users familiar with the Infoblox WAPI might include a 'v' in their version
