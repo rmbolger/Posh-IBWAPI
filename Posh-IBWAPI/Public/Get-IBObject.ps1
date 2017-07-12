@@ -106,9 +106,23 @@ function Get-IBObject
             # limitation by automatically paging on behalf of the caller. This will also
             # allow the MaxResults parameter in this function to be arbitrarily large (within
             # the bounds of Int32) and not capped at 1000.
+
+            # separate the MaxResults value from the caller's request to error on "over max"
+            $ErrorOverMax = $false
+            if ($MaxResults -lt 0) {
+                $MaxResults = [Math]::Abs($MaxResults)
+                $ErrorOverMax = $true
+            }
+
+            # set the default page size unless the caller wants less, in which case
+            # set it to just over what they asked for so that "over max" errors will
+            # still trigger
+            $pageSize = 1000
+            if ($MaxResults -lt $pageSize) { $pageSize = ($MaxResults+1) }
+
             $i = 0
             $results = @()
-            $querystring = "?_paging=1&_return_as_object=1&_max_results=1000"
+            $querystring = "?_paging=1&_return_as_object=1&_max_results=$pageSize"
             if ($queryargs.Count -gt 0) {
                 $querystring += "&$($queryargs -join '&')"
             }
@@ -126,12 +140,12 @@ function Get-IBObject
                     if (!$response.result) { throw "Unexpected response from server: No result object found." }
                     $results += $response.result
                 }
-            } while ($response.next_page_id -and $results.Count -lt [Math]::Abs($MaxResults))
+            } while ($response.next_page_id -and $results.Count -lt $MaxResults)
 
             # Throw an error if they specified a negative MaxResults value and the result
             # count exceeds that value. Otherwise, just truncate the results to the MaxResults
             # value. This is basically copying how the _max_results query string argument works.
-            if ($MaxResults -lt 0 -and $results.Count -gt [Math]::Abs($MaxResults)) {
+            if ($ErrorOverMax -and $results.Count -gt $MaxResults) {
                 throw [Exception] "Result count exceeded MaxResults parameter."
             }
             else {
