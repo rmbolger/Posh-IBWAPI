@@ -30,17 +30,27 @@ function Get-IBSchema {
     Set-IBWAPIConfig -WAPIHost $WAPIHost -NoSwitchProfile
     $cfg = $script:Config.$WAPIHost
 
+    # make sure we can actually query schema stuff for this WAPIHost
+    if (!$cfg.HighestVersion) {
+        if (!$opts.WebSession) {
+            $opts.WebSession = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+            $opts.WebSession.Credentials = $opts.Credential.GetNetworkCredential()
+        }
+        $cfg.HighestVersion = (HighestVer $WAPIHost $opts.WebSession -IgnoreCertificateValidation:$opts.IgnoreCertificateValidation)
+        Write-Verbose "Set highest version: $($cfg.HighestVersion)"
+
+        if ([Version]$cfg.HighestVersion -lt [Version]'1.7.5') {
+            throw "NIOS $($cfg.HighestVersion) doesn't support schema queries"
+        }
+    }
+
     # cache some base schema stuff that we'll potentially need later
-    if (!$cfg.SupportedVersions -or !$cfg.HighestVersion -or !$cfg[$WAPIVersion]) {
+    if (!$cfg.SupportedVersions -or !$cfg[$WAPIVersion]) {
         $schema = Invoke-IBWAPI -Uri "$APIBase/?_schema" @opts
 
         # set supported versions
         $cfg.SupportedVersions = $schema.supported_versions | Sort-Object @{E={[Version]$_}}
         Write-Verbose "Set supported versions: $($cfg.SupportedVersions -join ', ')"
-
-        # set highest version
-        $cfg.HighestVersion = $cfg.SupportedVersions | Select-Object -Last 1
-        Write-Verbose "Set highest version: $($cfg.HighestVersion)"
 
         # set supported objects for this version
         $cfg[$WAPIVersion] = $schema.supported_objects | Sort-Object
