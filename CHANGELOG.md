@@ -1,3 +1,6 @@
+## 1.1.2 (2017-09-04)
+* Fix for issue #17. JSON bodies are now explicitly UTF8 encoded to prevent issues with non-ASCII characters
+
 ## 1.1.1 (2017-05-26)
 * Fix for issue #16 (regression bug with Set-IBWAPIConfig and -IgnoreCertificateValidation)
 

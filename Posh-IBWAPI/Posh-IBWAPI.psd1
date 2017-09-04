@@ -12,7 +12,7 @@
 RootModule = 'Posh-IBWAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.1'
+ModuleVersion = '1.1.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -117,7 +117,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Multi-Host config support, Added -DeleteArgs to Remove-IBObject, Fix for issue #15 regarding errors when TLS 1.0 is disabled in Infoblox, Fix for issue #16 (regression bug with Set-IBWAPIConfig and -IgnoreCertificateValidation'
+        ReleaseNotes = 'Fix for issue #17. JSON bodies are now explicitly UTF8 encoded to prevent issues with non-ASCII characters'
 
     } # End of PSData hashtable
 
