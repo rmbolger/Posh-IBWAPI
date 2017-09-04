@@ -117,7 +117,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Fix for issue #17. JSON bodies are now explicitly UTF8 encoded to prevent issues with non-ASCII characters'
+        ReleaseNotes = 'Tweaked Get-IBObject paging so that MaxResults will limit page size if smaller than default, thus not requesting more data than necessary. Fix for issue #17. JSON bodies are now explicitly UTF8 encoded to prevent issues with non-ASCII characters'
 
     } # End of PSData hashtable
 

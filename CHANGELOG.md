@@ -1,4 +1,5 @@
 ## 1.1.2 (2017-09-04)
+* Tweaked Get-IBObject paging so that MaxResults will limit page size if smaller than default, thus not requesting more data than necessary
 * Fix for issue #17. JSON bodies are now explicitly UTF8 encoded to prevent issues with non-ASCII characters
 
 ## 1.1.1 (2017-05-26)
