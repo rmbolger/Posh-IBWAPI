@@ -7,7 +7,7 @@ function Invoke-IBWAPI
         [Microsoft.PowerShell.Commands.WebRequestMethod]$Method=([Microsoft.PowerShell.Commands.WebRequestMethod]::Get),
         [PSCredential]$Credential,
         [Object]$Body,
-        [string]$ContentType='application/json',
+        [string]$ContentType='application/json; charset=utf-8',
         [string]$OutFile,
         [string]$SessionVariable,
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
@@ -107,10 +107,10 @@ function Invoke-IBWAPI
         Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified.
 
     .PARAMETER Body
-        The body of the request. This is usually a JSON string if needed.
+        The body of the request. This is usually a JSON string if needed. NOTE: If you have non-ASCII characters, you may need to explicitly encode your JSON body as UTF-8. For example, [Text.Encoding]::UTF8.GetBytes($body).
 
     .PARAMETER ContentType
-        The Content-Type header for the request. Default is 'application/json'.
+        The Content-Type header for the request. Default is 'application/json; charset=utf-8'.
 
     .PARAMETER OutFile
         Specifies the output file that this cmdlet saves the response body. Enter a path and file name. If you omit the path, the default is the current location.

@@ -76,11 +76,13 @@ function Set-IBObject
 
                 # create the json body
                 $bodyJson = $IBObject | ConvertTo-Json -Compress -Depth 5
+                $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
                 Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json -Depth 5)"
             }
             "RefAndTemplate" {
                 # create the json body
                 $bodyJson = $TemplateObject | ConvertTo-Json -Compress -Depth 5
+                $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
                 Write-Verbose "JSON body:`n$($TemplateObject | ConvertTo-Json -Depth 5)"
             }
         }

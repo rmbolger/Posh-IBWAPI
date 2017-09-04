@@ -48,6 +48,7 @@ function New-IBObject
 
     Process {
         $bodyJson = $IBObject | ConvertTo-Json -Compress -Depth 5
+        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
         Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json -Depth 5)"
 
         $uri = "$APIBase$($ObjectType)$($querystring)"
