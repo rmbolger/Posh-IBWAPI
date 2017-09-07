@@ -42,7 +42,7 @@ function Get-IBSchema {
         Write-Verbose "Set highest version: $($cfg.HighestVersion)"
 
         if ([Version]$cfg.HighestVersion -lt [Version]'1.7.5') {
-            throw "NIOS $($cfg.HighestVersion) doesn't support schema queries"
+            throw "NIOS WAPI $($cfg.HighestVersion) doesn't support schema queries"
         }
     }
 
