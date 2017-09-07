@@ -39,10 +39,15 @@ function Format-Columns {
         function Max($i1, $i2) {  [Math]::Max($i1, $i2) }
         if (!$Column) { $Autosize = $true }
         $values = ProcessValues
+
+        # splat the colors in case they weren't specified
+        $colors = @{}
+        if ($ForegroundColor) { $colors.ForegroundColor = $ForegroundColor }
+        if ($BackgroundColor) { $colors.BackgroundColor = $BackgroundColor }
         
         $valuesCount = @($values).Count
         if ($valuesCount -eq 1) {
-            Write-Host $values -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor
+            Write-Host $values @colors
             return
         }
         
@@ -91,7 +96,7 @@ function Format-Columns {
         1..$countOfRows | % {
             $r    = $_-1
             $line = @(1..$Column | %{ $values[$r + ($_-1)*$countOfRows]} )
-            Write-Host "$($formatString -f $line)".PadRight($consoleWidth,' ') -BackgroundColor $BackgroundColor -ForegroundColor $ForegroundColor
+            Write-Host "$($formatString -f $line)".PadRight($consoleWidth,' ') @colors
         }
     }
 
