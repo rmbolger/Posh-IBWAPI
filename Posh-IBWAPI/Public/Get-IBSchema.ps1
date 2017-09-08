@@ -130,13 +130,13 @@ function Get-IBSchema {
     function BlankLine() { ' ' | Word-Wrap -Pad | Write-Host }
     function PrettifySupports([string]$supports) {
         # The 'supports' property of a schema Field is a lower cases string
-        # containing one or more of r,w,u,c,d for the supported operations of
+        # containing one or more of r,w,u,d,s for the supported operations of
         # that field. Most, but not all, are in a standard order. There are
         # instances of things like 'wu' vs 'uw'. We want to standardize the
         # order (RWUSD), uppercase the letters, and insert spaces for the operations
         # not included in the list.
         $ret = ''
-        'R','W','U','S','D' | %{
+        'R','W','U','D','S' | %{
             if ($supports -like "*$_*") {
                 $ret += $_
             } else {
@@ -146,6 +146,38 @@ function Get-IBSchema {
         $ret
         # Basic string concatentation obviously isn't the most efficient thing to
         # do here. But we can optimize later if it becomes a problem.
+    }
+    function PrettifySupportsDetail([string]$supports) {
+        # The 'supports' property of a schema Field is a lower cases string
+        # containing one or more of r,w,u,s,d for the supported operations of
+        # that field. Most, but not all, are in a standard order. There are
+        # instances of things like 'wu' vs 'uw'. We want to spell out the operations
+        # for the detailed view.
+        $ret = @()
+        if ($supports -like '*r*') { $ret += 'Read' }
+        if ($supports -like '*w*') { $ret += 'Write' }
+        if ($supports -like '*u*') { $ret += 'Update' }
+        if ($supports -like '*d*') { $ret += 'Delete' }
+        if ($supports -like '*s*') { $ret += 'Search' }
+        ($ret -join ', ')
+        # Basic string concatentation obviously isn't the most efficient thing to
+        # do here. But we can optimize later if it becomes a problem.
+    }
+
+    function PrettifyType($field) {
+
+        if ($field.enum_values) {
+            $type = "{ $($field.enum_values -join ' | ') }"
+            if ($field.is_array) { $type = "$type[]" }
+        } else {
+            if ($field.is_array) {
+                $type = ($field.type | %{ "$_[]" }) -join ' | '
+            } else {
+                $type = $field.type -join '|'
+            }
+        }
+
+        $type
     }
 
     if (!$schema.type) {
@@ -211,6 +243,46 @@ function Get-IBSchema {
             if ($Detailed) {
                 # Display the detailed view
 
+                BlankLine
+                'FIELDS' | Word-Wrap -Pad | Write-Host
+
+                # loop through fields alphabetically
+                $fieldList | sort name | %{
+
+                    "$($_.name) <$(PrettifyType $_)>" | Word-Wrap -Indent 4 -Pad | Write-Host
+
+                    if ($_.doc) {
+                        $_.doc | Word-Wrap -Indent 8 -Pad | Write-Host
+                        BlankLine
+                    }
+
+                    "Supports: $(PrettifySupportsDetail $_.supports)" | Word-Wrap -Indent 8 -Pad | Write-Host
+
+                    if ($_.overridden_by) {
+                        "Overridden By: $($_.overridden_by)" | Word-Wrap -Indent 8 -Pad | Write-Host
+                    }
+                    if ($_.standard_field) {
+                        "This field is part of the base object." | Word-Wrap -Indent 8 -Pad | Write-Host
+                    }
+                    if ($_.searchable_by) {
+                        BlankLine
+                        "This field is available for search via:" | Word-Wrap -Indent 8 -Pad | Write-Host
+                        if ($_.searchable_by -like '*=*') { "'=' (exact equality)" | Word-Wrap -Indent 12 -Pad | Write-Host }
+                        if ($_.searchable_by -like '*!*') { "'!=' (negative equality)" | Word-Wrap -Indent 12 -Pad | Write-Host }
+                        if ($_.searchable_by -like '*:*') { "':=' (case insensitive search)" | Word-Wrap -Indent 12 -Pad | Write-Host }
+                        if ($_.searchable_by -like '*~*') { "'~=' (regular expression)" | Word-Wrap -Indent 12 -Pad | Write-Host }
+                        if ($_.searchable_by -like '*<*') { "'<=' (less than or equal to)" | Word-Wrap -Indent 12 -Pad | Write-Host }
+                        if ($_.searchable_by -like '*>*') { "'>=' (greater than or equal to)" | Word-Wrap -Indent 12 -Pad | Write-Host }
+                    }
+
+                    # supports_inline_funccall
+                    # schema? (sub object defs)
+                    # wapi_primitive = struct?
+
+                    BlankLine
+
+                }
+
             } else {
                 # Display the simple view
 
@@ -232,7 +304,7 @@ function Get-IBSchema {
                     $base = ''
                     if ($_.standard_field) { $base = 'X' }
 
-                    # put brackets around array types
+                    # put brackets on array types
                     if ($_.is_array) {
                         for ($i=0; $i -lt $_.type.count; $i++) {
                             $_.type[$i] = "$($_.type[$i])[]"
@@ -272,14 +344,8 @@ function Get-IBSchema {
                         BlankLine
                         "INPUTS" | Word-Wrap -Indent 4 -Pad | Write-Host
                         foreach ($field in $_.schema.input_fields) {
-                            if ($field.enum_values) {
-                                $type = "string( $($field.enum_values -join ' | ') )"
-                            } else {
-                                $type = $field.type -join '|'
-                            }
-                            if ($field.is_array) { $type = "$type[]" }
                             BlankLine
-                            "$($field.name) ($type)" | Word-Wrap -Indent 8 -Pad | Write-Host
+                            "$($field.name) <$(PrettifyType $field)>" | Word-Wrap -Indent 8 -Pad | Write-Host
                             $field.doc | Word-Wrap -Indent 12 -Pad | Write-Host
                         }
                     }
@@ -287,14 +353,8 @@ function Get-IBSchema {
                         BlankLine
                         "OUTPUTS" | Word-Wrap -Indent 4 -Pad | Write-Host
                         foreach ($field in $_.schema.output_fields) {
-                            if ($field.enum_values) {
-                                $type = "string( $($field.enum_values -join ' | ') )"
-                            } else {
-                                $type = $field.type -join '|'
-                            }
-                            if ($field.is_array) { $type = "$type[]" }
                             BlankLine
-                            "$($field.name) ($type)" | Word-Wrap -Indent 8 -Pad | Write-Host
+                            "$($field.name) <$(PrettifyType $field)>" | Word-Wrap -Indent 8 -Pad | Write-Host
                             $field.doc | Word-Wrap -Indent 12 -Pad | Write-Host
                         }
                     }
