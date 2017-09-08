@@ -179,95 +179,88 @@ function Get-IBSchema {
             "$($schema.cloud_additional_restrictions -join ', ')" | Word-Wrap -Pad -Indent 4 | Write-Host
         }
 
-        # With _schema_version=2, functions are potentially returned in the normal
+        # With _schema_version=2, functions are returned in the normal
         # list of fields. But we want to split those out and display them differently.
-        $fieldList = $schema.fields | ?{ $_.wapi_primitive -ne 'funccall' }
-        $funcList = $schema.fields | ?{ $_.wapi_primitive -eq 'funccall' }
+        $fieldList = @($schema.fields | ?{ $_.wapi_primitive -ne 'funccall' })
+        $funcList  = @($schema.fields | ?{ $_.wapi_primitive -eq 'funccall' })
 
         # filter the fields if specified
         if ($Fields.count -gt 0) {
-            $fieldList = $fieldList | ?{
+            $fieldList = @($fieldList | ?{
                 $name = $_.name
                 ($Fields | %{ $name -like $_ }) -contains $true
-            }
+            })
         }
         # filter fields that don't include at least one specified Operation unless no operations were specified
         if ($Operations.count -gt 0) {
-            $fieldList = $fieldList | ?{
+            $fieldList = @($fieldList | ?{
                 $supports = $_.supports
                 ($Operations | %{ $supports -like "*$_*"}) -contains $true
-            }
+            })
         }
         # filter the functions if specified
         if ($Functions.count -gt 0) {
-            $funcList = $funcList | ?{
+            $funcList = @($funcList | ?{
                 $name = $_.name
-                ($Functions | %{ $name -like $_}) -contains $true
-            }
+                ($Functions | %{ $name -like $_ }) -contains $true
+            })
         }
 
         if ($fieldList.count -gt 0 -and !$NoFields) {
 
-            # get the length of the longest field name so we can make sure not to truncate that column
-            $nameMax = [Math]::Max(($fieldList.name | sort -desc @{E={$_.length}} | select -first 1).length + 1, 6)
-            # get the length of the longest type name (including potential array brackets) so we can
-            # make sure not to truncate that column
-            $typeMax = [Math]::Max(($fieldList.type | sort -desc @{E={$_.length}} | select -first 1).length + 3, 5)
+            if ($Detailed) {
+                # Display the detailed view
 
-            $format = "{0,-$nameMax}{1,-$typeMax}{2,-9}{3,-5}{4,-6}"
-            BlankLine
-            ($format -f 'Field','Type','Supports','Base','Search') | Word-Wrap -Pad | Write-Host
-            ($format -f '-----','----','--------','----','------') | Word-Wrap -Pad | Write-Host
+            } else {
+                # Display the simple view
 
-            # loop through fields alphabetically
-            $fieldList | sort @{E='name';Desc=$false} | %{
+                # get the length of the longest field name so we can make sure not to truncate that column
+                $nameMax = [Math]::Max(($fieldList.name | sort -desc @{E={$_.length}} | select -first 1).length + 1, 6)
+                # get the length of the longest type name (including potential array brackets) so we can
+                # make sure not to truncate that column
+                $typeMax = [Math]::Max(($fieldList.type | sort -desc @{E={$_.length}} | select -first 1).length + 3, 5)
 
-                # set the Base column value
-                $base = ''
-                if ($_.standard_field) { $base = 'X' }
-
-                # put brackets around array types
-                if ($_.is_array) {
-                    for ($i=0; $i -lt $_.type.count; $i++) {
-                        $_.type[$i] = "[$($_.type[$i])]"
-                    }
-                }
-
-                # there should always be at least one type, so write that with the rest of
-                # the table values
-                ($format -f $_.name,$_.type[0],(PrettifySupports $_.supports),$base,$_.searchable_by) | Word-Wrap -Pad | Write-Host
-
-                # write additional types on their own line
-                if ($_.type.count -gt 1) {
-                    for ($i=1; $i -lt $_.type.count; $i++) {
-                        "$(''.PadRight($nameMax))$($_.type[$i])" | Word-Wrap -Pad | Write-Host
-                    }
-                }
-            }
-        }
-
-        if (!$NoFunctions) {
-            if ($funcList.count -gt 0) {
+                $format = "{0,-$nameMax}{1,-$typeMax}{2,-9}{3,-5}{4,-6}"
                 BlankLine
-                "FUNCTIONS" | Word-Wrap -Pad | Write-Host
-            }
-            $funcList | %{
+                ($format -f 'FIELD','TYPE','SUPPORTS','BASE','SEARCH') | Word-Wrap -Pad | Write-Host
+                ($format -f '-----','----','--------','----','------') | Word-Wrap -Pad | Write-Host
 
-                if ($Functions.count -le 0) {
-                    $funcListtr = "$($_.name)($($_.schema.input_fields.name -join ', '))"
-                    if ($_.schema.output_fields.count -gt 0) {
-                        $funcListtr += " => $($_.schema.output_fields.name -join ', ')"
+                # loop through fields alphabetically
+                $fieldList | sort @{E='name';Desc=$false} | %{
+
+                    # set the Base column value
+                    $base = ''
+                    if ($_.standard_field) { $base = 'X' }
+
+                    # put brackets around array types
+                    if ($_.is_array) {
+                        for ($i=0; $i -lt $_.type.count; $i++) {
+                            $_.type[$i] = "$($_.type[$i])[]"
+                        }
                     }
-                    $funcListtr | Word-Wrap -Indent 4 -Pad | Write-Host
+
+                    # there should always be at least one type, so write that with the rest of
+                    # the table values
+                    ($format -f $_.name,$_.type[0],(PrettifySupports $_.supports),$base,$_.searchable_by) | Word-Wrap -Pad | Write-Host
+
+                    # write additional types on their own line
+                    if ($_.type.count -gt 1) {
+                        for ($i=1; $i -lt $_.type.count; $i++) {
+                            "$(''.PadRight($nameMax))$($_.type[$i])" | Word-Wrap -Pad | Write-Host
+                        }
+                    }
                 }
-                else {
-                    $name = $_.name
+            } # end simple field view
+        } # end fields
 
-                    # skip functions that weren't specified in the list
-                    if (($Functions | %{ $name -like $_ }) -notcontains $true) {
-                        return
-                    }
+        if ($funcList.count -gt 0 -and !$NoFunctions) {
 
+            BlankLine
+            "FUNCTIONS" | Word-Wrap -Pad | Write-Host
+
+            if ($Detailed) {
+
+                $funcList | %{
                     BlankLine
                     '    ----------------------------------------------------------' | Word-Wrap -Pad | Write-Host
                     $_.name | Word-Wrap -Indent 4 -Pad | Write-Host
@@ -277,38 +270,49 @@ function Get-IBSchema {
                     }
                     if ($_.schema.input_fields.count -gt 0) {
                         BlankLine
-                        "Input fields" | Word-Wrap -Indent 4 -Pad | Write-Host
+                        "INPUTS" | Word-Wrap -Indent 4 -Pad | Write-Host
                         foreach ($field in $_.schema.input_fields) {
                             if ($field.enum_values) {
-                                $type = $field.enum_values -join '|'
+                                $type = "string( $($field.enum_values -join ' | ') )"
                             } else {
                                 $type = $field.type -join '|'
                             }
-                            if ($field.is_array) { $type = "[$type]" }
+                            if ($field.is_array) { $type = "$type[]" }
                             BlankLine
-                            "$($field.name) - $type" | Word-Wrap -Indent 8 -Pad | Write-Host
+                            "$($field.name) ($type)" | Word-Wrap -Indent 8 -Pad | Write-Host
                             $field.doc | Word-Wrap -Indent 12 -Pad | Write-Host
                         }
                     }
                     if ($_.schema.output_fields.count -gt 0) {
                         BlankLine
-                        "Output fields" | Word-Wrap -Indent 4 -Pad | Write-Host
+                        "OUTPUTS" | Word-Wrap -Indent 4 -Pad | Write-Host
                         foreach ($field in $_.schema.output_fields) {
                             if ($field.enum_values) {
-                                $type = $field.enum_values -join '|'
+                                $type = "string( $($field.enum_values -join ' | ') )"
                             } else {
                                 $type = $field.type -join '|'
                             }
-                            if ($field.is_array) { $type = "[$type]" }
+                            if ($field.is_array) { $type = "$type[]" }
                             BlankLine
-                            "$($field.name) - $type" | Word-Wrap -Indent 8 -Pad | Write-Host
+                            "$($field.name) ($type)" | Word-Wrap -Indent 8 -Pad | Write-Host
                             $field.doc | Word-Wrap -Indent 12 -Pad | Write-Host
                         }
                     }
+
                 }
 
-            } # end $funcList loop
-        }
+            } else {
+
+                $funcList | %{
+                    $funcListtr = "$($_.name)($($_.schema.input_fields.name -join ', '))"
+                    if ($_.schema.output_fields.count -gt 0) {
+                        $funcListtr += " => $($_.schema.output_fields.name -join ', ')"
+                    }
+                    $funcListtr | Word-Wrap -Indent 4 -Pad | Write-Host
+                }
+
+            } # end simple function view
+        } # end functions
 
         BlankLine
     }
