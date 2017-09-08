@@ -9,6 +9,7 @@ function Get-IBSchema {
         [switch]$NoFields,
         [string[]]$Functions,
         [switch]$NoFunctions,
+        [switch]$Detailed,
         [Alias('host')]
         [string]$WAPIHost,
         [Alias('version')]
@@ -162,12 +163,7 @@ function Get-IBSchema {
         BlankLine
     }
     else {
-        # With _schema_version=2, we functions are potentially returned in the normal
-        # list of fields. But we want to split those out and display them differently.
-        $funcs = $schema.fields | ?{ $_.wapi_primitive -eq 'funccall' }
-        $schema.fields = $schema.fields | ?{ $_.wapi_primitive -ne 'funccall' }
-
-        # object type schema
+        # display the top level object info
         $typeStr = "$($schema.type) (WAPI $($schema.version))"
         BlankLine
         'OBJECT' | Word-Wrap -Pad | Write-Host
@@ -183,36 +179,48 @@ function Get-IBSchema {
             "$($schema.cloud_additional_restrictions -join ', ')" | Word-Wrap -Pad -Indent 4 | Write-Host
         }
 
-        if ($schema.fields.count -gt 0 -and !$NoFields) {
+        # With _schema_version=2, functions are potentially returned in the normal
+        # list of fields. But we want to split those out and display them differently.
+        $fieldList = $schema.fields | ?{ $_.wapi_primitive -ne 'funccall' }
+        $funcList = $schema.fields | ?{ $_.wapi_primitive -eq 'funccall' }
+
+        # filter the fields if specified
+        if ($Fields.count -gt 0) {
+            $fieldList = $fieldList | ?{
+                $name = $_.name
+                ($Fields | %{ $name -like $_ }) -contains $true
+            }
+        }
+        # filter fields that don't include at least one specified Operation unless no operations were specified
+        if ($Operations.count -gt 0) {
+            $fieldList = $fieldList | ?{
+                $supports = $_.supports
+                ($Operations | %{ $supports -like "*$_*"}) -contains $true
+            }
+        }
+        # filter the functions if specified
+        if ($Functions.count -gt 0) {
+            $funcList = $funcList | ?{
+                $name = $_.name
+                ($Functions | %{ $name -like $_}) -contains $true
+            }
+        }
+
+        if ($fieldList.count -gt 0 -and !$NoFields) {
+
             # get the length of the longest field name so we can make sure not to truncate that column
-            $nameMax = [Math]::Max(($schema.fields.name | sort -desc @{E={$_.length}} | select -first 1).length + 1, 6)
+            $nameMax = [Math]::Max(($fieldList.name | sort -desc @{E={$_.length}} | select -first 1).length + 1, 6)
             # get the length of the longest type name (including potential array brackets) so we can
             # make sure not to truncate that column
-            $typeMax = [Math]::Max(($schema.fields.type | sort -desc @{E={$_.length}} | select -first 1).length + 3, 5)
+            $typeMax = [Math]::Max(($fieldList.type | sort -desc @{E={$_.length}} | select -first 1).length + 3, 5)
 
             $format = "{0,-$nameMax}{1,-$typeMax}{2,-9}{3,-5}{4,-6}"
             BlankLine
             ($format -f 'Field','Type','Supports','Base','Search') | Word-Wrap -Pad | Write-Host
             ($format -f '-----','----','--------','----','------') | Word-Wrap -Pad | Write-Host
 
-            # sort base fields first, then alphabetical with the rest
-            $schema.fields | sort @{E='standard_field';Desc=$true},@{E='name';Desc=$false} | %{
-
-                # skip fields not specified in $Fields unless it's empty
-                if ($Fields.count -gt 0) {
-                    $name = $_.name
-                    if (($Fields | %{ $name -like $_ }) -notcontains $true) {
-                        return
-                    }
-                }
-
-                # skip fields that don't include at least one specified Operation unless no operations were specified
-                if ($Operations.count -gt 0) {
-                    $supports = $_.supports
-                    if (($Operations | %{ $supports -like "*$_*"}) -notcontains $true) {
-                        return
-                    }
-                }
+            # loop through fields alphabetically
+            $fieldList | sort @{E='name';Desc=$false} | %{
 
                 # set the Base column value
                 $base = ''
@@ -239,24 +247,24 @@ function Get-IBSchema {
         }
 
         if (!$NoFunctions) {
-            if ($funcs.count -gt 0) {
+            if ($funcList.count -gt 0) {
                 BlankLine
                 "FUNCTIONS" | Word-Wrap -Pad | Write-Host
             }
-            $funcs | %{
+            $funcList | %{
 
                 if ($Functions.count -le 0) {
-                    $funcStr = "$($_.name)($($_.schema.input_fields.name -join ', '))"
+                    $funcListtr = "$($_.name)($($_.schema.input_fields.name -join ', '))"
                     if ($_.schema.output_fields.count -gt 0) {
-                        $funcStr += " => $($_.schema.output_fields.name -join ', ')"
+                        $funcListtr += " => $($_.schema.output_fields.name -join ', ')"
                     }
-                    $funcStr | Word-Wrap -Indent 4 -Pad | Write-Host
+                    $funcListtr | Word-Wrap -Indent 4 -Pad | Write-Host
                 }
                 else {
                     $name = $_.name
 
                     # skip functions that weren't specified in the list
-                    if (($Functions | %{ $name -like "*$_*" }) -notcontains $true) {
+                    if (($Functions | %{ $name -like $_ }) -notcontains $true) {
                         return
                     }
 
@@ -299,7 +307,7 @@ function Get-IBSchema {
                     }
                 }
 
-            } # end $funcs loop
+            } # end $funcList loop
         }
 
         BlankLine
@@ -335,6 +343,9 @@ function Get-IBSchema {
 
     .PARAMETER NoFunctions
         If set, the object's functions will not be included in the output.
+
+    .PARAMETER Detailed
+        If set, detailed output is displayed for field and function information. Otherwise, a simplified view is displayed.
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBWAPIConfig.
