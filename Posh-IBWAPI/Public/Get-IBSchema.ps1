@@ -41,10 +41,9 @@ function Get-IBSchema {
         }
         $cfg.HighestVersion = (HighestVer $WAPIHost $opts.WebSession -IgnoreCertificateValidation:$opts.IgnoreCertificateValidation)
         Write-Verbose "Set highest version: $($cfg.HighestVersion)"
-
-        if ([Version]$cfg.HighestVersion -lt [Version]'1.7.5') {
-            throw "NIOS WAPI $($cfg.HighestVersion) doesn't support schema queries"
-        }
+    }
+    if ([Version]$cfg.HighestVersion -lt [Version]'1.7.5') {
+        throw "NIOS WAPI $($cfg.HighestVersion) doesn't support schema queries"
     }
 
     # cache some base schema stuff that we'll potentially need later
