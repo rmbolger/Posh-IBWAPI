@@ -4,6 +4,7 @@ function Get-IBSchema {
         [Alias('type')]
         [string]$ObjectType,
         [switch]$Raw,
+        [switch]$LaunchHTML,
         [string[]]$Fields,
         [string[]]$Operations,
         [switch]$NoFields,
@@ -123,8 +124,20 @@ function Get-IBSchema {
 
     $schema = Invoke-IBWAPI -Uri $uri @opts
 
-    # return the schema object directly, if asked
-    if ($Raw) { return $schema }
+    # check for the switches that will prevent additional output
+    if ($Raw -or $LaunchHTML) {
+        # return the schema object directly, if asked
+        if ($Raw) { Write-Output $schema }
+        # launch a browser window to the object's full docs
+        if ($LaunchHTML) {
+            if ([String]::IsNullOrWhiteSpace($ObjectType)) {
+                Start-Process "https://$WAPIHost/wapidoc/index.html"
+            } else {
+                Start-Process "https://$WAPIHost/wapidoc/objects/$($ObjectType.Replace(':','.')).html"
+            }
+        }
+        return
+    }
 
     function BlankLine() { ' ' | Word-Wrap -Pad | Write-Host }
     function PrettifySupports([string]$supports) {
@@ -252,8 +265,8 @@ function Get-IBSchema {
 
                     if ($_.doc) {
                         $_.doc | Word-Wrap -Indent 8 -Pad | Write-Host
-                        BlankLine
                     }
+                    BlankLine
 
                     "Supports: $(PrettifySupportsDetail $_.supports)" | Word-Wrap -Indent 8 -Pad | Write-Host
 
@@ -402,7 +415,10 @@ function Get-IBSchema {
         Object type string. (e.g. network, record:host, range). Partial names and wildcards are supported. If the ObjectType parameter would match multiple objects, the list of matching objects will be returned.
 
     .PARAMETER Raw
-        If set, the schema object will be returned as-is rather than pretty printing the output. All parameters except -ObjectType will be ignored.
+        If set, the schema object will be returned as-is rather than pretty printing the output.  All additional display parameters are ignored except -LaunchHTML.
+
+    .PARAMETER LaunchHTML
+        If set, Powershell will attempt to launch a browser to the object's full HTML documentation page on the grid master. All additional display parameters are ignored except -Raw.
 
     .PARAMETER Fields
         A list of Field names to include in the output. Wildcards are supported. This parameter is ignored if -NoFields is specified. If neither is specified, all Fields will be included.
