@@ -124,7 +124,9 @@ function Format-Columns {
         Name: Get-Columns
         Author: stej, http://twitter.com/stejcz
         Site: http://www.leporelo.eu/blog.aspx?id=powershell-formatting-format-wide-rotated-to-format-columns
-        Lastedit: 2017-04-24
+        Lastedit: 2017-09-11
+        Version 0.4 - 2017-09-11
+        - removed color support and changed output from Write-Host to Write-Output
         Version 0.3 - 2017-04-24
         - added ForegroundColor and BackgroundColor
         Version 0.2 - 2010-01-14
