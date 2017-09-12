@@ -81,6 +81,9 @@ function Initialize-CallVars
         $psb.WebSession = $cfg.WebSession
         Write-Verbose "using saved WebSession for $($psb.WebSession.Credentials.UserName)"
     }
+    if (!$psb.Credential -and !$psb.WebSession) {
+        throw "No credentials supplied via Credential or WebSession"
+    }
 
     if (!$psb.ContainsKey('IgnoreCertificateValidation') -and
         $cfg.ContainsKey('IgnoreCertificateValidation')) {
