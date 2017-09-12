@@ -77,8 +77,8 @@ function Get-IBSchema {
             # multiple matches
             $message = "Multiple object matches found for $($ObjectType)"
             if ($Raw) { throw $message }
-            "$($message):" | Word-Wrap -Pad | Write-Host
-            $objMatches | %{ $_ | Word-Wrap -Pad | Write-Host }
+            Write-Output "$($message):"
+            $objMatches | %{ Write-Output $_ }
             return
         }
         elseif ($objMatches.count -eq 0 ) {
@@ -89,15 +89,15 @@ function Get-IBSchema {
                 # multiple matches
                 $message = "Multiple object matches found for $($ObjectType)"
                 if ($Raw) { throw $message }
-                "$($message):" | Word-Wrap -Pad | Write-Host
-                $objMatches | %{ $_ | Word-Wrap -Pad | Write-Host }
+                Write-Output "$($message):"
+                $objMatches | %{ Write-Output $_ }
                 return
             }
             elseif ($objMatches.count -eq 0) {
                 # no matches, even with wildcards
                 $message = "No matches found for $($ObjectType)"
                 if ($Raw) { throw $message }
-                else { $message | Word-Wrap -Pad | Write-Warning }
+                else { Write-Warning $message }
                 return
             } else {
                 $ObjectType = $objMatches
@@ -139,7 +139,7 @@ function Get-IBSchema {
         return
     }
 
-    function BlankLine() { ' ' | Word-Wrap -Pad | Write-Host }
+    function BlankLine() { Write-Output '' }
     function PrettifySupports([string]$supports) {
         # The 'supports' property of a schema Field is a lower cases string
         # containing one or more of r,w,u,d,s for the supported operations of
@@ -195,32 +195,32 @@ function Get-IBSchema {
     if (!$schema.type) {
         # base schema object
         BlankLine
-        "Requested Version: $($schema.requested_version)" | Word-Wrap -Pad | Write-Host
+        Write-Output "Requested Version: $($schema.requested_version)"
         BlankLine
-        "Supported Versions:" | Word-Wrap -Pad | Write-Host
+        Write-Output "Supported Versions:"
         BlankLine
-        $schema | Select-Object -expand supported_versions | Format-Columns -prop {$_} -col 4
+        Write-Output ($schema | Select-Object -expand supported_versions | Format-Columns -prop {$_} -col 4)
         BlankLine
-        "Supported Objects:" | Word-Wrap -Pad | Write-Host
+        Write-Output "Supported Objects:"
         BlankLine
-        $schema | Select-Object -expand supported_objects | Format-Columns -prop {$_}
+        Write-Output ($schema | Select-Object -expand supported_objects | Format-Columns -prop {$_})
         BlankLine
     }
     else {
         # display the top level object info
         $typeStr = "$($schema.type) (WAPI $($schema.version))"
         BlankLine
-        'OBJECT' | Word-Wrap -Pad | Write-Host
-        $typeStr | Word-Wrap -Pad -Indent 4 | Write-Host
+        Write-Output 'OBJECT'
+        Write-Output ($typeStr | Word-Wrap -Indent 4)
         if ($schema.restrictions) {
             BlankLine
-            'RESTRICTIONS' | Word-Wrap -Pad | Write-Host
-            "$($schema.restrictions -join ', ')" | Word-Wrap -Pad -Indent 4 | Write-Host
+            Write-Output 'RESTRICTIONS'
+            Write-Output ("$($schema.restrictions -join ', ')" | Word-Wrap -Indent 4)
         }
         if ($schema.cloud_additional_restrictions) {
             BlankLine
-            'CLOUD RESTRICTIONS' | Word-Wrap -Pad | Write-Host
-            "$($schema.cloud_additional_restrictions -join ', ')" | Word-Wrap -Pad -Indent 4 | Write-Host
+            Write-Output 'CLOUD RESTRICTIONS'
+            Write-Output ("$($schema.cloud_additional_restrictions -join ', ')" | Word-Wrap -Indent 4)
         }
 
         # With _schema_version=2, functions are returned in the normal
@@ -256,38 +256,38 @@ function Get-IBSchema {
                 # Display the detailed view
 
                 BlankLine
-                'FIELDS' | Word-Wrap -Pad | Write-Host
+                Write-Output 'FIELDS'
 
                 # loop through fields alphabetically
                 $fieldList | sort name | %{
 
-                    "$($_.name) <$(PrettifyType $_)>" | Word-Wrap -Indent 4 -Pad | Write-Host
+                    Write-Output ("$($_.name) <$(PrettifyType $_)>" | Word-Wrap -Indent 4)
 
                     if ($_.doc) {
-                        $_.doc | Word-Wrap -Indent 8 -Pad | Write-Host
+                        Write-Output ($_.doc | Word-Wrap -Indent 8)
                     }
                     BlankLine
 
-                    "Supports: $(PrettifySupportsDetail $_.supports)" | Word-Wrap -Indent 8 -Pad | Write-Host
+                    Write-Output ("Supports: $(PrettifySupportsDetail $_.supports)" | Word-Wrap -Indent 8)
 
                     if ($_.overridden_by) {
-                        "Overridden By: $($_.overridden_by)" | Word-Wrap -Indent 8 -Pad | Write-Host
+                        Write-Output ("Overridden By: $($_.overridden_by)" | Word-Wrap -Indent 8)
                     }
                     if ($_.standard_field) {
-                        "This field is part of the base object." | Word-Wrap -Indent 8 -Pad | Write-Host
+                        Write-Output ("This field is part of the base object." | Word-Wrap -Indent 8)
                     }
                     if ($_.supports_inline_funccall) {
-                        "This field supports inline function calls. See full docs for more detail."
+                        Write-Output ("This field supports inline function calls. See full docs for more detail." | Word-Wrap -Indent 8)
                     }
                     if ($_.searchable_by) {
                         BlankLine
-                        "This field is available for search via:" | Word-Wrap -Indent 8 -Pad | Write-Host
-                        if ($_.searchable_by -like '*=*') { "'=' (exact equality)" | Word-Wrap -Indent 12 -Pad | Write-Host }
-                        if ($_.searchable_by -like '*!*') { "'!=' (negative equality)" | Word-Wrap -Indent 12 -Pad | Write-Host }
-                        if ($_.searchable_by -like '*:*') { "':=' (case insensitive search)" | Word-Wrap -Indent 12 -Pad | Write-Host }
-                        if ($_.searchable_by -like '*~*') { "'~=' (regular expression)" | Word-Wrap -Indent 12 -Pad | Write-Host }
-                        if ($_.searchable_by -like '*<*') { "'<=' (less than or equal to)" | Word-Wrap -Indent 12 -Pad | Write-Host }
-                        if ($_.searchable_by -like '*>*') { "'>=' (greater than or equal to)" | Word-Wrap -Indent 12 -Pad | Write-Host }
+                        Write-Output ("This field is available for search via:" | Word-Wrap -Indent 8)
+                        if ($_.searchable_by -like '*=*') { Write-Output ("'=' (exact equality)" | Word-Wrap -Indent 12) }
+                        if ($_.searchable_by -like '*!*') { Write-Output ("'!=' (negative equality)" | Word-Wrap -Indent 12) }
+                        if ($_.searchable_by -like '*:*') { Write-Output ("':=' (case insensitive search)" | Word-Wrap -Indent 12) }
+                        if ($_.searchable_by -like '*~*') { Write-Output ("'~=' (regular expression)" | Word-Wrap -Indent 12) }
+                        if ($_.searchable_by -like '*<*') { Write-Output ("'<=' (less than or equal to)" | Word-Wrap -Indent 12) }
+                        if ($_.searchable_by -like '*>*') { Write-Output ("'>=' (greater than or equal to)" | Word-Wrap -Indent 12) }
                     }
 
                     # At this point, the only other thing to potentially deal with is if this field is
@@ -318,8 +318,8 @@ function Get-IBSchema {
 
                 $format = "{0,-$nameMax}{1,-$typeMax}{2,-9}{3,-5}{4,-6}"
                 BlankLine
-                ($format -f 'FIELD','TYPE','SUPPORTS','BASE','SEARCH') | Word-Wrap -Pad | Write-Host
-                ($format -f '-----','----','--------','----','------') | Word-Wrap -Pad | Write-Host
+                Write-Output ($format -f 'FIELD','TYPE','SUPPORTS','BASE','SEARCH')
+                Write-Output ($format -f '-----','----','--------','----','------')
 
                 # loop through fields alphabetically
                 $fieldList | sort @{E='name';Desc=$false} | %{
@@ -337,12 +337,12 @@ function Get-IBSchema {
 
                     # there should always be at least one type, so write that with the rest of
                     # the table values
-                    ($format -f $_.name,$_.type[0],(PrettifySupports $_.supports),$base,$_.searchable_by) | Word-Wrap -Pad | Write-Host
+                    Write-Output ($format -f $_.name,$_.type[0],(PrettifySupports $_.supports),$base,$_.searchable_by)
 
                     # write additional types on their own line
                     if ($_.type.count -gt 1) {
                         for ($i=1; $i -lt $_.type.count; $i++) {
-                            "$(''.PadRight($nameMax))$($_.type[$i])" | Word-Wrap -Pad | Write-Host
+                            Write-Output "$(''.PadRight($nameMax))$($_.type[$i])"
                         }
                     }
                 }
@@ -352,34 +352,34 @@ function Get-IBSchema {
         if ($funcList.count -gt 0 -and !$NoFunctions) {
 
             BlankLine
-            "FUNCTIONS" | Word-Wrap -Pad | Write-Host
+            Write-Output "FUNCTIONS"
 
             if ($Detailed) {
 
                 $funcList | %{
                     BlankLine
-                    '    ----------------------------------------------------------' | Word-Wrap -Pad | Write-Host
-                    $_.name | Word-Wrap -Indent 4 -Pad | Write-Host
-                    '    ----------------------------------------------------------' | Word-Wrap -Pad | Write-Host
+                    Write-Output '    ----------------------------------------------------------'
+                    Write-Output ($_.name | Word-Wrap -Indent 4)
+                    Write-Output '    ----------------------------------------------------------'
                     if ($_.doc) {
-                        $_.doc | Word-Wrap -Indent 8 -Pad | Write-Host
+                        Write-Output ($_.doc | Word-Wrap -Indent 8)
                     }
                     if ($_.schema.input_fields.count -gt 0) {
                         BlankLine
-                        "INPUTS" | Word-Wrap -Indent 4 -Pad | Write-Host
+                        Write-Output ("INPUTS" | Word-Wrap -Indent 4)
                         foreach ($field in $_.schema.input_fields) {
                             BlankLine
-                            "$($field.name) <$(PrettifyType $field)>" | Word-Wrap -Indent 8 -Pad | Write-Host
-                            $field.doc | Word-Wrap -Indent 12 -Pad | Write-Host
+                            Write-Output ("$($field.name) <$(PrettifyType $field)>" | Word-Wrap -Indent 8)
+                            Write-Output ($field.doc | Word-Wrap -Indent 12)
                         }
                     }
                     if ($_.schema.output_fields.count -gt 0) {
                         BlankLine
-                        "OUTPUTS" | Word-Wrap -Indent 4 -Pad | Write-Host
+                        Write-Output ("OUTPUTS" | Word-Wrap -Indent 4)
                         foreach ($field in $_.schema.output_fields) {
                             BlankLine
-                            "$($field.name) <$(PrettifyType $field)>" | Word-Wrap -Indent 8 -Pad | Write-Host
-                            $field.doc | Word-Wrap -Indent 12 -Pad | Write-Host
+                            Write-Output ("$($field.name) <$(PrettifyType $field)>" | Word-Wrap -Indent 8)
+                            Write-Output ($field.doc | Word-Wrap -Indent 12)
                         }
                     }
 
@@ -392,7 +392,7 @@ function Get-IBSchema {
                     if ($_.schema.output_fields.count -gt 0) {
                         $funcListtr += " => $($_.schema.output_fields.name -join ', ')"
                     }
-                    $funcListtr | Word-Wrap -Indent 4 -Pad | Write-Host
+                    Write-Output ($funcListtr | Word-Wrap -Indent 4)
                 }
 
             } # end simple function view

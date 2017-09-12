@@ -6,9 +6,7 @@ function Format-Columns {
         [Object]$Property,
         [int]$Column,
         [int]$MaxColumn,
-        [switch]$Autosize,
-        [System.ConsoleColor]$ForegroundColor,
-        [System.ConsoleColor]$BackgroundColor
+        [switch]$Autosize
     )
     
     Begin   { $values = @() }
@@ -40,15 +38,9 @@ function Format-Columns {
         if (!$Column) { $Autosize = $true }
         $values = ProcessValues
 
-        # splat the colors in case they weren't specified
-        $colors = @{}
-        if ($ForegroundColor) { $colors.ForegroundColor = $ForegroundColor }
-        if ($BackgroundColor) { $colors.BackgroundColor = $BackgroundColor }
-        
         $valuesCount = @($values).Count
         if ($valuesCount -eq 1) {
-            Write-Host $values @colors
-            return
+            return $values
         }
         
         # from some reason the console host doesn't use the last column and writes to new line
@@ -96,7 +88,7 @@ function Format-Columns {
         1..$countOfRows | % {
             $r    = $_-1
             $line = @(1..$Column | %{ $values[$r + ($_-1)*$countOfRows]} )
-            Write-Host "$($formatString -f $line)".PadRight($consoleWidth,' ') @colors
+            Write-Output "$($formatString -f $line)".PadRight($consoleWidth,' ')
         }
     }
 
