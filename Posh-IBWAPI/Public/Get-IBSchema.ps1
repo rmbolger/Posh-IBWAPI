@@ -263,6 +263,9 @@ function Get-IBSchema {
                     if ($_.standard_field) {
                         "This field is part of the base object." | Word-Wrap -Indent 8 -Pad | Write-Host
                     }
+                    if ($_.supports_inline_funccall) {
+                        "This field supports inline function calls. See full docs for more detail."
+                    }
                     if ($_.searchable_by) {
                         BlankLine
                         "This field is available for search via:" | Word-Wrap -Indent 8 -Pad | Write-Host
@@ -274,12 +277,21 @@ function Get-IBSchema {
                         if ($_.searchable_by -like '*>*') { "'>=' (greater than or equal to)" | Word-Wrap -Indent 12 -Pad | Write-Host }
                     }
 
-                    # supports_inline_funccall
-                    # schema? (sub object defs)
-                    # wapi_primitive = struct?
+                    # At this point, the only other thing to potentially deal with is if this field is
+                    # a struct. If so, there will be a sub-schema object with it's own set of fields. But
+                    # each of those fields might also be a struct with even more sub-schemas, potentially going
+                    # 3+ levels deep. Even the HTML docs don't try to cram all that into a field's description.
+                    # They stick with links to the struct details.
+
+                    # Unfortunately, the schema queries don't support querying structs directly. So in order to
+                    # fake making something like that work, we would need to basically cache struct definitions
+                    # (per WAPI version) as they're queried. Maybe have some way to pre-cache all the structs for
+                    # a particular version by whipping through the supported object types?
+
+                    # In any case, it's a non-trivial task for another day. And I don't want it to delay the schema
+                    # querying release.
 
                     BlankLine
-
                 }
 
             } else {
