@@ -26,6 +26,10 @@ function Get-IBObject
         [switch]$ReturnBaseFields,
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
+        [Alias('all')]
+        [switch]$ReturnAllFields,
+        [Parameter(ParameterSetName='ByRef')]
+        [Parameter(ParameterSetName='ByType')]
         [switch]$ProxySearch,
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
@@ -62,13 +66,19 @@ function Get-IBObject
             $queryargs += $Filters
         }
 
-        # process the return fields
-        if ($ReturnFields.Count -gt 0) {
-            if ($ReturnBaseFields) {
-                $queryargs += "_return_fields%2B=$($ReturnFields -join ',')"
-            }
-            else {
-                $queryargs += "_return_fields=$($ReturnFields -join ',')"
+        # process the return field options
+        if ($ReturnAllFields) {
+            # Because this requires a schema query based on the object type to get the field
+            # names, we're going to postpone this work until the Process {} section in case
+            # they passed multiple different object types via _ref.
+        } else {
+            if ($ReturnFields.Count -gt 0) {
+                if ($ReturnBaseFields) {
+                    $queryargs += "_return_fields%2B=$($ReturnFields -join ',')"
+                }
+                else {
+                    $queryargs += "_return_fields=$($ReturnFields -join ',')"
+                }
             }
         }
 
@@ -98,6 +108,29 @@ function Get-IBObject
 
                 $queryObj = $ObjectType
             }
+        }
+
+        # deal with -ReturnAllFields now
+        if ($ReturnAllFields) {
+            # Returning all fields requires doing a schema query against the object type first
+            # so we can compile the list of fields to request.
+            $oType = $queryObj
+            Write-Verbose "$oType index of '/' is $($oType.IndexOf("/"))"
+            if ($ObjectRef) { $oType = $oType.Substring(0,$oType.IndexOf("/")) }
+
+            # Not all WAPI versions support schema queries, so handle appropriately
+            try {
+                Write-Verbose "Querying schema for $oType fields"
+                $schema = Get-IBSchema $oType -Raw
+            } catch {
+                if ($_ -like "*doesn't support schema queries*") {
+                    throw "The -ReturnAllFields parameter requires querying the schema and $_"
+                } else { throw }
+            }
+
+            # grab the readable fields and add them to the querystring
+            $readFields = ($schema.fields | ?{ $_.supports -like '*r*' }).name
+            $queryargs += "_return_fields=$($readFields -join ',')"
         }
 
         if ($UsePaging) {
