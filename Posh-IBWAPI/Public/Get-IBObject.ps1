@@ -115,7 +115,6 @@ function Get-IBObject
             # Returning all fields requires doing a schema query against the object type first
             # so we can compile the list of fields to request.
             $oType = $queryObj
-            Write-Verbose "$oType index of '/' is $($oType.IndexOf("/"))"
             if ($ObjectRef) { $oType = $oType.Substring(0,$oType.IndexOf("/")) }
 
             # Not all WAPI versions support schema queries, so handle appropriately
@@ -129,7 +128,7 @@ function Get-IBObject
             }
 
             # grab the readable fields and add them to the querystring
-            $readFields = ($schema.fields | ?{ $_.supports -like '*r*' }).name
+            $readFields = ($schema.fields | ?{ $_.supports -like '*r*' -and $_.wapi_primitive -ne 'funccall' }).name
             $queryargs += "_return_fields=$($readFields -join ',')"
         }
 
@@ -170,7 +169,12 @@ function Get-IBObject
 
                 if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
                     $response = Invoke-IBWAPI -Uri $uri @opts
-                    if (!$response.result) { throw "Unexpected response from server: No result object found." }
+                    if ($response.PSObject.Properties.Name -notcontains "result") {
+                        # A normal response from WAPI will contain a 'result' object even
+                        # if that object is empty because it couldn't find anything.
+                        # But if there's no result object, something is wrong.
+                        throw "No 'result' object found in server response"
+                    }
                     $results += $response.result
                 }
             } while ($response.next_page_id -and $results.Count -lt $MaxResults)
