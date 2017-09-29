@@ -137,7 +137,12 @@ function Get-IBObject
 
                 if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
                     $response = Invoke-IBWAPI -Uri $uri @opts
-                    if (!$response.result) { throw "Unexpected response from server: No result object found." }
+                    if ($response.PSObject.Properties.Name -notcontains "result") {
+                        # A normal response from WAPI will contain a 'result' object even
+                        # if that object is empty because it couldn't find anything.
+                        # But if there's no result object, something is wrong.
+                        throw "No 'result' object found in server response"
+                    }
                     $results += $response.result
                 }
             } while ($response.next_page_id -and $results.Count -lt $MaxResults)
