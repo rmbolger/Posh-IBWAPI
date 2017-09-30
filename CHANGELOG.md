@@ -1,3 +1,9 @@
+## 1.2 (2017-09-29)
+* Added Get-IBSchema for Get-Help style querying of the WAPI object model
+* Added -ReturnAllFields parameter to Get-IBObject which will return all possible fields for an object without needing to explicitly specify each one.
+* Fixed credential checking in Initialize-CallVars
+* Fixed empty results throwing an error in Get-IBObject
+
 ## 1.1.2 (2017-09-04)
 * Tweaked Get-IBObject paging so that MaxResults will limit page size if smaller than default, thus not requesting more data than necessary
 * Fix for issue #17. JSON bodies are now explicitly UTF8 encoded to prevent issues with non-ASCII characters

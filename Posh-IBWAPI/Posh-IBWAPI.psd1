@@ -12,7 +12,7 @@
 RootModule = 'Posh-IBWAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.2'
+ModuleVersion = '1.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -118,7 +118,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Tweaked Get-IBObject paging so that MaxResults will limit page size if smaller than default, thus not requesting more data than necessary. Fix for issue #17. JSON bodies are now explicitly UTF8 encoded to prevent issues with non-ASCII characters'
+        ReleaseNotes = 'Added Get-IBSchema. Added -ReturnAllFields for Get-IBObject. Misc bug fixes.'
 
     } # End of PSData hashtable
 

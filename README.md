@@ -5,6 +5,8 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 # Notable Features
 
 - Automatic paging for large GET result sets *(Requires WAPI version 1.5+)*
+- Optionally return all fields for an object without needing to specify each one individually *(Requires WAPI version 1.7.5+)*
+- Use `Get-IBSchema` for `Get-Help` style querying of the WAPI object model *(Requires WAPI version 1.7.5+)*
 - Error details in the body of HTTP 400 responses are exposed instead of being swallowed by Invoke-RestMethod.
 - Pipeline support so you can do things like pass the results from `Get-IBObject` directly to `Remove-IBObject`.
 - Optionally ignore certificate validation errors.
