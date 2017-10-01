@@ -1,4 +1,4 @@
-## 1.2 (2017-09-29)
+## 1.2 (2017-09-30)
 * Added Get-IBSchema for Get-Help style querying of the WAPI object model
 * Added -ReturnAllFields parameter to Get-IBObject which will return all possible fields for an object without needing to explicitly specify each one.
 * Fixed credential checking in Initialize-CallVars
