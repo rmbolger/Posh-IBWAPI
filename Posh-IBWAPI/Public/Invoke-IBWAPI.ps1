@@ -52,7 +52,21 @@ function Invoke-IBWAPI
 
         try {
             if ($PSCmdlet.ShouldProcess($Uri, $opts.Method)) {
-                Invoke-RestMethod -Uri $Uri @opts
+
+                # send the request
+                $response = Invoke-RestMethod -Uri $Uri @opts
+
+                # attempt to detect a master candidate's meta refresh tag
+                if ($response -is [Xml.XmlDocument] -and $response.OuterXml -match 'CONTENT="0; URL=https://(?<gm>[\w.]+)"') {
+                    $gridmaster = $matches.gm
+                    Write-Warning "WAPIHost $($Uri.Authority) is requesting a redirect to $gridmaster. Retrying request against that host."
+
+                    # retry the request using the parsed grid master
+                    $Uri = [uri]$Uri.ToString().Replace($Uri.Authority, $gridmaster)
+                    Invoke-RestMethod -Uri $Uri @opts
+                } else {
+                    $response
+                }
 
                 # make sure to send our session variable up to the caller scope if defined
                 if ($SessionVariable) {
