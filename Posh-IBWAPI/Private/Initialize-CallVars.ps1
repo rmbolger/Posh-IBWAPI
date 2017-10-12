@@ -86,7 +86,7 @@ function Initialize-CallVars
     }
 
     if (!$psb.ContainsKey('IgnoreCertificateValidation') -and
-        $cfg.ContainsKey('IgnoreCertificateValidation')) {
+        $cfg -and $cfg.ContainsKey('IgnoreCertificateValidation')) {
         $psb.IgnoreCertificateValidation = $cfg.IgnoreCertificateValidation
         Write-Verbose "using saved Ignore value $($psb.IgnoreCertificateValidation)"
     }
