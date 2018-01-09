@@ -23,7 +23,7 @@ function Get-IBSchema {
 
     # grab the variables we'll be using for our REST calls
     $opts = Initialize-CallVars @PSBoundParameters
-    $APIBase = Base @opts
+    $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
     $WAPIHost = $opts.WAPIHost
     $WAPIVersion = $opts.WAPIVersion
     $opts.Remove('WAPIHost') | Out-Null

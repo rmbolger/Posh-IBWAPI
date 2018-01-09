@@ -25,7 +25,7 @@ function New-IBObject
 
         # grab the variables we'll be using for our REST calls
         $opts = Initialize-CallVars @PSBoundParameters
-        $APIBase = Base @opts
+        $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
         $opts.Remove('WAPIHost') | Out-Null
         $opts.Remove('WAPIVersion') | Out-Null
 

@@ -47,6 +47,9 @@ $script:CurrentHost = [string]::Empty
 if (!$script:Config) { $script:Config = @{} }
 if (!$script:Config.$script:CurrentHost) { $script:Config.$script:CurrentHost = @{WAPIHost=$script:CurrentHost} }
 
+# set some string templates we'll be using later
+$script:APIBaseTemplate = "https://{0}/wapi/v{1}/"
+
 # Get public and private function definition files.
 $Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue )
 $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )
