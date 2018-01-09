@@ -33,8 +33,6 @@ function Format-Columns {
             # in case there were some numbers, objects, etc., convert them to string
             $ret | % { $_.ToString() }
         }
-        function Base($i) { [Math]::Floor($i) }
-        function Max($i1, $i2) {  [Math]::Max($i1, $i2) }
         if (!$Column) { $Autosize = $true }
         $values = ProcessValues
 
@@ -46,13 +44,13 @@ function Format-Columns {
         # from some reason the console host doesn't use the last column and writes to new line
         $consoleWidth          = $host.ui.RawUI.maxWindowSize.Width - 1
         $gutterWidth = 2
-            
+
         # get length of the longest string
-        $values | % -Begin { [int]$maxLength = -1 } -Process { $maxLength = Max $maxLength $_.Length }
-        
+        $values | % -Begin { [int]$maxLength = -1 } -Process { $maxLength = [Math]::Max($maxLength,$_.Length) }
+
         # get count of columns if not provided
         if ($Autosize) {
-            $Column         = Max (Base ($consoleWidth/($maxLength+$gutterWidth))) 1
+            $Column         = [Math]::Max( 1, ([Math]::Floor(($consoleWidth/($maxLength+$gutterWidth)))) )
             $remainingSpace = $consoleWidth - $Column*($maxLength+$gutterWidth);
             if ($remainingSpace -ge $maxLength) { 
                 $Column++ 
@@ -62,14 +60,14 @@ function Format-Columns {
             }
         }
         $countOfRows       = [Math]::Ceiling($valuesCount / $Column)
-        $maxPossibleLength = Base ($consoleWidth / $Column)
-        
+        $maxPossibleLength = [Math]::Floor( ($consoleWidth / $Column) )
+
         # cut too long values, considers count of columns and space between them
         $values = $values | % {
             if ($_.length -gt $maxPossibleLength) { $_.Remove($maxPossibleLength-2) + '..' }
             else { $_ }
         }
-        
+
         #add empty values so that the values fill rectangle (2 dim array) without space
         if ($Column -gt 1) {
             $values += (@('') * ($countOfRows*$Column - $valuesCount))
