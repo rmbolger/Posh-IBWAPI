@@ -12,7 +12,7 @@
 RootModule = 'Posh-IBWAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2'
+ModuleVersion = '1.2.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -118,7 +118,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Added Get-IBSchema. Added -ReturnAllFields for Get-IBObject. Misc bug fixes.'
+        ReleaseNotes = 'Added GM candidate meta refresh detection. Bug fix for potential null ref exception. Misc code refactoring.'
 
     } # End of PSData hashtable
 
