@@ -49,6 +49,7 @@ if (!$script:Config.$script:CurrentHost) { $script:Config.$script:CurrentHost = 
 
 # set some string templates we'll be using later
 $script:APIBaseTemplate = "https://{0}/wapi/v{1}/"
+$script:WAPIDocTemplate = "https://{0}/wapidoc/"
 
 # Get public and private function definition files.
 $Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue )

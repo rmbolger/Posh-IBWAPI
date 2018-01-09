@@ -12,7 +12,8 @@ function HighestVer
     try {
         # Query the grid master schema for the list of supported versions
         Write-Verbose "Querying schema for supported versions"
-        $versions = (Invoke-IBWAPI -Uri "https://$WAPIHost/wapi/v1.1/?_schema" -WebSession $WebSession -IgnoreCertificateValidation:$IgnoreCertificateValidation).supported_versions
+        $APIBase = $script:APIBaseTemplate -f $WAPIHost,'1.1'
+        $versions = (Invoke-IBWAPI -Uri "$($APIBase)?_schema" -WebSession $WebSession -IgnoreCertificateValidation:$IgnoreCertificateValidation).supported_versions
 
         # Historically, these are returned in order. But just in case they aren't, we'll
         # explicitly sort them via the [Version] cast which is an easy way to make sure you
@@ -34,7 +35,8 @@ function HighestVer
             $reVersion = '<title>.*WAPI ([\.0-9]+).*</title>'
 
             # get the wapidoc home page
-            $response = Invoke-RestMethod "https://$WAPIHost/wapidoc"
+            $docBase = $script:WAPIDocTemplate -f $WAPIHost
+            $response = Invoke-RestMethod $docBase
 
             if ($response -match $reVersion) {
                 # return the version we found

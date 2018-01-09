@@ -130,10 +130,11 @@ function Get-IBSchema {
         if ($Raw) { Write-Output $schema }
         # launch a browser window to the object's full docs
         if ($LaunchHTML) {
+            $docBase = $script:WAPIDocTemplate -f $WAPIHost
             if ([String]::IsNullOrWhiteSpace($ObjectType)) {
-                Start-Process "https://$WAPIHost/wapidoc/index.html"
+                Start-Process "$($docBase)index.html"
             } else {
-                Start-Process "https://$WAPIHost/wapidoc/objects/$($ObjectType.Replace(':','.')).html"
+                Start-Process "$($docBase)objects/$($ObjectType.Replace(':','.')).html"
             }
         }
         return
