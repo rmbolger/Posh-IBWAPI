@@ -1,3 +1,8 @@
+## 1.2.1 (2018-01-09)
+* Added Grid Master Candidate meta refresh detection. So if your grid master candidates are configured to redirect to the current grid master, the module will automatically re-try the query there and throw a warning, rather than failing with an error.
+* Fixed a potential null reference exception
+* Misc code refactoring
+
 ## 1.2 (2017-09-30)
 * Added Get-IBSchema for Get-Help style querying of the WAPI object model. *(Requires WAPI 1.7.5+)*
 * Added -ReturnAllFields parameter to Get-IBObject which will return all possible fields for an object without needing to explicitly specify each one. *(Requires WAPI 1.7.5+)*
