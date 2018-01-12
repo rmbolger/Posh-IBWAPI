@@ -26,7 +26,7 @@ function Invoke-IBWAPI
     # However, due to how the underlying .NET framework caches cert validation
     # results, hosts that were ignored may continue to be ignored for
     # a period of time after the initial call even if validation is turned
-    # back on.
+    # back on. This issue only affects the Desktop edition.
     ###########################################################################
 
     # Build a hashtable out of our optional parameters that we will later
@@ -40,6 +40,11 @@ function Invoke-IBWAPI
     if (!$opts.Method) { $opts.Method = $Method }
     if (!$opts.ContentType) { $opts.ContentType = $ContentType }
 
+    # add Core edition parameters if necessary
+    if ($IgnoreCertificateValidation -and $script:SkipCertSupported) {
+        $opts.SkipCertificateCheck = $true
+    }
+
     if ($SessionVariable) {
         # change the name internally so we don't have trouble
         # with colliding variable names
@@ -48,7 +53,10 @@ function Invoke-IBWAPI
 
     try
     {
-        if ($IgnoreCertificateValidation) { [CertValidation]::Ignore(); Write-Verbose "Disabled cert validation" }
+        if ($IgnoreCertificateValidation -and !$script:SkipCertSupported) {
+            [CertValidation]::Ignore();
+            Write-Verbose "Disabled cert validation"
+        }
 
         try {
             if ($PSCmdlet.ShouldProcess($Uri, $opts.Method)) {
@@ -75,7 +83,10 @@ function Invoke-IBWAPI
             }
         }
         finally {
-            if ($IgnoreCertificateValidation) { [CertValidation]::Restore(); Write-Verbose "Enabled cert validation" }
+            if ($IgnoreCertificateValidation -and !$script:SkipCertSupported) {
+                [CertValidation]::Restore();
+                Write-Verbose "Enabled cert validation"
+            }
         }
     }
     catch
