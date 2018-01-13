@@ -4,6 +4,7 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 
 # Notable Features
 
+- [Powershell Core](https://github.com/PowerShell/PowerShell) 6.0+ support!
 - Automatic paging for large GET result sets *(Requires WAPI version 1.5+)*
 - Optionally return all fields for an object without needing to specify each one individually *(Requires WAPI version 1.7.5+)*
 - Use `Get-IBSchema` for `Get-Help` style querying of the WAPI object model *(Requires WAPI version 1.7.5+)*. *See [guide](https://github.com/rmbolger/Posh-IBWAPI/wiki/Guide-to-Get-IBSchema) for details.*
@@ -124,7 +125,8 @@ For more examples, check the wiki page [The definitive list of REST examples](ht
 
 # Requirements and Platform Support
 
-* Requires PowerShell v3 or later.
+* Supports Windows PowerShell 3.0 or later (a.k.a. Desktop edition).
+* Supports [Powershell Core](https://github.com/PowerShell/PowerShell) 6.0 or later (a.k.a. Core edition).
 * Tested against NIOS 7.3.x and 8.x.
 
 # Changelog
