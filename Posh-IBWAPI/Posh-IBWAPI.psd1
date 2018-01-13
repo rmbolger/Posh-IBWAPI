@@ -12,7 +12,7 @@
 RootModule = 'Posh-IBWAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.1'
+ModuleVersion = '1.2.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,13 +27,16 @@ Author = 'Ryan Bolger'
 #CompanyName = ''
 
 # Copyright statement for this module
-Copyright = '(c) 2017 Ryan Bolger. All rights reserved.'
+Copyright = '(c) 2017-2018 Ryan Bolger. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'Infoblox WAPI (REST API) related commands.'
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '3.0'
+
+# Supported PSEditions (WARNING: BREAKS COMPATIBILITY with pre-5.1 Powershell)
+# CompatiblePSEditions = 'Desktop', 'Core'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
@@ -106,7 +109,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Infoblox','IPAM','WAPI','REST'
+        Tags = 'Infoblox','IPAM','WAPI','REST','PSEdition_Desktop','PSEdition_Core','Linux','Mac'
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/rmbolger/Posh-IBWAPI/blob/master/LICENSE'
@@ -118,7 +121,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Added GM candidate meta refresh detection. Bug fix for potential null ref exception. Misc code refactoring.'
+        ReleaseNotes = @'
+## 1.2.2 (2018-01-13)
+* [Powershell Core](https://github.com/PowerShell/PowerShell) support!
+'@
 
     } # End of PSData hashtable
 

@@ -1,3 +1,6 @@
+## 1.2.2 (2018-01-13)
+* [Powershell Core](https://github.com/PowerShell/PowerShell) support!
+
 ## 1.2.1 (2018-01-09)
 * Added Grid Master Candidate meta refresh detection. So if your grid master candidates are configured to redirect to the current grid master, the module will automatically re-try the query there and throw a warning, rather than failing with an error.
 * Fixed a potential null reference exception
