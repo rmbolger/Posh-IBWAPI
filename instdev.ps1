@@ -1,7 +1,7 @@
 #Requires -Version 3.0
 
 # set the user module path based on edition and platform
-if ($PSVersionTable.PSEdition -eq 'Desktop') {
+if ('PSEdition' -notin $PSVersionTable.Keys -or $PSVersionTable.PSEdition -eq 'Desktop') {
     $installpath = "$($env:USERPROFILE)\Documents\WindowsPowerShell\Modules"
 } else {
     if ($IsWindows) {
@@ -25,12 +25,12 @@ if ([String]::IsNullOrWhiteSpace($PSScriptRoot)) {
 
     # try to use Expand-Archive if it exists, otherwise assume Desktop
     # edition and use COM
+    Write-Host "Uncompressing the Zip file to $($installpath)" -ForegroundColor Cyan
     if (Get-Command Expand-Archive -EA SilentlyContinue) {
         Expand-Archive $file -DestinationPath $installpath
     } else {
         $shell_app=new-object -com shell.application
         $zip_file = $shell_app.namespace($file)
-        Write-Host "Uncompressing the Zip file to $($installpath)" -ForegroundColor Cyan
         $destination = $shell_app.namespace($installpath)
         $destination.Copyhere($zip_file.items(), 0x10)
     }
