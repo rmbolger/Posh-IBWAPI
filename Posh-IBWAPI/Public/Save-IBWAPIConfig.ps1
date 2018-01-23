@@ -60,21 +60,7 @@ function Save-IBWAPIConfig
         $coldConfig.CurrentHost = $script:CurrentHost
     }
 
-    # do some additional processing before saving to disk
-    @($coldConfig.Hosts.Keys) | %{
-        # pre-serialize the PSCredential objects so that ConvertTo-Json doesn't strip the SecureString passwords
-        if ('Credential' -in $coldConfig.Hosts.$_.Keys) {
-            $credSerialized = @{
-                Username = $coldConfig.Hosts.$_.Credential.Username;
-                Password = ConvertFrom-SecureString $coldConfig.Hosts.$_.Credential.Password;
-            }
-            $coldConfig.Hosts.$_.Credential = $credSerialized
-        }
-    }
-
-    # We should now have an in-memory copy of the cold config with whatever
-    # additions/modifications were requested. Save it to disk.
-    $coldConfig | ConvertTo-Json -Depth 5 | Out-File $script:ConfigFile -Encoding utf8
+    Export-IBWAPIConfig $coldConfig
 
 
 

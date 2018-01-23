@@ -27,7 +27,15 @@ function Import-IBWAPIConfig
             }
             if ($json.Hosts.$_.Credential) {
                 $cred = $json.Hosts.$_.Credential
-                $config.Hosts.$_.Credential = New-Object PSCredential($cred.Username,($cred.Password | ConvertTo-SecureString));
+                # On Linux and MacOS, we are converting from a base64 string for the password rather
+                # than a DPAPI encrypted SecureString.
+                if ($IsLinux -or $IsMacOS) {
+                    $passPlain = [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String($cred.Password))
+                    $config.Hosts.$_.Credential = New-Object PSCredential($cred.Username,($passPlain | ConvertTo-SecureString -AsPlainText -Force))
+                } else {
+                    $config.Hosts.$_.Credential = New-Object PSCredential($cred.Username,($cred.Password | ConvertTo-SecureString))
+                }
+
             }
             if ($json.Hosts.$_.IgnoreCertificateValidation) {
                 $config.Hosts.$_.IgnoreCertificateValidation = New-Object Management.Automation.SwitchParameter -ArgumentList $json.Hosts.$_.IgnoreCertificateValidation.IsPresent
