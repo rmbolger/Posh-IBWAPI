@@ -1,9 +1,13 @@
 #Requires -Version 3.0
 
-# initialize the config container related stuff
-$script:CurrentHost = [string]::Empty
-if (!$script:Config) { $script:Config = @{} }
-if (!$script:Config.$script:CurrentHost) { $script:Config.$script:CurrentHost = @{WAPIHost=$script:CurrentHost} }
+# Set the persistent config file path based on edition/platform
+if ('PSEdition' -notin $PSVersionTable.Keys -or $PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) {
+    $script:ConfigFile = Join-Path $env:LOCALAPPDATA 'posh-ibwapi.json'
+} elseif ($IsLinux) {
+    $script:ConfigFile = Join-Path $env:HOME '.config/posh-ibwapi.json'
+} elseif ($IsMacOs) {
+    $script:ConfigFile = Join-Path $env:HOME 'Library/Preferences/posh-ibwapi.json'
+}
 
 # set some string templates we'll be using later
 $script:APIBaseTemplate = "https://{0}/wapi/v{1}/"
@@ -22,6 +26,11 @@ Foreach($import in @($Public + $Private))
         Write-Error -Message "Failed to import function $($import.fullname): $_"
     }
 }
+
+# initialize/import the config container related stuff
+$coldConfig = Import-IBWAPIConfig
+$script:CurrentHost = $coldConfig.CurrentHost
+$script:Config = $coldConfig.Hosts
 
 # Export everything in the public folder
 Export-ModuleMember -Function $Public.Basename
