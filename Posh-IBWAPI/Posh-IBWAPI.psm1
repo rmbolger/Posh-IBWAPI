@@ -10,6 +10,8 @@ if ('PSEdition' -notin $PSVersionTable.Keys -or $PSVersionTable.PSEdition -eq 'D
 } elseif ($IsMacOs) {
     $script:ConfigFile = Join-Path $env:HOME 'Library/Preferences/posh-ibwapi.json'
     $script:ConfigFOlder = Join-Path $env:HOME 'Library/Preferences'
+} else {
+    throw "Unrecognized PowerShell platform"
 }
 
 # set some string templates we'll be using later
