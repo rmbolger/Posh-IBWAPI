@@ -27,18 +27,22 @@ function Import-IBWAPIConfig
             }
             if ($json.Hosts.$_.Credential) {
                 $cred = $json.Hosts.$_.Credential
+                $WAPIHost = $_
 
                 # On Linux and MacOS, we are converting from a base64 string for the password rather
                 # than a DPAPI encrypted SecureString. But it may not always be this way. So check for
                 # the explicit boolean just to make sure.
                 if ($cred.IsBase64) {
-                    $passPlain = [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String($cred.Password))
-                    $config.Hosts.$_.Credential = New-Object PSCredential($cred.Username,($passPlain | ConvertTo-SecureString -AsPlainText -Force))
+                    try {
+                        $passPlain = [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String($cred.Password))
+                        $config.Hosts.$_.Credential = New-Object PSCredential($cred.Username,($passPlain | ConvertTo-SecureString -AsPlainText -Force))
+                    } catch {
+                        Write-Warning "Unable to convert Base64 Credential for $($WAPIHost): $($_.Exception.Message)"
+                    }
                 } else {
-                    $WAPIHost = $_
                     # Try to convert the password back into a SecureString and into a PSCredential
                     try {
-                        $secPass = $cred.Password | ConvertTo-SecureString
+                        $secPass = $cred.Password | ConvertTo-SecureString -ErrorAction Stop
                         $config.Hosts.$_.Credential = New-Object PSCredential($cred.Username,$secPass)
                     } catch {
                         Write-Warning "Unable to convert Credential for $($WAPIHost): $($_.Exception.Message)"
