@@ -51,19 +51,24 @@ function Remove-IBWAPIConfig
             Write-Warning "$hostToRemove not found in the set of existing configs."
         }
 
-        # if this is the last entry on disk, just remove the file
-        if ($coldConfig.Hosts.Count -le 1 -and (Test-Path $script:ConfigFile)) {
-            Remove-Item $script:ConfigFile -Force
-        } else {
-            # otherwise, remove just this entry
-            if ($hostToRemove -in $coldConfig.Hosts.Keys) {
+        # now remove from disk
+        if ($hostToRemove -in $coldConfig.Hosts.Keys) {
+
+            # if this is the last entry on disk, just remove the file
+            if ($coldConfig.Hosts.Count -le 1) {
+                if (Test-Path $script:ConfigFile) {
+                    Remove-Item $script:ConfigFile -Force
+                }
+            } else {
+                # otherwise, remove just this entry
                 $coldConfig.Hosts.Remove($hostToRemove)
+
+                # set the same CurrentHost as in memory
+                $coldConfig.CurrentHost = $script:CurrentHost
+
+                Export-IBWAPIConfig $coldConfig
             }
 
-            # set the same CurrentHost as in memory
-            $coldConfig.CurrentHost = $script:CurrentHost
-
-            Export-IBWAPIConfig $coldConfig
         }
 
     }
