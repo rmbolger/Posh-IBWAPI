@@ -29,11 +29,11 @@ function Import-IBWAPIConfig
                 $cred = $json.Hosts.$_.Credential
                 # On Linux and MacOS, we are converting from a base64 string for the password rather
                 # than a DPAPI encrypted SecureString.
-                if ($IsLinux -or $IsMacOS) {
+                if ('PSEdition' -notin $PSVersionTable.Keys -or $PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) {
+                    $config.Hosts.$_.Credential = New-Object PSCredential($cred.Username,($cred.Password | ConvertTo-SecureString))
+                } else {
                     $passPlain = [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String($cred.Password))
                     $config.Hosts.$_.Credential = New-Object PSCredential($cred.Username,($passPlain | ConvertTo-SecureString -AsPlainText -Force))
-                } else {
-                    $config.Hosts.$_.Credential = New-Object PSCredential($cred.Username,($cred.Password | ConvertTo-SecureString))
                 }
 
             }

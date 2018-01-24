@@ -13,11 +13,11 @@ function Export-IBWAPIConfig
             # going to base64 encode the password on non-Windows and hope for better support
             # in future versions of PowerShell Core.
             $credSerialized = @{ Username = $coldConfig.Hosts.$_.Credential.Username }
-            if ($IsLinux -or $IsMacOS) {
+            if ('PSEdition' -notin $PSVersionTable.Keys -or $PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) {
+                $credSerialized.Password = ConvertFrom-SecureString $coldConfig.Hosts.$_.Credential.Password
+            } else {
                 $passPlain = $coldConfig.Hosts.$_.Credential.GetNetworkCredential().Password
                 $credSerialized.Password = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($passPlain))
-            } else {
-                $credSerialized.Password = ConvertFrom-SecureString $coldConfig.Hosts.$_.Credential.Password
             }
             $coldConfig.Hosts.$_.Credential = $credSerialized
 
