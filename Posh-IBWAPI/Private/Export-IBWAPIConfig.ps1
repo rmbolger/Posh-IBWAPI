@@ -18,6 +18,7 @@ function Export-IBWAPIConfig
             } else {
                 $passPlain = $coldConfig.Hosts.$_.Credential.GetNetworkCredential().Password
                 $credSerialized.Password = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($passPlain))
+                $credSerialized.IsBase64 = $true
             }
             $coldConfig.Hosts.$_.Credential = $credSerialized
 
