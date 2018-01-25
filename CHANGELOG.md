@@ -1,3 +1,10 @@
+## 1.3 (2018-01-25)
+* Persistent config support
+  * New `Save-IBWAPIConfig` and `Remove-IBWAPIConfig` functions
+  * `posh-ibwapi.json` stored `%LOCALAPPDATA%` on Windows, `~/.config` on Linux, and `~/Library/Preferences` on MacOS
+  * Passwords encrypted using `ConvertFrom-SecureString` on Windows, but only Base64 on non-Windows until PowerShell team fixes compatibility
+* Switching to a new config set with `Set-IBWAPIConfig` no longer copies the settings from the old config if they weren't specified. This was never really documented and was causing confusion more than helping.
+
 ## 1.2.2 (2018-01-13)
 * [Powershell Core](https://github.com/PowerShell/PowerShell) support!
 
