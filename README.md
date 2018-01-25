@@ -12,6 +12,7 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 - Pipeline support so you can do things like pass the results from `Get-IBObject` directly to `Remove-IBObject`.
 - Optionally ignore certificate validation errors.
 - Save common connection parameters per-session with `Set-IBWAPIConfig` so you don't need to pass them to every function call.
+- Use `Save-IBWAPIConfig` to persist connection parameters between sessions.
 - In multi-grid or multi-host environments, connection parameters can be saved separately for each WAPI host.
 
 # Install
@@ -26,7 +27,7 @@ Install-Module -Name Posh-IBWAPI
 Install-Module -Name Posh-IBWAPI -Scope CurrentUser
 ```
 
-To install the latest *development* version from the git master branch, use the following command in PowerShell v3 or later. This method assumes a default Powershell environment that includes the [`PSModulePath`](https://msdn.microsoft.com/en-us/library/dd878326.aspx) environment variable which contains a reference to `$HOME\Documents\WindowsPowerShell\Modules`. You must also make sure `Get-ExecutionPolicy` is not set to `Restricted` or `AllSigned`.
+To install the latest *development* version from the git master branch, use the following command in PowerShell v3 or later. This method assumes a default Windows PowerShell or PowerShell Core environment that includes the [`PSModulePath`](https://msdn.microsoft.com/en-us/library/dd878326.aspx) environment variable which contains a reference to `$HOME\Documents\WindowsPowerShell\Modules` or `$HOME/.local/share/powershell/Modules`. You must also make sure `Get-ExecutionPolicy` is not set to `Restricted` or `AllSigned`.
 
 ```powershell
 # (optional) set less restrictive execution policy
