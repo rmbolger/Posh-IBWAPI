@@ -24,3 +24,5 @@ However, the `ServicePointManager` seems to cache the validation results for eac
 There may be a way to shorten the cache duration by changing the value of [ServicePointManager.MaxServicePointIdleTime](https://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.maxservicepointidletime(v=vs.110).aspx). But even setting it to 0 doesn't remove the cached validation immediately. There's still a delay likely waiting for the idle object to be garbage collected.
 
 For the time being, we're going to leave `MaxServicePointIdleTime` alone as it's likely an extreme edge case that someone would need to disable cert validation for a single call and then turn it back on for the same WAPI endpoint in quick succession. Most of the people who care about this feature are running Infoblox with the default self-signed certificate and will just choose to always have certificate validation disabled.
+
+UPDATE: The version of Invoke-RestMethod included in Powershell Core 6.0 includes a -SkipCertificateCheck parameter which should resolve this issue at least for Core edition users. Hopefully Microsoft will back port those changes into Desktop edition eventually.
