@@ -23,26 +23,17 @@ function Set-IBWAPIConfig
 
     # deal with hostname
     if (![String]::IsNullOrWhiteSpace($WAPIHost)) {
-        $cfgOld = $script:Config.$script:CurrentHost
 
         # initialize a hashtable for this host if it doesn't exist
         if (!$script:Config.$WAPIHost) {
-            $cfgNew = $script:Config.$WAPIHost = @{WAPIHost=$WAPIHost}
-            if ($cfgOld) {
-                # copy some of the values from the old host
-                Write-Verbose "Copying config from $($script:CurrentHost)"
-                if ($cfgOld.WAPIVersion) { $cfgNew.WAPIVersion = $cfgOld.WAPIVersion }
-                if ($cfgOld.Credential) { $cfgNew.Credential = $cfgOld.Credential }
-                if ($cfgOld.WebSession) { $cfgNew.WebSession = $cfgOld.WebSession }
-                if ($cfgOld.ContainsKey('IgnoreCertificateValidation')) { $cfgNew.IgnoreCertificateValidation = $cfgOld.IgnoreCertificateValidation }
-            }
+            $script:Config.$WAPIHost = @{WAPIHost=$WAPIHost}
         }
 
         # remove the old empty string config if it exists
         $script:Config.Remove('') | Out-Null
 
         # switch the current host if necessary
-        if ($WAPIHost -ne $script:CurrentHost -and !$NoSwitchProfile) {
+        if (!$NoSwitchProfile -and $WAPIHost -ne $script:CurrentHost) {
             $script:CurrentHost = $WAPIHost
             Write-Verbose "Switched config to $WAPIHost"
         }
