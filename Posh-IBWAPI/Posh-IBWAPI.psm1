@@ -2,17 +2,15 @@
 
 # Set the persistent config file path based on edition/platform
 if ('PSEdition' -notin $PSVersionTable.Keys -or $PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) {
-    $script:ConfigFile = Join-Path $env:LOCALAPPDATA 'posh-ibwapi.json'
     $script:ConfigFolder = $env:LOCALAPPDATA
 } elseif ($IsLinux) {
-    $script:ConfigFile = Join-Path $env:HOME '.config/posh-ibwapi.json'
     $script:ConfigFolder = Join-Path $env:HOME '.config'
 } elseif ($IsMacOs) {
-    $script:ConfigFile = Join-Path $env:HOME 'Library/Preferences/posh-ibwapi.json'
-    $script:ConfigFOlder = Join-Path $env:HOME 'Library/Preferences'
+    $script:ConfigFolder = Join-Path $env:HOME 'Library/Preferences'
 } else {
     throw "Unrecognized PowerShell platform"
 }
+$script:ConfigFile = Join-Path $script:ConfigFolder 'posh-ibwapi.json'
 
 # set some string templates we'll be using later
 $script:APIBaseTemplate = "https://{0}/wapi/v{1}/"
