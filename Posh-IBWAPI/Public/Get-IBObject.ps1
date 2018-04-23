@@ -15,6 +15,9 @@ function Get-IBObject
 
         [Parameter(ParameterSetName='ByType')]
         [int]$MaxResults=[int]::MaxValue,
+        [Parameter(ParameterSetName='ByType')]
+        [ValidateRange(1,1000)]
+        [int]$PageSize=1000,
 
         [Parameter(ParameterSetName='ByRef')]
         [Parameter(ParameterSetName='ByType')]
@@ -128,7 +131,7 @@ function Get-IBObject
             }
 
             # grab the readable fields and add them to the querystring
-            $readFields = ($schema.fields | ?{ $_.supports -like '*r*' -and $_.wapi_primitive -ne 'funccall' }).name
+            $readFields = ($schema.fields | Where-Object { $_.supports -like '*r*' -and $_.wapi_primitive -ne 'funccall' }).name
             $queryargs += "_return_fields=$($readFields -join ',')"
         }
 
@@ -146,15 +149,13 @@ function Get-IBObject
                 $ErrorOverMax = $true
             }
 
-            # set the default page size unless the caller wants less, in which case
-            # set it to just over what they asked for so that "over max" errors will
-            # still trigger
-            $pageSize = 1000
-            if ($MaxResults -lt $pageSize) { $pageSize = ($MaxResults+1) }
+            # make sure the $PageSize is never more than 1 over $MaxResults so we don't
+            # retrieve more data than necessary but "over max" errors will still trigger
+            if ($MaxResults -lt $PageSize -and $MaxResults -lt 1000) { $PageSize = ($MaxResults+1) }
 
             $i = 0
             $results = @()
-            $querystring = "?_paging=1&_return_as_object=1&_max_results=$pageSize"
+            $querystring = "?_paging=1&_return_as_object=1&_max_results=$PageSize"
             if ($queryargs.Count -gt 0) {
                 $querystring += "&$($queryargs -join '&')"
             }
@@ -221,6 +222,9 @@ function Get-IBObject
 
     .PARAMETER MaxResults
         If set to a positive number, the results list will be truncated to that number if necessary. If set to a negative number and the results would exceed the absolute value, an error is thrown.
+
+    .PARAMETER PageSize
+        The number of results to retrieve per request when auto-paging large result sets. Defaults to 1000. Set this lower if you have very large results that are causing errors with ConvertTo-Json.
 
     .PARAMETER ReturnFields
         The set of fields that should be returned in addition to the object reference.

@@ -34,7 +34,7 @@ function Invoke-IBWAPI
     # https://msdn.microsoft.com/en-us/powershell/reference/5.1/microsoft.powershell.core/about/about_splatting
     $opts = @{}
     $paramNames = 'Method','Credential','Body','ContentType','OutFile','WebSession'
-    $PSBoundParameters.Keys | ?{ $_ -in $paramNames } | %{ $opts.$_ = $PSBoundParameters.$_ }
+    $PSBoundParameters.Keys | Where-Object { $_ -in $paramNames } | ForEach-Object { $opts.$_ = $PSBoundParameters.$_ }
 
     # parameters with default values don't appear in $PSBoundParameters, so we need to add manually
     if (!$opts.Method) { $opts.Method = $Method }
