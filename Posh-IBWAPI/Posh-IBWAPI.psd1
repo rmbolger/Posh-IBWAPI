@@ -4,7 +4,7 @@
 RootModule = 'Posh-IBWAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3'
+ModuleVersion = '1.4'
 
 # Supported PSEditions (WARNING: BREAKS COMPATIBILITY with pre-5.1 Powershell)
 # CompatiblePSEditions = 'Desktop','Core'
@@ -113,12 +113,8 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-## 1.3 (2018-01-25)
-* Persistent config support
-  * New `Save-IBWAPIConfig` and `Remove-IBWAPIConfig` functions
-  * `posh-ibwapi.json` stored `%LOCALAPPDATA%` on Windows, `~/.config` on Linux, and `~/Library/Preferences` on MacOS
-  * Passwords encrypted using `ConvertFrom-SecureString` on Windows, but only Base64 on non-Windows until PowerShell team fixes compatibility
-* Switching to a new config set with `Set-IBWAPIConfig` no longer copies the settings from the old config if they weren't specified. This was never really documented and was causing confusion more than helping.
+## 1.4 (2018-04-26)
+* Added `-PageSize` parameter to `Get-IBObject` to work around large responses causing JSON deserialization errors as in issue #26
 '@
 
     } # End of PSData hashtable
@@ -132,4 +128,3 @@ PrivateData = @{
 # DefaultCommandPrefix = ''
 
 }
-

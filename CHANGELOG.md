@@ -1,3 +1,6 @@
+## 1.4 (2018-04-26)
+* Added `-PageSize` parameter to `Get-IBObject` to work around large responses causing JSON deserialization errors as in issue #26
+
 ## 1.3 (2018-01-25)
 * Persistent config support
   * New `Save-IBWAPIConfig` and `Remove-IBWAPIConfig` functions
