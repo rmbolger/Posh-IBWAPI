@@ -212,16 +212,16 @@ function Get-IBSchema {
         $typeStr = "$($schema.type) (WAPI $($schema.version))"
         BlankLine
         Write-Output 'OBJECT'
-        Write-Output ($typeStr | Word-Wrap -Indent 4)
+        Write-Output ($typeStr | Split-Str -Indent 4)
         if ($schema.restrictions) {
             BlankLine
             Write-Output 'RESTRICTIONS'
-            Write-Output ("$($schema.restrictions -join ', ')" | Word-Wrap -Indent 4)
+            Write-Output ("$($schema.restrictions -join ', ')" | Split-Str -Indent 4)
         }
         if ($schema.cloud_additional_restrictions) {
             BlankLine
             Write-Output 'CLOUD RESTRICTIONS'
-            Write-Output ("$($schema.cloud_additional_restrictions -join ', ')" | Word-Wrap -Indent 4)
+            Write-Output ("$($schema.cloud_additional_restrictions -join ', ')" | Split-Str -Indent 4)
         }
 
         # With _schema_version=2, functions are returned in the normal
@@ -262,33 +262,33 @@ function Get-IBSchema {
                 # loop through fields alphabetically
                 $fieldList | Sort-Object name | ForEach-Object {
 
-                    Write-Output ("$($_.name) <$(PrettifyType $_)>" | Word-Wrap -Indent 4)
+                    Write-Output ("$($_.name) <$(PrettifyType $_)>" | Split-Str -Indent 4)
 
                     if ($_.doc) {
-                        Write-Output ($_.doc | Word-Wrap -Indent 8)
+                        Write-Output ($_.doc | Split-Str -Indent 8)
                     }
                     BlankLine
 
-                    Write-Output ("Supports: $(PrettifySupportsDetail $_.supports)" | Word-Wrap -Indent 8)
+                    Write-Output ("Supports: $(PrettifySupportsDetail $_.supports)" | Split-Str -Indent 8)
 
                     if ($_.overridden_by) {
-                        Write-Output ("Overridden By: $($_.overridden_by)" | Word-Wrap -Indent 8)
+                        Write-Output ("Overridden By: $($_.overridden_by)" | Split-Str -Indent 8)
                     }
                     if ($_.standard_field) {
-                        Write-Output ("This field is part of the base object." | Word-Wrap -Indent 8)
+                        Write-Output ("This field is part of the base object." | Split-Str -Indent 8)
                     }
                     if ($_.supports_inline_funccall) {
-                        Write-Output ("This field supports inline function calls. See full docs for more detail." | Word-Wrap -Indent 8)
+                        Write-Output ("This field supports inline function calls. See full docs for more detail." | Split-Str -Indent 8)
                     }
                     if ($_.searchable_by) {
                         BlankLine
-                        Write-Output ("This field is available for search via:" | Word-Wrap -Indent 8)
-                        if ($_.searchable_by -like '*=*') { Write-Output ("'=' (exact equality)" | Word-Wrap -Indent 12) }
-                        if ($_.searchable_by -like '*!*') { Write-Output ("'!=' (negative equality)" | Word-Wrap -Indent 12) }
-                        if ($_.searchable_by -like '*:*') { Write-Output ("':=' (case insensitive search)" | Word-Wrap -Indent 12) }
-                        if ($_.searchable_by -like '*~*') { Write-Output ("'~=' (regular expression)" | Word-Wrap -Indent 12) }
-                        if ($_.searchable_by -like '*<*') { Write-Output ("'<=' (less than or equal to)" | Word-Wrap -Indent 12) }
-                        if ($_.searchable_by -like '*>*') { Write-Output ("'>=' (greater than or equal to)" | Word-Wrap -Indent 12) }
+                        Write-Output ("This field is available for search via:" | Split-Str -Indent 8)
+                        if ($_.searchable_by -like '*=*') { Write-Output ("'=' (exact equality)" | Split-Str -Indent 12) }
+                        if ($_.searchable_by -like '*!*') { Write-Output ("'!=' (negative equality)" | Split-Str -Indent 12) }
+                        if ($_.searchable_by -like '*:*') { Write-Output ("':=' (case insensitive search)" | Split-Str -Indent 12) }
+                        if ($_.searchable_by -like '*~*') { Write-Output ("'~=' (regular expression)" | Split-Str -Indent 12) }
+                        if ($_.searchable_by -like '*<*') { Write-Output ("'<=' (less than or equal to)" | Split-Str -Indent 12) }
+                        if ($_.searchable_by -like '*>*') { Write-Output ("'>=' (greater than or equal to)" | Split-Str -Indent 12) }
                     }
 
                     # At this point, the only other thing to potentially deal with is if this field is
@@ -360,27 +360,27 @@ function Get-IBSchema {
                 $funcList | ForEach-Object {
                     BlankLine
                     Write-Output '    ----------------------------------------------------------'
-                    Write-Output ($_.name | Word-Wrap -Indent 4)
+                    Write-Output ($_.name | Split-Str -Indent 4)
                     Write-Output '    ----------------------------------------------------------'
                     if ($_.doc) {
-                        Write-Output ($_.doc | Word-Wrap -Indent 8)
+                        Write-Output ($_.doc | Split-Str -Indent 8)
                     }
                     if ($_.schema.input_fields.count -gt 0) {
                         BlankLine
-                        Write-Output ("INPUTS" | Word-Wrap -Indent 4)
+                        Write-Output ("INPUTS" | Split-Str -Indent 4)
                         foreach ($field in $_.schema.input_fields) {
                             BlankLine
-                            Write-Output ("$($field.name) <$(PrettifyType $field)>" | Word-Wrap -Indent 8)
-                            Write-Output ($field.doc | Word-Wrap -Indent 12)
+                            Write-Output ("$($field.name) <$(PrettifyType $field)>" | Split-Str -Indent 8)
+                            Write-Output ($field.doc | Split-Str -Indent 12)
                         }
                     }
                     if ($_.schema.output_fields.count -gt 0) {
                         BlankLine
-                        Write-Output ("OUTPUTS" | Word-Wrap -Indent 4)
+                        Write-Output ("OUTPUTS" | Split-Str -Indent 4)
                         foreach ($field in $_.schema.output_fields) {
                             BlankLine
-                            Write-Output ("$($field.name) <$(PrettifyType $field)>" | Word-Wrap -Indent 8)
-                            Write-Output ($field.doc | Word-Wrap -Indent 12)
+                            Write-Output ("$($field.name) <$(PrettifyType $field)>" | Split-Str -Indent 8)
+                            Write-Output ($field.doc | Split-Str -Indent 12)
                         }
                     }
 
@@ -393,7 +393,7 @@ function Get-IBSchema {
                     if ($_.schema.output_fields.count -gt 0) {
                         $funcListtr += " => $($_.schema.output_fields.name -join ', ')"
                     }
-                    Write-Output ($funcListtr | Word-Wrap -Indent 4)
+                    Write-Output ($funcListtr | Split-Str -Indent 4)
                 }
 
             } # end simple function view

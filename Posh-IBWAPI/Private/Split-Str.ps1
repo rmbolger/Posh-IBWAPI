@@ -1,4 +1,4 @@
-function Word-Wrap {
+function Split-Str {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
@@ -75,12 +75,12 @@ function Word-Wrap {
         If set, each line will be padded with spaces on the right with enough to reach -MaxWidth.
 
     .EXAMPLE
-        Word-Wrap $longString
+        Split-Str $longString
 
         Word wrap $longString to the max console width.
 
     .EXAMPLE
-        $longString | Word-Wrap -max 100 -indent 4 -pad
+        $longString | Split-Str -max 100 -indent 4 -pad
 
         Word wrap $longString to 100 characters with a 4 character indent and right padding.
     #>
