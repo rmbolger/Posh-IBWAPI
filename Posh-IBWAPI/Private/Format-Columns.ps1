@@ -8,7 +8,7 @@ function Format-Columns {
         [int]$MaxColumn,
         [switch]$Autosize
     )
-    
+
     Begin   { $values = @() }
     Process { $values += $InputObject }
     End {
@@ -18,20 +18,20 @@ function Format-Columns {
             if ($p -is [Hashtable]) {
                 $exp = $p.Expression
                 if ($exp) {
-                    if ($exp -is [string])          { $ret = $ret | % { $_.($exp) } }
-                    elseif ($exp -is [scriptblock]) { $ret = $ret | % { & $exp $_} }
+                    if ($exp -is [string])          { $ret = $ret | ForEach-Object { $_.($exp) } }
+                    elseif ($exp -is [scriptblock]) { $ret = $ret | ForEach-Object { & $exp $_} }
                     else                            { throw 'Invalid Expression value' }
                 }
                 if ($p.FormatString) {
-                    if ($p.FormatString -is [string]) {    $ret = $ret | % { $p.FormatString -f $_ } }
+                    if ($p.FormatString -is [string]) {    $ret = $ret | ForEach-Object { $p.FormatString -f $_ } }
                     else {                              throw 'Invalid format string' }
                 }
             }
-            elseif ($p -is [scriptblock]) { $ret = $ret | % { & $p $_} }
-            elseif ($p -is [string]) {      $ret = $ret | % { $_.$p } }
-            elseif ($p -ne $null) {         throw 'Invalid -property type' }
+            elseif ($p -is [scriptblock]) { $ret = $ret | ForEach-Object { & $p $_} }
+            elseif ($p -is [string]) {      $ret = $ret | ForEach-Object { $_.$p } }
+            elseif ($null -ne $p) {         throw 'Invalid -property type' }
             # in case there were some numbers, objects, etc., convert them to string
-            $ret | % { $_.ToString() }
+            $ret | ForEach-Object { $_.ToString() }
         }
         if (!$Column) { $Autosize = $true }
         $values = ProcessValues
@@ -40,20 +40,20 @@ function Format-Columns {
         if ($valuesCount -eq 1) {
             return $values
         }
-        
+
         # from some reason the console host doesn't use the last column and writes to new line
         $consoleWidth          = $host.ui.RawUI.maxWindowSize.Width - 1
         $gutterWidth = 2
 
         # get length of the longest string
-        $values | % -Begin { [int]$maxLength = -1 } -Process { $maxLength = [Math]::Max($maxLength,$_.Length) }
+        $values | ForEach-Object -Begin { [int]$maxLength = -1 } -Process { $maxLength = [Math]::Max($maxLength,$_.Length) }
 
         # get count of columns if not provided
         if ($Autosize) {
             $Column         = [Math]::Max( 1, ([Math]::Floor(($consoleWidth/($maxLength+$gutterWidth)))) )
             $remainingSpace = $consoleWidth - $Column*($maxLength+$gutterWidth);
-            if ($remainingSpace -ge $maxLength) { 
-                $Column++ 
+            if ($remainingSpace -ge $maxLength) {
+                $Column++
             }
             if ($MaxColumn -and $MaxColumn -lt $Column) {
                 $Column = $MaxColumn
@@ -63,7 +63,7 @@ function Format-Columns {
         $maxPossibleLength = [Math]::Floor( ($consoleWidth / $Column) )
 
         # cut too long values, considers count of columns and space between them
-        $values = $values | % {
+        $values = $values | ForEach-Object {
             if ($_.length -gt $maxPossibleLength) { $_.Remove($maxPossibleLength-2) + '..' }
             else { $_ }
         }
@@ -80,12 +80,12 @@ function Format-Columns {
         1 3 5 7
         2 4 6 ''
         #>
-        
-        $formatString = (1..$Column | %{ "{$($_-1),-$maxPossibleLength}" }) -join ''
 
-        1..$countOfRows | % {
+        $formatString = (1..$Column | ForEach-Object { "{$($_-1),-$maxPossibleLength}" }) -join ''
+
+        1..$countOfRows | ForEach-Object {
             $r    = $_-1
-            $line = @(1..$Column | %{ $values[$r + ($_-1)*$countOfRows]} )
+            $line = @(1..$Column | ForEach-Object { $values[$r + ($_-1)*$countOfRows] } )
             Write-Output "$($formatString -f $line)".PadRight($consoleWidth,' ')
         }
     }
@@ -97,7 +97,7 @@ function Format-Columns {
         It works similarly as Format-Wide but it works vertically. Format-Wide outputs the data row by row, but Format-Columns outputs them column by column.
     .PARAMETER Property
         Name of property to get from the object.
-        It may be 
+        It may be
             -- string - name of property.
             -- scriptblock
             -- hashtable with keys 'Expression' (value is string=property name or scriptblock)
@@ -112,7 +112,7 @@ function Format-Columns {
         Data to display
     .EXAMPLE
         1..150 | Format-Columns -Autosize
-    .EXAMPLE 
+    .EXAMPLE
         Format-Columns -Col 3 -Input 1..130
     .EXAMPLE
         Get-Process | Format-Columns -prop @{Expression='Handles'; FormatString='{0:00000}'} -auto

@@ -71,26 +71,26 @@ function Get-IBSchema {
     if (![String]::IsNullOrWhiteSpace($ObjectType)) {
         # We want to support wildcard searches and partial matching on object types.
         Write-Verbose "ObjectType: $ObjectType"
-        $objMatches = $cfg[$WAPIVersion] | %{ if ($_ -like $ObjectType) { $_ } }
+        $objMatches = $cfg[$WAPIVersion] | ForEach-Object { if ($_ -like $ObjectType) { $_ } }
         Write-Verbose "Matches: $($objMatches.Count)"
         if ($objMatches.count -gt 1) {
             # multiple matches
             $message = "Multiple object matches found for $($ObjectType)"
             if ($Raw) { throw $message }
             Write-Output "$($message):"
-            $objMatches | %{ Write-Output $_ }
+            $objMatches | ForEach-Object { Write-Output $_ }
             return
         }
         elseif ($objMatches.count -eq 0 ) {
             Write-Verbose "Retrying matches with implied wildcards"
             # retry matching with implied wildcards
-            $objMatches = $cfg[$WAPIVersion] | %{ if ($_ -like "*$ObjectType*") { $_ } }
+            $objMatches = $cfg[$WAPIVersion] | ForEach-Object { if ($_ -like "*$ObjectType*") { $_ } }
             if ($objMatches.count -gt 1) {
                 # multiple matches
                 $message = "Multiple object matches found for $($ObjectType)"
                 if ($Raw) { throw $message }
                 Write-Output "$($message):"
-                $objMatches | %{ Write-Output $_ }
+                $objMatches | ForEach-Object { Write-Output $_ }
                 return
             }
             elseif ($objMatches.count -eq 0) {
@@ -149,7 +149,7 @@ function Get-IBSchema {
         # order (RWUSD), uppercase the letters, and insert spaces for the operations
         # not included in the list.
         $ret = ''
-        'R','W','U','D','S' | %{
+        'R','W','U','D','S' | ForEach-Object {
             if ($supports -like "*$_*") {
                 $ret += $_
             } else {
@@ -184,7 +184,7 @@ function Get-IBSchema {
             if ($field.is_array) { $type = "$type[]" }
         } else {
             if ($field.is_array) {
-                $type = ($field.type | %{ "$_[]" }) -join ' | '
+                $type = ($field.type | ForEach-Object { "$_[]" }) -join ' | '
             } else {
                 $type = $field.type -join '|'
             }
@@ -226,28 +226,28 @@ function Get-IBSchema {
 
         # With _schema_version=2, functions are returned in the normal
         # list of fields. But we want to split those out and display them differently.
-        $fieldList = @($schema.fields | ?{ $_.wapi_primitive -ne 'funccall' })
-        $funcList  = @($schema.fields | ?{ $_.wapi_primitive -eq 'funccall' })
+        $fieldList = @($schema.fields | Where-Object { $_.wapi_primitive -ne 'funccall' })
+        $funcList  = @($schema.fields | Where-Object { $_.wapi_primitive -eq 'funccall' })
 
         # filter the fields if specified
         if ($Fields.count -gt 0) {
-            $fieldList = @($fieldList | ?{
+            $fieldList = @($fieldList | Where-Object {
                 $name = $_.name
-                ($Fields | %{ $name -like $_ }) -contains $true
+                ($Fields | ForEach-Object { $name -like $_ }) -contains $true
             })
         }
         # filter fields that don't include at least one specified Operation unless no operations were specified
         if ($Operations.count -gt 0) {
-            $fieldList = @($fieldList | ?{
+            $fieldList = @($fieldList | Where-Object {
                 $supports = $_.supports
-                ($Operations | %{ $supports -like "*$_*"}) -contains $true
+                ($Operations | ForEach-Object { $supports -like "*$_*"}) -contains $true
             })
         }
         # filter the functions if specified
         if ($Functions.count -gt 0) {
-            $funcList = @($funcList | ?{
+            $funcList = @($funcList | Where-Object {
                 $name = $_.name
-                ($Functions | %{ $name -like $_ }) -contains $true
+                ($Functions | ForEach-Object { $name -like $_ }) -contains $true
             })
         }
 
@@ -260,7 +260,7 @@ function Get-IBSchema {
                 Write-Output 'FIELDS'
 
                 # loop through fields alphabetically
-                $fieldList | sort name | %{
+                $fieldList | Sort-Object name | ForEach-Object {
 
                     Write-Output ("$($_.name) <$(PrettifyType $_)>" | Word-Wrap -Indent 4)
 
@@ -312,10 +312,10 @@ function Get-IBSchema {
                 # Display the simple view
 
                 # get the length of the longest field name so we can make sure not to truncate that column
-                $nameMax = [Math]::Max(($fieldList.name | sort -desc @{E={$_.length}} | select -first 1).length + 1, 6)
+                $nameMax = [Math]::Max(($fieldList.name | Sort-Object -desc @{E={$_.length}} | Select-Object -first 1).length + 1, 6)
                 # get the length of the longest type name (including potential array brackets) so we can
                 # make sure not to truncate that column
-                $typeMax = [Math]::Max(($fieldList.type | sort -desc @{E={$_.length}} | select -first 1).length + 3, 5)
+                $typeMax = [Math]::Max(($fieldList.type | Sort-Object -desc @{E={$_.length}} | Select-Object -first 1).length + 3, 5)
 
                 $format = "{0,-$nameMax}{1,-$typeMax}{2,-9}{3,-5}{4,-6}"
                 BlankLine
@@ -323,7 +323,7 @@ function Get-IBSchema {
                 Write-Output ($format -f '-----','----','--------','----','------')
 
                 # loop through fields alphabetically
-                $fieldList | sort @{E='name';Desc=$false} | %{
+                $fieldList | Sort-Object @{E='name';Desc=$false} | ForEach-Object {
 
                     # set the Base column value
                     $base = ''
@@ -357,7 +357,7 @@ function Get-IBSchema {
 
             if ($Detailed) {
 
-                $funcList | %{
+                $funcList | ForEach-Object {
                     BlankLine
                     Write-Output '    ----------------------------------------------------------'
                     Write-Output ($_.name | Word-Wrap -Indent 4)
@@ -388,7 +388,7 @@ function Get-IBSchema {
 
             } else {
 
-                $funcList | %{
+                $funcList | ForEach-Object {
                     $funcListtr = "$($_.name)($($_.schema.input_fields.name -join ', '))"
                     if ($_.schema.output_fields.count -gt 0) {
                         $funcListtr += " => $($_.schema.output_fields.name -join ', ')"

@@ -30,7 +30,7 @@ function Save-IBWAPIConfig
 
         # Loop through all of the existing hosts and overwrite any existing entries
         # in the cold config with a copy of the live config
-        @($script:Config.Keys) | %{
+        @($script:Config.Keys) | ForEach-Object {
             Write-Verbose "Saving $_"
             $coldConfig.Hosts.$_ = @{}
             CopyConfig $script:Config.$_ $coldConfig.Hosts.$_
@@ -52,7 +52,7 @@ function Save-IBWAPIConfig
         } else {
             Write-Warning "$hostToSave not found in the set of existing configs."
         }
-    
+
     }
 
     # add the current host if it's set
