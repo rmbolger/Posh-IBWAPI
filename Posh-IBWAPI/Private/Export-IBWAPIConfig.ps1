@@ -4,7 +4,7 @@ function Export-IBWAPIConfig
     param([hashtable]$coldConfig)
 
     # pre-serialize the PSCredential objects so that ConvertTo-Json doesn't strip the SecureString passwords
-    @($coldConfig.Hosts.Keys) | %{
+    @($coldConfig.Hosts.Keys) | ForEach-Object {
 
         if ('Credential' -in $coldConfig.Hosts.$_.Keys) {
 

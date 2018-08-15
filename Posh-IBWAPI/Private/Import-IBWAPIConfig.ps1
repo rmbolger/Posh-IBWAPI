@@ -11,13 +11,13 @@ function Import-IBWAPIConfig
     if (Test-Path $script:ConfigFile) {
 
         # load the json content on disk to a pscustomobject
-        $json = Get-Content $script:ConfigFile -Encoding UTF8 | ConvertFrom-Json
+        $json = Get-Content $script:ConfigFile -Encoding UTF8 -Raw | ConvertFrom-Json
 
         # add the current host to the model
         $config.CurrentHost = $json.CurrentHost
 
         # add the rest of the host configs
-        ($json.Hosts | Get-Member -MemberType NoteProperty).Name | %{
+        ($json.Hosts | Get-Member -MemberType NoteProperty).Name | ForEach-Object {
             $config.Hosts.$_ = @{}
             if (![string]::IsNullOrWhiteSpace($json.Hosts.$_.WAPIHost)) {
                 $config.Hosts.$_.WAPIHost = $json.Hosts.$_.WAPIHost;
