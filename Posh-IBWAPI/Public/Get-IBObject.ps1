@@ -4,7 +4,7 @@ function Get-IBObject
     param(
         [Parameter(ParameterSetName='ByRef',Mandatory=$True,Position=0,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
-        [string[]]$ObjectRef,
+        [string]$ObjectRef,
 
         [Parameter(ParameterSetName='ByType',Mandatory=$True,Position=0)]
         [Alias('type')]
