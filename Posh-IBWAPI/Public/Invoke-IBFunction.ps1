@@ -4,7 +4,7 @@ function Invoke-IBFunction
     param(
         [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
-        [string[]]$ObjectRef,
+        [string]$ObjectRef,
         [Parameter(Mandatory=$True)]
         [Alias('name')]
         [string]$FunctionName,

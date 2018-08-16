@@ -4,7 +4,7 @@ function Remove-IBObject
     param(
         [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
-        [string[]]$ObjectRef,
+        [string]$ObjectRef,
         [Alias('args')]
         [string[]]$DeleteArgs,
         [Alias('host')]

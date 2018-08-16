@@ -6,7 +6,7 @@ function New-IBObject
         [Alias('type')]
         [string]$ObjectType,
         [Parameter(Mandatory=$True,ValueFromPipeline=$True)]
-        [PSObject[]]$IBObject,
+        [PSObject]$IBObject,
         [Alias('fields')]
         [string[]]$ReturnFields,
         [Alias('base')]

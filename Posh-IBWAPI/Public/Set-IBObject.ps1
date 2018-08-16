@@ -3,11 +3,11 @@ function Set-IBObject
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(ParameterSetName='ObjectOnly',Mandatory=$True,ValueFromPipeline=$True)]
-        [PSObject[]]$IBObject,
+        [PSObject]$IBObject,
 
         [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
-        [string[]]$ObjectRef,
+        [string]$ObjectRef,
 
         [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True)]
         [PSObject]$TemplateObject,
