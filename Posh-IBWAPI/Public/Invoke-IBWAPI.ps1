@@ -95,15 +95,49 @@ function Invoke-IBWAPI
 
         if ($response.StatusCode -eq [System.Net.HttpStatusCode]::BadRequest) {
 
-            # get the response body so we can pull out the WAPI's error message
-            $stream = $response.GetResponseStream()
-            $reader = New-Object System.IO.StreamReader($stream)
-            $reader.BaseStream.Position = 0
-            $reader.DiscardBufferedData()
-            $responseBody = $reader.ReadToEnd();
+            # Since we can't catch explicit exception types between PowerShell editions
+            # without errors for non-existent types, we need to string match the type names
+            # and re-throw anything we don't care about.
+            $exType = $_.Exception.GetType().FullName
+            if ('System.Net.WebException' -eq $exType) {
 
-            Write-Verbose $responseBody
-            $wapiErr = ConvertFrom-Json $responseBody
+                # This is the exception that gets thrown in PowerShell Desktop edition
+
+                # get the response object: System.Net.HttpWebResponse
+                $response = $_.Exception.Response
+
+                # grab the raw response body
+                $sr = New-Object IO.StreamReader($response.GetResponseStream())
+                $sr.BaseStream.Position = 0
+                $sr.DiscardBufferedData()
+                $body = $sr.ReadToEnd()
+                Write-Debug "Error Body: $body"
+
+            } elseif ('Microsoft.PowerShell.Commands.HttpResponseException' -eq $exType) {
+
+                # This is the exception that gets thrown in PowerShell Core edition
+
+                # get the response object
+                # Linux type: System.Net.Http.CurlHandler+CurlResponseMessage
+                #   Mac type: ???
+                #   Win type: System.Net.Http.HttpResponseMessage
+                $response = $_.Exception.Response
+
+                # Currently in PowerShell 6, there's no way to get the raw response body from an
+                # HttpResponseException because they dispose the response stream.
+                # https://github.com/PowerShell/PowerShell/issues/5555
+                # https://get-powershellblog.blogspot.com/2017/11/powershell-core-web-cmdlets-in-depth.html
+                # However, a "processed" version of the body is available via ErrorDetails.Message
+                # which *should* work for us. The processing they're doing should only be removing HTML
+                # tags. And since our body should be JSON, there shouldn't be any tags to remove.
+                # So we'll just go with it for now until someone reports a problem.
+                $body = $_.ErrorDetails.Message
+                Write-Debug "Error Body: $body"
+
+            } else { throw }
+
+            Write-Verbose $body
+            $wapiErr = ConvertFrom-Json $body
             throw [Exception] "$($wapiErr.Error)"
 
         } else {
