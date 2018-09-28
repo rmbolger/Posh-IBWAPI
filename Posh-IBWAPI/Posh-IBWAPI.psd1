@@ -4,7 +4,7 @@
 RootModule = 'Posh-IBWAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.4'
+ModuleVersion = '1.5.0'
 
 # Supported PSEditions (WARNING: BREAKS COMPATIBILITY with pre-5.1 Powershell)
 # CompatiblePSEditions = 'Desktop','Core'
@@ -113,8 +113,13 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-## 1.4 (2018-04-26)
-* Added `-PageSize` parameter to `Get-IBObject` to work around large responses causing JSON deserialization errors as in issue #26
+## 1.5.0 (2018-09-28)
+
+* Added ByType as default parameter set for `Get-IBObject` which means you can query types like this `Get-IBObject grid` instead of needing the explicit `-ObjectType` parameter name.
+* Get/Set/New/Remove-IBObject and Invoke-IBFunction were failing to properly process direct `-ObjectRef` input arrays. The parameter has been changed to a single string and if you want them to process multiple, you must use pipeline input now.
+* Fixed bug failing to load saved config on some versions of PowerShell
+* Fixed HTTP 400/BadRequest error handling when running on PowerShell Core
+* Minor code refactoring to align with PSScriptAnalyzer suggestions
 '@
 
     } # End of PSData hashtable
