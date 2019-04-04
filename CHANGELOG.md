@@ -1,3 +1,7 @@
+## 1.6.0 (2019-04-04)
+
+* Added -NoPaging switch in Get-IBObject (#34) (Thanks @basvinken)
+
 ## 1.5.0 (2018-09-28)
 
 * Added ByType as default parameter set for `Get-IBObject` which means you can query types like this `Get-IBObject grid` instead of needing the explicit `-ObjectType` parameter name.
