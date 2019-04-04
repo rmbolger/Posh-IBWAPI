@@ -2,15 +2,17 @@ function Get-IBObject
 {
     [CmdletBinding(SupportsShouldProcess,DefaultParameterSetName='ByType')]
     param(
+        [Parameter(ParameterSetName='ByType',Mandatory=$True,Position=0)]
+        [Parameter(ParameterSetName='ByTypeNoPaging',Mandatory=$True,Position=0)]
+        [Alias('type')]
+        [string]$ObjectType,
+
         [Parameter(ParameterSetName='ByRef',Mandatory=$True,Position=0,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
         [string]$ObjectRef,
 
-        [Parameter(ParameterSetName='ByType',Mandatory=$True,Position=0)]
-        [Alias('type')]
-        [string]$ObjectType,
-
         [Parameter(ParameterSetName='ByType')]
+        [Parameter(ParameterSetName='ByTypeNoPaging')]
         [string[]]$Filters,
 
         [Parameter(ParameterSetName='ByType')]
@@ -18,39 +20,23 @@ function Get-IBObject
         [Parameter(ParameterSetName='ByType')]
         [ValidateRange(1,1000)]
         [int]$PageSize=1000,
+        [Parameter(ParameterSetName='ByTypeNoPaging')]
+        [switch]$NoPaging,
 
-        [Parameter(ParameterSetName='ByRef')]
-        [Parameter(ParameterSetName='ByType')]
         [Alias('fields')]
         [string[]]$ReturnFields,
-        [Parameter(ParameterSetName='ByRef')]
-        [Parameter(ParameterSetName='ByType')]
         [Alias('base')]
         [switch]$ReturnBaseFields,
-        [Parameter(ParameterSetName='ByRef')]
-        [Parameter(ParameterSetName='ByType')]
         [Alias('all')]
         [switch]$ReturnAllFields,
-        [Parameter(ParameterSetName='ByRef')]
-        [Parameter(ParameterSetName='ByType')]
         [switch]$ProxySearch,
-        [Parameter(ParameterSetName='ByRef')]
-        [Parameter(ParameterSetName='ByType')]
         [Alias('host')]
         [string]$WAPIHost,
-        [Parameter(ParameterSetName='ByRef')]
-        [Parameter(ParameterSetName='ByType')]
         [Alias('version')]
         [string]$WAPIVersion,
-        [Parameter(ParameterSetName='ByRef')]
-        [Parameter(ParameterSetName='ByType')]
         [PSCredential]$Credential,
-        [Parameter(ParameterSetName='ByRef')]
-        [Parameter(ParameterSetName='ByType')]
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [Parameter(ParameterSetName='ByRef')]
-        [Parameter(ParameterSetName='ByType')]
         [switch]$IgnoreCertificateValidation
     )
 
@@ -96,19 +82,23 @@ function Get-IBObject
         $UsePaging = $true
 
         switch ($PsCmdlet.ParameterSetName) {
-            "ByRef" {
+            'ByRef' {
                 # paging not supported on objref queries
                 $UsePaging = $false
 
                 $queryObj = $ObjectRef
             }
-            "ByType" {
+            'ByType' {
                 # WAPI versions older than 1.5 don't support paging
                 if ([Version]$WAPIVersion -lt [Version]'1.5') {
                     Write-Verbose "Paging disabled for WAPIVersion $($WAPIVersion)"
                     $UsePaging = $false
                 }
 
+                $queryObj = $ObjectType
+            }
+            'ByTypeNoPaging' {
+                $UsePaging = $false
                 $queryObj = $ObjectType
             }
         }
@@ -225,6 +215,9 @@ function Get-IBObject
 
     .PARAMETER PageSize
         The number of results to retrieve per request when auto-paging large result sets. Defaults to 1000. Set this lower if you have very large results that are causing errors with ConvertTo-Json.
+
+    .PARAMETER NoPaging
+        If specified, automatic paging will not be used. This is occasionally necessary for some object type queries that return a single object reference such as dhcp:statistics.
 
     .PARAMETER ReturnFields
         The set of fields that should be returned in addition to the object reference.
