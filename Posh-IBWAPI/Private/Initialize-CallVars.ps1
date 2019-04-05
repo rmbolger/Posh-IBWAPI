@@ -23,10 +23,13 @@ function Initialize-CallVars
     # currently active WAPIHost.  Explicit params always override saved
     # set params.
 
-    # The $Splat param is a dummy var so that calling functions can pass
-    # their $PSBoundParameters variable without modification. So get rid
-    # of it.
-    $psb.Remove('Splat') | Out-Null
+    # Remove any non-connection related parameters we were passed
+    $connParams = 'WAPIHost','WAPIVersion','Credential','WebSession','IgnoreCertificateValidation'
+    foreach ($key in @($psb.Keys)) {
+        if ($key -notin $connParams) {
+            $psb.Remove($key) | Out-Null
+        }
+    }
 
     # make sure we have a non-empty WAPIHost
     if ([String]::IsNullOrWhiteSpace($psb.WAPIHost)) {
