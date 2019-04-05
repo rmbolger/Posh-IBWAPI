@@ -126,8 +126,8 @@ For more examples, check the wiki page [The definitive list of REST examples](ht
 
 # Requirements and Platform Support
 
-* Supports Windows PowerShell 3.0 or later (a.k.a. Desktop edition).
-* Supports [Powershell Core](https://github.com/PowerShell/PowerShell) 6.0 or later (a.k.a. Core edition) on all supported OS platforms.
+* Supports Windows PowerShell 3.0 or later (Desktop edition) **with .NET Framework 4.5** or later
+* Supports [Powershell Core](https://github.com/PowerShell/PowerShell) 6.0 or later (Core edition) on all supported OS platforms.
 * Tested against NIOS 7.3.x and 8.x.
 
 # Changelog
