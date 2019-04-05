@@ -73,6 +73,7 @@ FunctionsToExport = @(
     'Set-IBObject',
     'Set-IBWAPIConfig',
     'Save-IBWAPIConfig',
+    'Receive-IBFile',
     'Remove-IBWAPIConfig'
 )
 
