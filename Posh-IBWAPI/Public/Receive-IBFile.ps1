@@ -31,8 +31,11 @@ function Receive-IBFile {
 
         # try to download the file
         try {
-            $creds = @{Credential=$opts.Credential; WebSession=$opts.WebSession}
-            Invoke-IBWAPI -Uri $response.url -OutFile $OutFile -ContentType 'application/force-download' @creds -EA Stop
+            $uploadOpts = @{
+                Credential = $opts.Credential
+                IgnoreCertificateValidation = $true
+            }
+            Invoke-IBWAPI -Uri $response.url -OutFile $OutFile -ContentType 'application/force-download' @uploadOpts -EA Stop
         }
         finally {
             # inform Infoblox that the download is complete
