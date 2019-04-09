@@ -38,7 +38,7 @@ function Invoke-IBFunction
             # convert the function body to json
             $bodyJson = $FunctionArgs | ConvertTo-Json -Compress -Depth 5
             $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
-            Write-Verbose "JSON body:`n$($FunctionArgs | ConvertTo-Json -Depth 5)"
+            Write-Debug "JSON body:`n$($FunctionArgs | ConvertTo-Json -Depth 5)"
 
             # make the call
             if ($PSCmdlet.ShouldProcess($uri, "POST")) {
