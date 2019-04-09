@@ -143,8 +143,12 @@ function Invoke-IBWAPI
             } else { throw }
 
             Write-Verbose $body
-            $wapiErr = ConvertFrom-Json $body
-            throw [Exception] "$($wapiErr.Error)"
+            $wapiErr = ConvertFrom-Json $body -EA SilentlyContinue
+            if ($wapiErr) {
+                throw [Exception] "$($wapiErr.Error)"
+            } else {
+                throw [Exception] $body
+            }
 
         } else {
             # just re-throw everything else
