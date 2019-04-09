@@ -51,6 +51,12 @@ function Invoke-IBWAPI
         $opts.SessionVariable = 'innerSession'
     }
 
+    if ('SkipHeaderValidation' -in (Get-Command Invoke-RestMethod).Parameters.Keys) {
+        # PS Core doesn't like the way our multipart Content-Type header looks for some
+        # reason. So we need to disable its built-in validation.
+        $opts.SkipHeaderValidation = $true
+    }
+
     try
     {
         if ($IgnoreCertificateValidation -and !$script:SkipCertSupported) {
