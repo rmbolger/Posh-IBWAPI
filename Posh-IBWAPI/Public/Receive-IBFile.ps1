@@ -28,14 +28,16 @@ function Receive-IBFile {
         # requestion the download token and url
         $response = Invoke-IBFunction -ObjectRef 'fileop' `
             -FunctionName $FunctionName -FunctionArgs $FunctionArgs @opts -EA Stop
+        $dlUrl = $response.url
 
         # try to download the file
         try {
-            $uploadOpts = @{
+            $dlOpts = @{
                 Credential = $opts.Credential
                 IgnoreCertificateValidation = $true
+                ContentType = 'application/force-download'
             }
-            Invoke-IBWAPI -Uri $response.url -OutFile $OutFile -ContentType 'application/force-download' @uploadOpts -EA Stop
+            Invoke-IBWAPI -Uri $dlUrl -OutFile $OutFile @dlOpts -EA Stop
         }
         finally {
             # inform Infoblox that the download is complete
