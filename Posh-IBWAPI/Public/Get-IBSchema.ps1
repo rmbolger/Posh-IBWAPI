@@ -200,11 +200,11 @@ function Get-IBSchema {
         BlankLine
         Write-Output "Supported Versions:"
         BlankLine
-        Write-Output ($schema | Select-Object -expand supported_versions | Format-Columns -prop {$_} -col 4)
+        Write-Output ($schema.supported_versions | Sort-Object @{E={[Version]$_}} | Format-Columns -prop {$_} -col 4)
         BlankLine
         Write-Output "Supported Objects:"
         BlankLine
-        Write-Output ($schema | Select-Object -expand supported_objects | Format-Columns -prop {$_})
+        Write-Output ($schema.supported_objects | Format-Columns -prop {$_})
         BlankLine
     }
     else {
