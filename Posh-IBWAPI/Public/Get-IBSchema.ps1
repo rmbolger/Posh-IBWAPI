@@ -31,7 +31,7 @@ function Get-IBSchema {
 
     # make sure there's a config set reference for this host
     # and get a reference to it
-    Set-IBWAPIConfig -WAPIHost $WAPIHost -NoSwitchProfile
+    Set-IBConfig -WAPIHost $WAPIHost -NoSwitchProfile
     $cfg = $script:Config.$WAPIHost
 
     # make sure we can actually query schema stuff for this WAPIHost
@@ -440,19 +440,19 @@ function Get-IBSchema {
         If set, detailed output is displayed for field and function information. Otherwise, a simplified view is displayed.
 
     .PARAMETER WAPIHost
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBWAPIConfig.
+        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
 
     .PARAMETER WAPIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parameter is required if not already set using Set-IBWAPIConfig.
+        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parameter is required if not already set using Set-IBConfig.
 
     .PARAMETER Credential
-        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBWAPIConfig.
+        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBConfig.
 
     .PARAMETER WebSession
-        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBWAPIConfig.
+        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBConfig.
 
     .PARAMETER IgnoreCertificateValidation
-        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBWAPIConfig.
+        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
 
     .OUTPUTS
         Zero or more objects found by the search or object reference. If an object reference is specified that doesn't exist, an error will be thrown.

@@ -24,7 +24,7 @@ function Save-IBWAPIConfig
     }
 
     # create an in-memory copy of the currently cold config data
-    $coldConfig = Import-IBWAPIConfig
+    $coldConfig = Import-IBConfig
 
     if ($AllHosts) {
 
@@ -60,7 +60,7 @@ function Save-IBWAPIConfig
         $coldConfig.CurrentHost = $script:CurrentHost
     }
 
-    Export-IBWAPIConfig $coldConfig
+    Export-IBConfig $coldConfig
 
 
 
@@ -96,10 +96,10 @@ function Save-IBWAPIConfig
         Project: https://github.com/rmbolger/Posh-IBWAPI
 
     .LINK
-        Set-IBWAPIConfig
+        Set-IBConfig
 
     .LINK
-        Remove-IBWAPIConfig
+        Remove-IBConfig
 
     #>
 }

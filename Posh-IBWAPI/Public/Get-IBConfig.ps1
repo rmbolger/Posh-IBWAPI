@@ -1,4 +1,4 @@
-function Get-IBWAPIConfig
+function Get-IBConfig
 {
     [CmdletBinding()]
     param(
@@ -55,12 +55,12 @@ function Get-IBWAPIConfig
         One or more config sets for this module.
 
     .EXAMPLE
-        Get-IBWAPIConfig
+        Get-IBConfig
 
         Get the current configuration values.
 
     .EXAMPLE
-        Get-IBWAPIConfig -List
+        Get-IBConfig -List
 
         Get all sets of configuration values.
 
@@ -68,7 +68,7 @@ function Get-IBWAPIConfig
         Project: https://github.com/rmbolger/Posh-IBWAPI
 
     .LINK
-        Set-IBWAPIConfig
+        Set-IBConfig
 
     .LINK
         Get-IBObject

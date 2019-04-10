@@ -229,19 +229,19 @@ function Get-IBObject
         If specified, all readable fields will be returned for the object. This switch relies on Get-IBSchema and as such requires WAPI 1.7.5+. Because of the additional web requests necessary to make this work, it is also not recommended for performance critical code.
 
     .PARAMETER WAPIHost
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBWAPIConfig.
+        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
 
     .PARAMETER WAPIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parameter is required if not already set using Set-IBWAPIConfig.
+        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parameter is required if not already set using Set-IBConfig.
 
     .PARAMETER Credential
-        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBWAPIConfig.
+        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBConfig.
 
     .PARAMETER WebSession
-        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBWAPIConfig.
+        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBConfig.
 
     .PARAMETER IgnoreCertificateValidation
-        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBWAPIConfig.
+        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
 
     .OUTPUTS
         Zero or more objects found by the search or object reference. If an object reference is specified that doesn't exist, an error will be thrown.
@@ -260,7 +260,7 @@ function Get-IBObject
         Project: https://github.com/rmbolger/Posh-IBWAPI
 
     .LINK
-        Set-IBWAPIConfig
+        Set-IBConfig
 
     #>
 }

@@ -1,4 +1,4 @@
-function Import-IBWAPIConfig
+function Import-IBConfig
 {
     [CmdletBinding()]
     param()

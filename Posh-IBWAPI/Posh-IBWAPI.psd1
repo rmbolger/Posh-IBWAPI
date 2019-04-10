@@ -62,20 +62,20 @@ FormatsToProcess = 'Posh-IBWAPI.Format.ps1xml'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
+    'Get-IBConfig',
     'Get-IBObject',
     'Get-IBSchema',
-    'Get-IBWAPIConfig',
     'Invoke-IBFunction',
     'Invoke-IBWAPI',
     'New-IBObject',
-    'New-IBWAPISession',
-    'Remove-IBObject',
-    'Send-IBFile',
-    'Set-IBObject',
-    'Set-IBWAPIConfig',
-    'Save-IBWAPIConfig',
+    'New-IBSession',
     'Receive-IBFile',
-    'Remove-IBWAPIConfig'
+    'Remove-IBConfig',
+    'Remove-IBObject',
+    'Save-IBWAPIConfig',
+    'Send-IBFile',
+    'Set-IBConfig',
+    'Set-IBObject'
 )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

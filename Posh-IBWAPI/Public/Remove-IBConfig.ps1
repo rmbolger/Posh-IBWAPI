@@ -1,4 +1,4 @@
-function Remove-IBWAPIConfig
+function Remove-IBConfig
 {
     [CmdletBinding()]
     param(
@@ -17,14 +17,14 @@ function Remove-IBWAPIConfig
         }
 
         # load the now empty cold config
-        $coldConfig = Import-IBWAPIConfig
+        $coldConfig = Import-IBConfig
         $script:CurrentHost = $coldConfig.CurrentHost
         $script:Config = $coldConfig.Hosts
 
     } else {
 
         # load the cold config
-        $coldConfig = Import-IBWAPIConfig
+        $coldConfig = Import-IBConfig
 
         # decide which host to remove
         $hostToRemove = $script:CurrentHost
@@ -66,7 +66,7 @@ function Remove-IBWAPIConfig
                 # set the same CurrentHost as in memory
                 $coldConfig.CurrentHost = $script:CurrentHost
 
-                Export-IBWAPIConfig $coldConfig
+                Export-IBConfig $coldConfig
             }
 
         }
@@ -94,12 +94,12 @@ function Remove-IBWAPIConfig
         If set, all sets of config values will be removed.
 
     .EXAMPLE
-        Remove-IBWAPIConfig
+        Remove-IBConfig
 
         Removes the currently active WAPI config set from memory and disk.
 
     .EXAMPLE
-        Remove-IBWAPIConfig -AllHosts
+        Remove-IBConfig -AllHosts
 
         Removes all config sets from memory and disk.
 
@@ -107,7 +107,7 @@ function Remove-IBWAPIConfig
         Project: https://github.com/rmbolger/Posh-IBWAPI
 
     .LINK
-        Set-IBWAPIConfig
+        Set-IBConfig
 
     .LINK
         Save-IBWAPIConfig

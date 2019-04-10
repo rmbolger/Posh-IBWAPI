@@ -1,4 +1,4 @@
-function New-IBWAPISession
+function New-IBSession
 {
     [CmdletBinding()]
     param(
