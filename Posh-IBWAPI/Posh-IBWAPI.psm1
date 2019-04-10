@@ -51,6 +51,3 @@ Foreach($import in @($Public + $Private))
 $coldConfig = Import-IBConfig
 $script:CurrentHost = $coldConfig.CurrentHost
 $script:Config = $coldConfig.Hosts
-
-# Export everything in the public folder
-Export-ModuleMember -Function $Public.Basename
