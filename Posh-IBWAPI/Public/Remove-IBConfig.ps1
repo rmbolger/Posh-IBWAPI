@@ -2,73 +2,60 @@ function Remove-IBConfig
 {
     [CmdletBinding()]
     param(
-        [Alias('host')]
-        [string]$WAPIHost,
-        [switch]$AllHosts
+        [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
+        [Alias('name')]
+        [string]$ProfileName,
+        [switch]$AllProfiles
     )
 
-    if ($AllHosts) {
+    if ($AllProfiles) {
 
-        Write-Verbose "Removing all config sets."
+        Write-Verbose "Removing all connection profiles."
 
         # delete the config file if it exists
-        if (Test-Path $script:ConfigFile) {
-            Remove-Item $script:ConfigFile -Force
+        if (Test-Path $script:ProfilesFile) {
+            Remove-Item $script:ProfilesFile -Force
         }
 
-        # load the now empty cold config
-        $coldConfig = Import-IBConfig
-        $script:CurrentHost = $coldConfig.CurrentHost
-        $script:Config = $coldConfig.Hosts
+        Import-IBConfig
 
     } else {
 
-        # load the cold config
-        $coldConfig = Import-IBConfig
-
-        # decide which host to remove
-        $hostToRemove = $script:CurrentHost
-        if (![string]::IsNullOrWhiteSpace($WAPIHost)) {
-            $hostToRemove = $WAPIHost
+        # decide which profile to remove
+        $profToRemove = $script:CurrentProfile
+        if ($ProfileName) {
+            $profToRemove = $ProfileName
         }
 
-        Write-Verbose "Removing $hostToRemove"
+        Write-Verbose "Removing $profToRemove"
 
-        # remove from memory first
-        if ($hostToRemove -in $script:Config.Keys) {
+        if ($profToRemove -in $script:Profiles.Keys) {
 
-            $script:Config.Remove($hostToRemove)
+            $script:Profiles.Remove($profToRemove)
 
-            # set a new CurrentHost if necessary
-            if ($script:CurrentHost -eq $hostToRemove) {
-                $script:CurrentHost = [string]::Empty
-                if ($script:Config.Count -gt 0) {
-                    $script:CurrentHost = @(($script:Config.Keys | Sort-Object))[0]
+            # set a new CurrentProfile if necessary
+            if ($script:CurrentProfile -eq $profToRemove) {
+                $script:CurrentProfile = [string]::Empty
+                if ($script:Profiles.Count -gt 0) {
+                    $script:CurrentProfile = @(($script:Profiles.Keys | Sort-Object))[0]
                 }
             }
 
         } else {
-            Write-Warning "$hostToRemove not found in the set of existing configs."
+            Write-Warning "`"$profToRemove`" not found in the set of existing profiles."
+            return
         }
 
-        # now remove from disk
-        if ($hostToRemove -in $coldConfig.Hosts.Keys) {
+        # save changes to disk
 
-            # if this is the last entry on disk, just remove the file
-            if ($coldConfig.Hosts.Count -le 1) {
-                if (Test-Path $script:ConfigFile) {
-                    Remove-Item $script:ConfigFile -Force
-                }
-            } else {
-                # otherwise, remove just this entry
-                $coldConfig.Hosts.Remove($hostToRemove)
-
-                # set the same CurrentHost as in memory
-                $coldConfig.CurrentHost = $script:CurrentHost
-
-                Export-IBConfig $coldConfig
+        # if this is the last entry, just delete the config file
+        if ($script:Profiles.Count -lt 1) {
+            if (Test-Path $script:ConfigFile) {
+                Remove-Item $script:ConfigFile -Force
+                Import-IBConfig
             }
-
+        } else {
+            Export-IBConfig
         }
 
     }
@@ -78,39 +65,36 @@ function Remove-IBConfig
 
     <#
     .SYNOPSIS
-        Remove WAPI configuration data from memory and disk.
+        Remove a WAPI connection profile.
 
     .DESCRIPTION
-        When calling this function with no parameters, the currently active set of config values will be removed.
+        When called with no parameters, the currently active connection profile will be removed.
 
-        When called with -WAPIHost, the set of config values for that host will be removed.
+        When called with -ProfileName, the specified profile will be removed.
 
-        When called with -AllHosts, all sets of config values will be removed.
+        When called with -AllProfiles, all profiles will be removed.
 
-    .PARAMETER WAPIHost
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
+    .PARAMETER ProfileName
+        The name of the profile to remove.
 
-    .PARAMETER AllHosts
-        If set, all sets of config values will be removed.
+    .PARAMETER AllProfiles
+        If set, all profiles will be removed.
 
     .EXAMPLE
         Remove-IBConfig
 
-        Removes the currently active WAPI config set from memory and disk.
+        Remove the currently active connection profile.
 
     .EXAMPLE
         Remove-IBConfig -AllHosts
 
-        Removes all config sets from memory and disk.
+        Remove all connection profiles.
 
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI
 
     .LINK
         Set-IBConfig
-
-    .LINK
-        Save-IBWAPIConfig
 
     #>
 }

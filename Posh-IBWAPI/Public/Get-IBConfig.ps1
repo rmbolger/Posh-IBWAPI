@@ -1,35 +1,51 @@
 function Get-IBConfig
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Specific')]
+    [OutputType('PoshIBWAPI.IBConfig')]
     param(
-        [string]$WAPIHost,
+        [Parameter(ParameterSetName='Specific',Position=0)]
+        [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
+        [string]$ProfileName,
+        [Parameter(ParameterSetName='List',Mandatory)]
         [switch]$List
     )
 
-    if ($List) {
-        # list all configs
-        foreach ($hostConfig in $script:Config.Values) {
-            [PSCustomObject]$hostConfig | Select-Object WAPIHost,WAPIVersion,Credential,WebSession,IgnoreCertificateValidation
-        }
-    }
-    elseif ($PSBoundParameters.ContainsKey('WAPIHost')) {
-        if ($script:Config.$WAPIHost) {
-            # show the specified config
-            [PSCustomObject]$script:Config.$WAPIHost | Select-Object WAPIHost,WAPIVersion,Credential,WebSession,IgnoreCertificateValidation
+    if ('Specific' -eq $PSCmdlet.ParameterSetName) {
+
+        if (-not $ProfileName) {
+
+            # return the current profile
+            $profName = Get-CurrentProfile
+            $p = [PSCustomObject]$script:Profiles.$profName |
+                Select-Object @{L='ProfileName';E={$profName}},WAPIHost,WAPIVersion,Credential,SkipCertificateCheck
+            $p.PSObject.TypeNames.Insert(0,'PoshIBWAPI.IBConfig')
+            return $p
+
         } else {
-            # show empty config
-            [PSCustomObject]@{
-                WAPIHost=$null;
-                WAPIVersion=$null;
-                Credential=$null;
-                WebSession=$null;
-                IgnoreCertificateValidation=$null;
+
+            # return the selected profile if it exists
+            if ($ProfileName -in $script:Profiles.Keys) {
+                $p = [PSCustomObject]$script:Profiles.$ProfileName |
+                    Select-Object @{L='ProfileName';E={$ProfileName}},WAPIHost,WAPIVersion,Credential,SkipCertificateCheck
+                $p.PSObject.TypeNames.Insert(0,'PoshIBWAPI.IBConfig')
+                return $p
+            } else {
+                return $null
             }
+
         }
-    }
-    else {
-        # show the current config
-        [PSCustomObject]$script:Config.$script:CurrentHost | Select-Object WAPIHost,WAPIVersion,Credential,WebSession,IgnoreCertificateValidation
+
+    } else {
+
+        # list all configs
+        foreach ($profName in ($script:Profiles.Keys | Sort-Object)) {
+            $p = [PSCustomObject]$script:Profiles.$profName |
+                Select-Object @{L='ProfileName';E={$profName}},WAPIHost,WAPIVersion,Credential,SkipCertificateCheck
+            $p.PSObject.TypeNames.Insert(0,'PoshIBWAPI.IBConfig')
+            Write-Output $p
+
+        }
+
     }
 
 
@@ -37,32 +53,28 @@ function Get-IBConfig
 
     <#
     .SYNOPSIS
-        Get the current set of configuration values for this module.
+        Get the one or more configuration profiles.
 
     .DESCRIPTION
-        When calling this function with no parameters, the currently active set of config values will be returned. These values will be used by related function calls to the Infoblox API unless they are overridden by the function's own parameters.
+        When calling this function with no parameters, the currently active profile will be returned. These values will be used by related function calls to the Infoblox API unless they are overridden by the function's own parameters.
 
-        When called with -WAPIHost, the set of config values for that host will be returned. When called with -List, all sets of config values will be returned.
+        When called with -ProfileName, the profile matching that name will be returned. When called with -List, all profiles will be returned.
 
-    .PARAMETER WAPIHost
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
+    .PARAMETER ProfileName
+        The name of the config profile to return.
 
     .PARAMETER List
-        If set, list all config sets currently stored. Otherwise, just list the currently active set.
-
-    .OUTPUTS
-        [PSCustomObject]
-        One or more config sets for this module.
+        If set, list all config sets currently stored.
 
     .EXAMPLE
         Get-IBConfig
 
-        Get the current configuration values.
+        Get the current config profile.
 
     .EXAMPLE
         Get-IBConfig -List
 
-        Get all sets of configuration values.
+        Get all config profiles.
 
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI

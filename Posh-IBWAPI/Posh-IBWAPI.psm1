@@ -38,16 +38,13 @@ $Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction Silent
 $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )
 
 # Dot source the files
-Foreach($import in @($Public + $Private))
+foreach ($import in @($Public + $Private))
 {
-    Try { . $import.fullname }
-    Catch
-    {
+    try { . $import.fullname }
+    catch {
         Write-Error -Message "Failed to import function $($import.fullname): $_"
     }
 }
 
-# initialize/import the config container related stuff
-$coldConfig = Import-IBConfig
-$script:CurrentHost = $coldConfig.CurrentHost
-$script:Config = $coldConfig.Hosts
+# initialize/import the config
+Import-IBConfig
