@@ -1,4 +1,4 @@
-function Set-IBWAPIConfig
+function Set-IBConfig
 {
     [CmdletBinding()]
     param(
@@ -135,12 +135,12 @@ function Set-IBWAPIConfig
         If set, the "current" WAPI host config will not switch to the specified -WAPIHost if different.
 
     .EXAMPLE
-        Set-IBWAPIConfig -WAPIHost 'gridmaster.example.com'
+        Set-IBConfig -WAPIHost 'gridmaster.example.com'
 
         Set the hostname of the Infoblox API endpoint.
 
     .EXAMPLE
-        Set-IBWAPIConfig -WAPIHost $gridmaster -WAPIVersion 2.2 -Credential (Get-Credential) -IgnoreCertificateValidation
+        Set-IBConfig -WAPIHost $gridmaster -WAPIVersion 2.2 -Credential (Get-Credential) -IgnoreCertificateValidation
 
         Set all of the basic parameters for an Infoblox WAPI connection, prompt for the credentials, and ignore certificate validation.
 
@@ -148,7 +148,7 @@ function Set-IBWAPIConfig
         Project: https://github.com/rmbolger/Posh-IBWAPI
 
     .LINK
-        Get-IBWAPIConfig
+        Get-IBConfig
 
     .LINK
         Get-IBSession

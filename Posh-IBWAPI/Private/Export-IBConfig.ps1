@@ -1,4 +1,4 @@
-function Export-IBWAPIConfig
+function Export-IBConfig
 {
     [CmdletBinding()]
     param([hashtable]$coldConfig)

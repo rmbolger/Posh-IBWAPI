@@ -1,6 +1,6 @@
 Import-Module Posh-IBWAPI
 
-Describe "Set-IBWAPIConfig" {
+Describe "Set-IBConfig" {
     InModuleScope Posh-IBWAPI {
 
 

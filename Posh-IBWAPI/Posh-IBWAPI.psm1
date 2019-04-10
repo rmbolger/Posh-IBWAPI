@@ -48,7 +48,7 @@ Foreach($import in @($Public + $Private))
 }
 
 # initialize/import the config container related stuff
-$coldConfig = Import-IBWAPIConfig
+$coldConfig = Import-IBConfig
 $script:CurrentHost = $coldConfig.CurrentHost
 $script:Config = $coldConfig.Hosts
 

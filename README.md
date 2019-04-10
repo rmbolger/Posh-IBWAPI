@@ -11,7 +11,7 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 - Error details in the body of HTTP 400 responses are exposed instead of being swallowed by Invoke-RestMethod.
 - Pipeline support so you can do things like pass the results from `Get-IBObject` directly to `Remove-IBObject`.
 - Optionally ignore certificate validation errors.
-- Save common connection parameters per-session with `Set-IBWAPIConfig` so you don't need to pass them to every function call.
+- Save common connection parameters per-session with `Set-IBConfig` so you don't need to pass them to every function call.
 - Use `Save-IBWAPIConfig` to persist connection parameters between sessions.
 - In multi-grid or multi-host environments, connection parameters can be saved separately for each WAPI host.
 
@@ -41,10 +41,10 @@ iex (invoke-restmethod https://raw.githubusercontent.com/rmbolger/Posh-IBWAPI/ma
 
 # Quick Start
 
-Every WAPI call needs a host, version, and credentials. Set them once for the session with `Set-IBWAPIConfig` and you won't need to add them to every call. If your grid is still using self-signed certs, you may also need to use the `-IgnoreCertificateValidation` parameter. In addition to standard version numbers like `'2.2'`, the `-WAPIVersion` parameter also accepts `'latest'` and will query the grid master for the latest supported version.
+Every WAPI call needs a host, version, and credentials. Set them once for the session with `Set-IBConfig` and you won't need to add them to every call. If your grid is still using self-signed certs, you may also need to use the `-IgnoreCertificateValidation` parameter. In addition to standard version numbers like `'2.2'`, the `-WAPIVersion` parameter also accepts `'latest'` and will query the grid master for the latest supported version.
 
 ```powershell
-Set-IBWAPIConfig -host gridmaster.example.com -version latest -cred (Get-Credential) -IgnoreCert
+Set-IBConfig -host gridmaster.example.com -version latest -cred (Get-Credential) -IgnoreCert
 ```
 
 Retrieve a set of objects using `Get-IBObject`. The only required parameter is `-ObjectType`. Everything else like filters and return fields are optional.
