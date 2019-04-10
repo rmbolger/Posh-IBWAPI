@@ -1,5 +1,37 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Configuration>
     <ViewDefinitions>
+        <View>
+            <Name>IBConfig</Name>
+            <ViewSelectedBy>
+                <TypeName>PoshIBWAPI.IBConfig</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader/>
+                    <TableColumnHeader/>
+                    <TableColumnHeader/>
+                    <TableColumnHeader><Label>CredentialUser</Label></TableColumnHeader>
+                    <TableColumnHeader/>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem><PropertyName>ProfileName</PropertyName></TableColumnItem>
+                            <TableColumnItem><PropertyName>WAPIHost</PropertyName></TableColumnItem>
+                            <TableColumnItem><PropertyName>WAPIVersion</PropertyName></TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>
+                                    if ($_.Credential) {
+                                        $_.Credential.Username
+                                    } else { $null }
+                                </ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem><PropertyName>SkipCertificateCheck</PropertyName></TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
     </ViewDefinitions>
-</Configuration>    
+</Configuration>

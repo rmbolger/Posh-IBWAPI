@@ -36,11 +36,7 @@ function Get-IBSchema {
 
     # make sure we can actually query schema stuff for this WAPIHost
     if (!$cfg.HighestVersion) {
-        if (!$opts.WebSession) {
-            $opts.WebSession = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-            $opts.WebSession.Credentials = $opts.Credential.GetNetworkCredential()
-        }
-        $cfg.HighestVersion = (HighestVer $WAPIHost $opts.WebSession -IgnoreCertificateValidation:$opts.IgnoreCertificateValidation)
+        $cfg.HighestVersion = (HighestVer $WAPIHost $opts.Credential -SkipCertificateCheck:$opts.IgnoreCertificateValidation)
         Write-Verbose "Set highest version: $($cfg.HighestVersion)"
     }
     if ([Version]$cfg.HighestVersion -lt [Version]'1.7.5') {

@@ -11,8 +11,7 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 - Error details in the body of HTTP 400 responses are exposed instead of being swallowed by Invoke-RestMethod.
 - Pipeline support so you can do things like pass the results from `Get-IBObject` directly to `Remove-IBObject`.
 - Optionally ignore certificate validation errors.
-- Save common connection parameters per-session with `Set-IBConfig` so you don't need to pass them to every function call.
-- Use `Save-IBWAPIConfig` to persist connection parameters between sessions.
+- Save common connection parameters with `Set-IBConfig` so you don't need to pass them to every function call.
 - In multi-grid or multi-host environments, connection parameters can be saved separately for each WAPI host.
 
 # Install

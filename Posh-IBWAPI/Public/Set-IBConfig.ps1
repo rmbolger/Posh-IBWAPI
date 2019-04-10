@@ -2,156 +2,143 @@ function Set-IBConfig
 {
     [CmdletBinding()]
     param(
+        [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
+        [Alias('name')]
+        [string]$ProfileName,
         [Alias('host')]
+        [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [string]$WAPIHost,
         [Alias('version')]
+        [ValidateScript({Test-VersionString $_ -AllowLatest -ThrowOnFail})]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [Alias('session')]
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation,
+        [switch]$SkipCertificateCheck,
         [switch]$NoSwitchProfile
     )
 
-    # We want to allow callers to save some of the normally tedious parameters
-    # to this instance of the module so they don't need to supply them on
-    # every subsequent function call.
+    # This function allows callers to save connection parameters so they don't
+    # need to supply them on every subsequent function call.
 
-    # NOTE: Script scoped variables in a module are effectively module scoped.
-    # So $script:blah should be accessible within any module function but not directly
-    # to the callers of module functions.
-
-    # deal with hostname
-    if (![String]::IsNullOrWhiteSpace($WAPIHost)) {
-
-        # initialize a hashtable for this host if it doesn't exist
-        if (!$script:Config.$WAPIHost) {
-            $script:Config.$WAPIHost = @{WAPIHost=$WAPIHost}
+    if ($ProfileName) {
+        if ($ProfileName -in $script:Profiles.Keys) {
+            # grab the referenced profile
+            $cfg = $script:Profiles.$ProfileName
+            Write-Debug "Using profile $ProfileName"
+        } else {
+            # start a new profile
+            $cfg = @{}
+            Write-Debug "Starting new profile $ProfileName"
         }
-
-        # remove the old empty string config if it exists
-        $script:Config.Remove('') | Out-Null
-
-        # switch the current host if necessary
-        if (!$NoSwitchProfile -and $WAPIHost -ne $script:CurrentHost) {
-            $script:CurrentHost = $WAPIHost
-            Write-Verbose "Switched config to $WAPIHost"
+    } else {
+        if ($ProfileName = (Get-CurrentProfile)) {
+            # grab the current profile
+            $cfg = $script:Profiles.$ProfileName
+            Write-Debug "Using current profile $ProfileName"
+        } else {
+            # can't do anything with no current profile
+            throw "ProfileName not specified and no active profile to modify."
         }
-
-        # make a shorthand reference to the host config to be modified
-        $cfg = $script:Config.$WAPIHost
-    }
-    else {
-        # make a shorthand reference to the host config to be modified
-        $cfg = $script:Config.$script:CurrentHost
     }
 
-    if ($WebSession) {
-        Write-Verbose "Saving new WebSession with Credential for $($WebSession.Credentials.UserName)"
-        $cfg.WebSession = $WebSession
+    if ($WAPIHost) {
+        $cfg.WAPIHost = $WAPIHost
+        Write-Debug "WAPIHost set to $($cfg.WAPIHost)"
+    } elseif (-not $cfg.WAPIHost) {
+        # we don't allow new profiles with no host
+        throw "New profiles must contain a WAPIHost."
     }
 
     if ($Credential) {
-        Write-Verbose "Saving Credential for $($Credential.UserName)"
         $cfg.Credential = $Credential
-
-        if (!$cfg.WebSession) {
-            # Configure an empty WebSession if we don't have one already
-            Write-Verbose "Creating empty WebSession with Credential for $($Credential.UserName)"
-            $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-            $session.Credentials = $Credential.GetNetworkCredential()
-            $cfg.WebSession = $session
-        }
-        else {
-            # Update the credential in our existing WebSession
-            Write-Verbose "Updating existing WebSession with Credential for $($Credential.UserName)"
-            $cfg.WebSession.Credentials = $Credential.GetNetworkCredential()
-        }
+        Write-Debug "Credential set to $($cfg.Credential.Username)"
+    } elseif (-not $cfg.Credential) {
+        # we don't allow new profiles with no credential
+        throw "New profiles must contain a Credential."
     }
 
-    # deal with setting IgnoreCertificateValidation
-    if ($PSBoundParameters.ContainsKey('IgnoreCertificateValidation')) {
-        Write-Verbose "Saving IgnoreCertificateValidation $IgnoreCertificateValidation"
-        $cfg.IgnoreCertificateValidation = $IgnoreCertificateValidation
+    # SkipCertificateCheck defaults to false, but can also be explicitly set to false
+    # so don't just assume it's true if the flag was specified.
+    if ('SkipCertificateCheck' -in $PSBoundParameters.Keys) {
+        $cfg.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
+        Write-Debug "SkipCertificateCheck set to $($cfg.SkipCertificateCheck)"
+    } elseif (-not ('SkipCertificateCheck' -in $cfg.Keys)) {
+        $cfg.SkipCertificateCheck = $false
     }
 
-    if (![String]::IsNullOrWhiteSpace($WAPIVersion)) {
-        # While it may be considered bad practice when dealing with a well-versioned
-        # REST API, we want to allow callers to automatically use the latest API
-        # version without explicitly knowing what it is. So if they specify 'latest',
-        # we'll query the latest version from Infoblox and set that.
-        if ($WAPIVersion -eq 'latest') {
-            $cfg.WAPIVersion = (HighestVer $cfg.WAPIHost $cfg.WebSession -IgnoreCertificateValidation:$cfg.IgnoreCertificateValidation)
-        }
-        else {
-            # Users familiar with the Infoblox WAPI might include a 'v' in their version
-            # string because that's how you specify it in the URL, but we're going to do
-            # that for them. So just strip it out if it's there.
-            if ($WAPIVersion[0] -eq 'v') {
-                $WAPIVersion = $WAPIVersion.Substring(1)
-            }
-
-            # validate it can actually be parsed by the Version object
-            if (!($WAPIVersion -as [Version])) {
-                throw "WAPIVersion is not a valid version string."
-            }
-
+    if ($WAPIVersion) {
+        if ('latest' -eq $WAPIVersion) {
+            # query the latest version using the connection parameters we've
+            # already established
+            $version = HighestVer @cfg
+            $cfg.WAPIVersion = $version
+        } else {
             $cfg.WAPIVersion = $WAPIVersion
         }
-        Write-Verbose "Saved WAPIVersion as $($cfg.WAPIVersion)"
-
-        # WARNING: Both the sorting and the [Version] validation may break
-        # in the future if Infoblox ever changes the way they name versions.
+        Write-Debug "WAPIVersion set to $($cfg.WAPIVersion)"
+    } elseif (-not $cfg.WAPIVersion) {
+        # we don't allow new profiles with no WAPIVersion
+        throw "New profiles must contain a WAPIVersion."
     }
 
+    # add/overwrite the new/old profile
+    $script:Profiles.$ProfileName = $cfg
 
+    # switch to the profile unless otherwise specified
+    if (-not $NoSwitchProfile) {
+        $script:CurrentProfile = $ProfileName
+    }
+
+    # save the changes to disk
+    Export-IBConfig
 
 
     <#
     .SYNOPSIS
-        Save configuration values for a WAPI host that will persist for the duration of this Powershell session.
+        Save connection parameters to a profile to avoid needing to supply them to future functions.
 
     .DESCRIPTION
         Rather than specifying the same common parameter values to most of the function calls in this module, you can pre-set them with this function instead. They will be used automatically by other functions that support them unless overridden by the function's own parameters.
 
-        Config values are saved per unique WAPIHost value. Calling this function with a new WAPIHost will switch the "current" config to the new host unless -NoSwitchProfile is used.
+        Calling this function with a profile name will update that profile's values and switch the current profile to the specified one unless -NoSwitchProfile is used. When a profile name is not specified, the current profile's values will be updated with any specified changes.
+
+    .PARAMETER ProfileName
+        The name of the profile to create or modify.
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
 
     .PARAMETER WAPIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version. This will only work if WAPIHost and Credential or WebSession are included or already configured.
+        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version.
 
     .PARAMETER Credential
-        Username and password for the Infoblox appliance. If -WebSession is not specified and not already configured, setting this will also set WebSession with these credentials.
+        Username and password for the Infoblox appliance.
 
-    .PARAMETER WebSession
-        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter.
-
-    .PARAMETER IgnoreCertificateValidation
-        If set, SSL/TLS certificate validation will be disabled.
+    .PARAMETER SkipCertificateCheck
+        If set, SSL/TLS certificate validation will be disabled for this profile.
 
     .PARAMETER NoSwitchProfile
-        If set, the "current" WAPI host config will not switch to the specified -WAPIHost if different.
+        If set, the current profile will not switch to the specified -ProfileName if different.
 
     .EXAMPLE
-        Set-IBConfig -WAPIHost 'gridmaster.example.com'
+        Set-IBConfig -ProfileName 'gm-admin'
 
-        Set the hostname of the Infoblox API endpoint.
+        Switch to the 'gm-admin' profile, but make no changes.
 
     .EXAMPLE
-        Set-IBConfig -WAPIHost $gridmaster -WAPIVersion 2.2 -Credential (Get-Credential) -IgnoreCertificateValidation
+        Set-IBConfig -ProfileName 'gm-admin' -WAPIHost gm.example.com -WAPIVersion 2.2 -Credential (Get-Credential) -SkipCertificateCheck
 
-        Set all of the basic parameters for an Infoblox WAPI connection, prompt for the credentials, and ignore certificate validation.
+        Create or update the 'gm-admin' profile with all basic connection parameters for an Infoblox WAPI connection. This will also prompt for the credentials and skip certificate validation.
+
+    .EXAMPLE
+        Set-IBConfig -WAPIVersion 2.5
+
+        Update the current profile to WAPI version 2.5
 
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI
 
     .LINK
         Get-IBConfig
-
-    .LINK
-        Get-IBSession
 
     .LINK
         Invoke-IBWAPI

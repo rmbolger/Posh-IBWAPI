@@ -5,15 +5,17 @@ function HighestVer
         [Parameter(Mandatory=$true)]
         [string]$WAPIHost,
         [Parameter(Mandatory=$true)]
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation
+        [pscredential]$Credential,
+        [switch]$SkipCertificateCheck,
+        [Parameter(ValueFromRemainingArguments=$true)]
+        $ExtraParams
     )
 
     try {
         # Query the grid master schema for the list of supported versions
         Write-Verbose "Querying schema for supported versions"
         $APIBase = $script:APIBaseTemplate -f $WAPIHost,'1.1'
-        $versions = (Invoke-IBWAPI -Uri "$($APIBase)?_schema" -WebSession $WebSession -IgnoreCertificateValidation:$IgnoreCertificateValidation).supported_versions
+        $versions = (Invoke-IBWAPI -Uri "$($APIBase)?_schema" -Credential $Credential -IgnoreCertificateValidation:$SkipCertificateCheck).supported_versions
 
         # Historically, these are returned in order. But just in case they aren't, we'll
         # explicitly sort them via the [Version] cast which is an easy way to make sure you
@@ -24,7 +26,7 @@ function HighestVer
         return $versions[-1]
     }
     catch {
-        
+
         if ($_.ToString() -eq 'AdmConProtoError: Unknown argument: _schema=') {
 
             Write-Verbose "Schema query failed, attempting to scrape wapidoc HTML."
