@@ -46,5 +46,7 @@ foreach ($import in @($Public + $Private))
     }
 }
 
+Register-ArgCompleters
+
 # initialize/import the config
 Import-IBConfig
