@@ -14,7 +14,7 @@ function Remove-IBObject
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation
+        [switch]$SkipCertificateCheck
     )
 
     Begin {
@@ -64,7 +64,7 @@ function Remove-IBObject
     .PARAMETER WebSession
         A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBConfig.
 
-    .PARAMETER IgnoreCertificateValidation
+    .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
 
     .OUTPUTS

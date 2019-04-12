@@ -9,7 +9,7 @@ function Initialize-CallVars
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation,
+        [switch]$SkipCertificateCheck,
         [Parameter(ValueFromRemainingArguments = $true)]
         $Splat
     )
@@ -24,7 +24,7 @@ function Initialize-CallVars
     # set params.
 
     # Remove any non-connection related parameters we were passed
-    $connParams = 'WAPIHost','WAPIVersion','Credential','WebSession','IgnoreCertificateValidation'
+    $connParams = 'WAPIHost','WAPIVersion','Credential','WebSession','SkipCertificateCheck'
     foreach ($key in @($psb.Keys)) {
         if ($key -notin $connParams) {
             $psb.Remove($key) | Out-Null
@@ -88,10 +88,10 @@ function Initialize-CallVars
         throw "No credentials supplied via Credential or WebSession"
     }
 
-    if (!$psb.ContainsKey('IgnoreCertificateValidation') -and
-        $cfg -and $cfg.ContainsKey('IgnoreCertificateValidation')) {
-        $psb.IgnoreCertificateValidation = $cfg.IgnoreCertificateValidation
-        Write-Verbose "using saved Ignore value $($psb.IgnoreCertificateValidation)"
+    if (!$psb.ContainsKey('SkipCertificateCheck') -and
+        $cfg -and $cfg.ContainsKey('SkipCertificateCheck')) {
+        $psb.SkipCertificateCheck = $cfg.SkipCertificateCheck
+        Write-Verbose "using saved Ignore value $($psb.SkipCertificateCheck)"
     }
 
     # return our modified PSBoundParameters

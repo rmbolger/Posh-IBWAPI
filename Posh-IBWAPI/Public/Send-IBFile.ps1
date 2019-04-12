@@ -27,7 +27,7 @@ function Send-IBFile {
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation
+        [switch]$SkipCertificateCheck
     )
 
     Begin {
@@ -57,7 +57,7 @@ function Send-IBFile {
         try {
             $uploadOpts = @{
                 Credential = $opts.Credential
-                IgnoreCertificateValidation = $true
+                SkipCertificateCheck = $true
                 ContentType = $contentType
             }
 

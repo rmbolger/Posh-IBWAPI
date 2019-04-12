@@ -7,7 +7,7 @@ function New-IBSession
         [string]$WAPIHost,
         [Parameter(Mandatory=$true,Position=1)]
         [PSCredential]$Credential,
-        [switch]$IgnoreCertificateValidation
+        [switch]$SkipCertificateCheck
     )
 
     # There's no explicit logon endpoint in the WAPI, so we're just going to
@@ -17,7 +17,7 @@ function New-IBSession
     # until someone comes along who has a problem with an ancient 1.0 based
     # NIOS install.
 
-    Invoke-IBWAPI -uri "https://$WAPIHost/wapi/v1.1/member" -cred $Credential -SessionVariable ibsession -IgnoreCertificateValidation:$IgnoreCertificateValidation | Out-Null
+    Invoke-IBWAPI -uri "https://$WAPIHost/wapi/v1.1/member" -cred $Credential -SessionVariable ibsession -SkipCertificateCheck:$SkipCertificateCheck | Out-Null
 
     Write-Output $ibsession
 
@@ -37,7 +37,7 @@ function New-IBSession
     .PARAMETER Credential
         Username and password for the Infoblox appliance.
 
-    .PARAMETER IgnoreCertificateValidation
+    .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled.
 
     .OUTPUTS
