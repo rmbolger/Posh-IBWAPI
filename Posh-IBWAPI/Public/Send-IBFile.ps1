@@ -25,8 +25,6 @@ function Send-IBFile {
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [Alias('session')]
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [switch]$SkipCertificateCheck
     )
 
@@ -80,4 +78,46 @@ function Send-IBFile {
 
     }
 
+
+
+    <#
+    .SYNOPSIS
+        Upload a file to Infoblox using one of the fileop upload functions.
+
+    .DESCRIPTION
+        This is a wrapper around the various fileop functions that allow data import into Infoblox.
+
+    .PARAMETER FunctionName
+        The name of the fileop upload function to call.
+
+    .PARAMETER Path
+        The path to the file that will be uploaded for this call.
+
+    .PARAMETER FunctionArgs
+        A hashtable with the required parameters for the function. NOTE: 'token' parameters are handled automatically and can be ignored.
+
+    .PARAMETER WAPIHost
+        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
+
+    .PARAMETER WAPIVersion
+        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parameter is required if not already set using Set-IBConfig.
+
+    .PARAMETER Credential
+        Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
+
+    .PARAMETER SkipCertificateCheck
+        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
+
+    .EXAMPLE
+        Send-IBFile uploadcertificate .\ca.pem -FunctionArgs @{certificate_usage='EAP_CA'}
+
+        Upload a trusted CA certificate to the grid.
+
+    .LINK
+        Project: https://github.com/rmbolger/Posh-IBWAPI
+
+    .LINK
+        Receive-IBFile
+
+    #>
 }

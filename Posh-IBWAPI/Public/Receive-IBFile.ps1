@@ -7,14 +7,12 @@ function Receive-IBFile {
         [Parameter(Mandatory=$True)]
         [string]$OutFile,
         [Alias('args')]
-        [PSObject]$FunctionArgs,
+        [hashtable]$FunctionArgs,
         [Alias('host')]
         [string]$WAPIHost,
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [Alias('session')]
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [switch]$SkipCertificateCheck
     )
 
@@ -66,7 +64,7 @@ function Receive-IBFile {
         Specifies the output file that this cmdlet saves the response body. Enter a path and file name. If you omit the path, the default is the current location.
 
     .PARAMETER FunctionArgs
-        An object with the required parameters for the function.
+        A hashtable with the required parameters for the function.  NOTE: 'token' parameters are handled automatically and can be ignored.
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
@@ -75,10 +73,7 @@ function Receive-IBFile {
         The version of the Infoblox WAPI to make calls against (e.g. '2.2').
 
     .PARAMETER Credential
-        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBConfig.
-
-    .PARAMETER WebSession
-        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBConfig.
+        Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
 
     .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
