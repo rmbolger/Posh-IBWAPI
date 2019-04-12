@@ -30,13 +30,13 @@ function Get-IBObject
         [Alias('all')]
         [switch]$ReturnAllFields,
         [switch]$ProxySearch,
+        [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
+        [ValidateScript({Test-VersionString $_ -ThrowOnFail})]
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [Alias('session')]
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [switch]$SkipCertificateCheck
     )
 
@@ -235,10 +235,7 @@ function Get-IBObject
         The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parameter is required if not already set using Set-IBConfig.
 
     .PARAMETER Credential
-        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBConfig.
-
-    .PARAMETER WebSession
-        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBConfig.
+        Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
 
     .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.

@@ -12,31 +12,17 @@ function Set-IBObject
         [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True)]
         [PSObject]$TemplateObject,
 
-        [Parameter(ParameterSetName='ObjectOnly')]
-        [Parameter(ParameterSetName='RefAndTemplate')]
         [Alias('fields')]
         [string[]]$ReturnFields,
-        [Parameter(ParameterSetName='ObjectOnly')]
-        [Parameter(ParameterSetName='RefAndTemplate')]
         [Alias('base')]
         [switch]$ReturnBaseFields,
-        [Parameter(ParameterSetName='ObjectOnly')]
-        [Parameter(ParameterSetName='RefAndTemplate')]
+        [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
-        [Parameter(ParameterSetName='ObjectOnly')]
-        [Parameter(ParameterSetName='RefAndTemplate')]
+        [ValidateScript({Test-VersionString $_ -ThrowOnFail})]
         [Alias('version')]
         [string]$WAPIVersion,
-        [Parameter(ParameterSetName='ObjectOnly')]
-        [Parameter(ParameterSetName='RefAndTemplate')]
         [PSCredential]$Credential,
-        [Parameter(ParameterSetName='ObjectOnly')]
-        [Parameter(ParameterSetName='RefAndTemplate')]
-        [Alias('session')]
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [Parameter(ParameterSetName='ObjectOnly')]
-        [Parameter(ParameterSetName='RefAndTemplate')]
         [switch]$SkipCertificateCheck
     )
 
@@ -125,10 +111,7 @@ function Set-IBObject
         The version of the Infoblox WAPI to make calls against (e.g. '2.2').
 
     .PARAMETER Credential
-        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBConfig.
-
-    .PARAMETER WebSession
-        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBConfig.
+        Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
 
     .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.

@@ -7,11 +7,9 @@ function Initialize-CallVars
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [Alias('session')]
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [switch]$SkipCertificateCheck,
-        [Parameter(ValueFromRemainingArguments = $true)]
-        $Splat
+        [Parameter(ValueFromRemainingArguments=$true)]
+        $ExtraParams
     )
 
     $psb = $PSBoundParameters
@@ -20,78 +18,62 @@ function Initialize-CallVars
     # merged set of common connection parameters to use against
     # Invoke-IBWAPI. Calling functions will pass their set of explicit
     # parameters and we will merge them with the saved set for the
-    # currently active WAPIHost.  Explicit params always override saved
-    # set params.
+    # currently active profile. Explicit params always override saved params.
 
     # Remove any non-connection related parameters we were passed
-    $connParams = 'WAPIHost','WAPIVersion','Credential','WebSession','SkipCertificateCheck'
+    $connParams = 'WAPIHost','WAPIVersion','Credential','SkipCertificateCheck'
     foreach ($key in @($psb.Keys)) {
         if ($key -notin $connParams) {
             $psb.Remove($key) | Out-Null
         }
     }
 
-    # make sure we have a non-empty WAPIHost
-    if ([String]::IsNullOrWhiteSpace($psb.WAPIHost)) {
-        if ([String]::IsNullOrWhiteSpace($script:CurrentHost)) {
+    $curProfile = Get-CurrentProfile
+    $prof = $script:Profiles.$curProfile
+    Write-Debug "Using profile $curProfile"
+
+    # make sure we have a WAPIHost
+    if (-not $psb.WAPIHost) {
+        if (-not $prof.WAPIHost) {
             throw "WAPIHost missing or empty."
-        }
-        else {
+        } else {
             # use the saved value
-            $psb.WAPIHost = $script:CurrentHost
-            Write-Verbose "using saved WAPIHost $($psb.WAPIHost)"
-
-            # remove the empty string config if it exists
-            $script:Config.Remove('') | Out-Null
+            $psb.WAPIHost = $prof.WAPIHost
         }
+    } else {
+        Write-Debug "Overriding saved WAPIHost with $($psb.WAPIHost)"
     }
 
-    # make sure a config exists for this host
-    if ($script:Config[$psb.WAPIHost]) { $cfg = $script:Config[$psb.WAPIHost] }
-    else { $cfg = $script:Config[''] }
-
-    # check the version
-    if ([String]::IsNullOrWhiteSpace($psb.WAPIVersion)) {
-        if ([String]::IsNullOrWhiteSpace($cfg.WAPIVersion)) {
+    # make sure we have a WAPIVersion
+    if (-not $psb.WAPIVersion) {
+        if (-not $prof.WAPIVersion) {
             throw "WAPIVersion missing or empty."
-        }
-        else {
+        } else {
             # use the saved value
-            $psb.WAPIVersion = $cfg.WAPIVersion
-            Write-Verbose "using saved WAPIVersion $($psb.WAPIVersion)"
+            $psb.WAPIVersion = $prof.WAPIVersion
         }
+    } else {
+        Write-Debug "Overriding saved WAPIVersion with $($psb.WAPIVersion)"
     }
-    else {
-        # sanity check the explicit version string
 
-        # strip the 'v' prefix if they used it on accident
-        if ($psb.WAPIVersion[0] -eq 'v') {
-            $psb.WAPIVersion = $psb.WAPIVersion.Substring(1)
+    # make sure we have a Credential
+    if (-not $psb.Credential) {
+        if (-not $prof.Credential) {
+            throw "Credential is missing or empty."
+        } else {
+            # use the saved value
+            $psb.Credential = $prof.Credential
         }
-
-        # check format using a [Version] cast
-        if (!($psb.WAPIVersion -as [Version])) {
-            throw "WAPIVersion is not a valid version string."
-        }
+    } else {
+        Write-Debug "Overriding saved Credential with $($psb.Credential.Username)"
     }
 
-    # check Credential and WebSession
-    if (!$psb.Credential -and $cfg.Credential) {
-        $psb.Credential = $cfg.Credential
-        Write-Verbose "using saved Credential for $($psb.Credential.UserName)"
-    }
-    if (!$psb.WebSession -and $cfg.WebSession) {
-        $psb.WebSession = $cfg.WebSession
-        Write-Verbose "using saved WebSession for $($psb.WebSession.Credentials.UserName)"
-    }
-    if (!$psb.Credential -and !$psb.WebSession) {
-        throw "No credentials supplied via Credential or WebSession"
-    }
-
-    if (!$psb.ContainsKey('SkipCertificateCheck') -and
-        $cfg -and $cfg.ContainsKey('SkipCertificateCheck')) {
-        $psb.SkipCertificateCheck = $cfg.SkipCertificateCheck
-        Write-Verbose "using saved Ignore value $($psb.SkipCertificateCheck)"
+    # deal with SKipCertificateCheck
+    if ('SkipCertificateCheck' -in $psb.Keys) {
+        Write-Debug "Overriding saved SkipCertificateCheck with $($psb.SkipCertificateCheck.IsPresent)"
+    } else {
+        # use the saved value
+        $psb.SkipCertificateCheck = $prof.SkipCertificateCheck
     }
 
     # return our modified PSBoundParameters
