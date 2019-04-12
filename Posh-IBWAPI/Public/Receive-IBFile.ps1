@@ -15,7 +15,7 @@ function Receive-IBFile {
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation
+        [switch]$SkipCertificateCheck
     )
 
     Begin {
@@ -34,7 +34,7 @@ function Receive-IBFile {
         try {
             $dlOpts = @{
                 Credential = $opts.Credential
-                IgnoreCertificateValidation = $true
+                SkipCertificateCheck = $true
                 ContentType = 'application/force-download'
             }
             Invoke-IBWAPI -Uri $dlUrl -OutFile $OutFile @dlOpts -EA Stop
@@ -80,7 +80,7 @@ function Receive-IBFile {
     .PARAMETER WebSession
         A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBConfig.
 
-    .PARAMETER IgnoreCertificateValidation
+    .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
 
     .EXAMPLE

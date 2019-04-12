@@ -18,7 +18,7 @@ function Get-IBSchema {
         [PSCredential]$Credential,
         [Alias('session')]
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation
+        [switch]$SkipCertificateCheck
     )
 
     # grab the variables we'll be using for our REST calls
@@ -36,7 +36,7 @@ function Get-IBSchema {
 
     # make sure we can actually query schema stuff for this WAPIHost
     if (!$cfg.HighestVersion) {
-        $cfg.HighestVersion = (HighestVer $WAPIHost $opts.Credential -SkipCertificateCheck:$opts.IgnoreCertificateValidation)
+        $cfg.HighestVersion = (HighestVer $WAPIHost $opts.Credential -SkipCertificateCheck:$opts.SkipCertificateCheck)
         Write-Verbose "Set highest version: $($cfg.HighestVersion)"
     }
     if ([Version]$cfg.HighestVersion -lt [Version]'1.7.5') {
@@ -447,7 +447,7 @@ function Get-IBSchema {
     .PARAMETER WebSession
         A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBConfig.
 
-    .PARAMETER IgnoreCertificateValidation
+    .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
 
     .OUTPUTS

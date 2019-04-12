@@ -15,7 +15,7 @@ function HighestVer
         # Query the grid master schema for the list of supported versions
         Write-Verbose "Querying schema for supported versions"
         $APIBase = $script:APIBaseTemplate -f $WAPIHost,'1.1'
-        $versions = (Invoke-IBWAPI -Uri "$($APIBase)?_schema" -Credential $Credential -IgnoreCertificateValidation:$SkipCertificateCheck).supported_versions
+        $versions = (Invoke-IBWAPI -Uri "$($APIBase)?_schema" -Credential $Credential -SkipCertificateCheck:$SkipCertificateCheck).supported_versions
 
         # Historically, these are returned in order. But just in case they aren't, we'll
         # explicitly sort them via the [Version] cast which is an easy way to make sure you

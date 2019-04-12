@@ -11,7 +11,7 @@ function Invoke-IBWAPI
         [string]$OutFile,
         [string]$SessionVariable,
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
-        [switch]$IgnoreCertificateValidation
+        [switch]$SkipCertificateCheck
     )
 
     ###########################################################################
@@ -41,7 +41,7 @@ function Invoke-IBWAPI
     if (!$opts.ContentType) { $opts.ContentType = $ContentType }
 
     # add Core edition parameters if necessary
-    if ($IgnoreCertificateValidation -and $script:SkipCertSupported) {
+    if ($SkipCertificateCheck -and $script:SkipCertSupported) {
         $opts.SkipCertificateCheck = $true
     }
 
@@ -59,7 +59,7 @@ function Invoke-IBWAPI
 
     try
     {
-        if ($IgnoreCertificateValidation -and !$script:SkipCertSupported) {
+        if ($SkipCertificateCheck -and !$script:SkipCertSupported) {
             [CertValidation]::Ignore();
             Write-Verbose "Disabled cert validation"
         }
@@ -89,7 +89,7 @@ function Invoke-IBWAPI
             }
         }
         finally {
-            if ($IgnoreCertificateValidation -and !$script:SkipCertSupported) {
+            if ($SkipCertificateCheck -and !$script:SkipCertSupported) {
                 [CertValidation]::Restore();
                 Write-Verbose "Enabled cert validation"
             }
@@ -187,7 +187,7 @@ function Invoke-IBWAPI
     .PARAMETER SessionVariable
         Specifies a variable for which this cmdlet creates a web request session and saves it in the value. Enter a variable name without the dollar sign ($) symbol.
 
-    .PARAMETER IgnoreCertificateValidation
+    .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled.
 
     .EXAMPLE
