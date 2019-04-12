@@ -30,15 +30,15 @@ function Invoke-IBWAPI
     ###########################################################################
 
     # Build a hashtable out of our optional parameters that we will later
-    # send to Invoke-RestMethod via Splatting
+    # send to Invoke-RestMethod via splatting
     # https://msdn.microsoft.com/en-us/powershell/reference/5.1/microsoft.powershell.core/about/about_splatting
     $opts = @{}
     $paramNames = 'Method','Credential','Body','ContentType','OutFile','WebSession'
     $PSBoundParameters.Keys | Where-Object { $_ -in $paramNames } | ForEach-Object { $opts.$_ = $PSBoundParameters.$_ }
 
     # parameters with default values don't appear in $PSBoundParameters, so we need to add manually
-    if (!$opts.Method) { $opts.Method = $Method }
-    if (!$opts.ContentType) { $opts.ContentType = $ContentType }
+    if (-not $opts.Method) { $opts.Method = $Method }
+    if (-not $opts.ContentType) { $opts.ContentType = $ContentType }
 
     # add Core edition parameters if necessary
     if ($SkipCertificateCheck -and $script:SkipCertSupported) {

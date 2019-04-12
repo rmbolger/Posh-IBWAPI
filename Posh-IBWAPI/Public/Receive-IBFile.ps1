@@ -8,8 +8,10 @@ function Receive-IBFile {
         [string]$OutFile,
         [Alias('args')]
         [hashtable]$FunctionArgs,
+        [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
+        [ValidateScript({Test-VersionString $_ -ThrowOnFail})]
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,

@@ -7,13 +7,13 @@ function Remove-IBObject
         [string]$ObjectRef,
         [Alias('args')]
         [string[]]$DeleteArgs,
+        [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
+        [ValidateScript({Test-VersionString $_ -ThrowOnFail})]
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [Alias('session')]
-        [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [switch]$SkipCertificateCheck
     )
 
@@ -56,13 +56,10 @@ function Remove-IBObject
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
 
     .PARAMETER WAPIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version. This will only work if WAPIHost and Credential or WebSession are already configured.
+        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version.
 
     .PARAMETER Credential
-        Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified or was already set using Set-IBConfig.
-
-    .PARAMETER WebSession
-        A WebRequestSession object returned by Get-IBSession or set when using Invoke-IBWAPI with the -SessionVariable parameter. This parameter is required unless -Credential is specified or was already set using Set-IBConfig.
+        Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
 
     .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.

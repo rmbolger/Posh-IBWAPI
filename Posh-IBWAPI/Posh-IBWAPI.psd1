@@ -68,7 +68,6 @@ FunctionsToExport = @(
     'Invoke-IBFunction',
     'Invoke-IBWAPI',
     'New-IBObject',
-    'New-IBSession',
     'Receive-IBFile',
     'Remove-IBConfig',
     'Remove-IBObject',
