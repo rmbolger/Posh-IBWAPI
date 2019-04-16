@@ -51,11 +51,14 @@ function Invoke-IBWAPI
         $opts.SkipHeaderValidation = $true
     }
 
-    # check for an existing session
-    if ($session = Get-IBSession $Uri $opts.Credential) {
+    # deal with session stuff
+    if ($opts.WebSession) {
+        Write-Debug "using explicit session"
+    } elseif ($savedSession = Get-IBSession $Uri $opts.Credential) {
         Write-Debug "using saved session"
-        $opts.WebSession = $session
+        $opts.WebSession = $savedSession
     } else {
+        Write-Debug "no existing session"
         # prepare to save the session for later
         $opts.SessionVariable = 'innerSession'
     }
@@ -86,12 +89,12 @@ function Invoke-IBWAPI
                 }
 
                 # make sure to send our session variable up to the caller scope if defined
-                if ($session) {
+                if ($savedSession) {
                     if ($SessionVariable) {
-                        Set-Variable -Name $SessionVariable -Value $session -Scope 2
+                        Set-Variable -Name $SessionVariable -Value $savedSession -Scope 2
                     }
                 } else {
-                    if ($SessionVariable) {
+                    if ((-not $opts.WebSession) -and $SessionVariable) {
                         Set-Variable -Name $SessionVariable -Value $innerSession -Scope 2
                     }
 
@@ -199,6 +202,9 @@ function Invoke-IBWAPI
 
     .PARAMETER SessionVariable
         Specifies a variable for which this cmdlet creates a web request session and saves it in the value. Enter a variable name without the dollar sign ($) symbol.
+
+    .PARAMETER WebSession
+        Specifies an existing WebSession object to use with the request. If specified, the SessionVariable parameter will be ignored.
 
     .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled.
