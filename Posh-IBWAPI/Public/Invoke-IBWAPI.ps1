@@ -45,16 +45,19 @@ function Invoke-IBWAPI
         $opts.SkipCertificateCheck = $true
     }
 
-    if ($SessionVariable) {
-        # change the name internally so we don't have trouble
-        # with colliding variable names
-        $opts.SessionVariable = 'innerSession'
-    }
-
     if ('SkipHeaderValidation' -in (Get-Command Invoke-RestMethod).Parameters.Keys) {
         # PS Core doesn't like the way our multipart Content-Type header looks for some
         # reason. So we need to disable its built-in validation.
         $opts.SkipHeaderValidation = $true
+    }
+
+    # check for an existing session
+    if ($session = Get-IBSession $Uri $opts.Credential) {
+        Write-Debug "using saved session"
+        $opts.WebSession = $session
+    } else {
+        # prepare to save the session for later
+        $opts.SessionVariable = 'innerSession'
     }
 
     try
@@ -79,13 +82,23 @@ function Invoke-IBWAPI
                     $Uri = [uri]$Uri.ToString().Replace($Uri.Authority, $gridmaster)
                     Invoke-RestMethod -Uri $Uri @opts
                 } else {
-                    $response
+                    Write-Output $response
                 }
 
                 # make sure to send our session variable up to the caller scope if defined
-                if ($SessionVariable) {
-                    Set-Variable -Name $SessionVariable -Value $innerSession -Scope 2
+                if ($session) {
+                    if ($SessionVariable) {
+                        Set-Variable -Name $SessionVariable -Value $session -Scope 2
+                    }
+                } else {
+                    if ($SessionVariable) {
+                        Set-Variable -Name $SessionVariable -Value $innerSession -Scope 2
+                    }
+
+                    # save the session variable internally to re-use later
+                    Set-IBSession $Uri $opts.Credential $innerSession
                 }
+
             }
         }
         finally {
