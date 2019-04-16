@@ -7,6 +7,10 @@ function Import-IBConfig
     $script:Profiles = @{}
     $profiles = $script:Profiles
 
+    if (-not $script:Sessions) {
+        $script:Sessions = @{}
+    }
+
     # return early if there's no file to load
     if (-not (Test-Path $script:ConfigFile)) { return }
 
