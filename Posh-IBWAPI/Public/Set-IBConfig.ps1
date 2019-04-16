@@ -13,6 +13,8 @@ function Set-IBConfig
         [string]$WAPIVersion,
         [PSCredential]$Credential,
         [switch]$SkipCertificateCheck,
+        [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
+        [string]$NewName,
         [switch]$NoSwitchProfile
     )
 
@@ -78,6 +80,13 @@ function Set-IBConfig
     } elseif (-not $cfg.WAPIVersion) {
         # we don't allow new profiles with no WAPIVersion
         throw "New profiles must contain a WAPIVersion."
+    }
+
+    # deal with profile renames and add/overwrite the new/old profile
+    if ($NewName -and $NewName -ne $ProfileName) {
+        $script:Profiles.Remove($ProfileName)
+        $ProfileName = $NewName
+        Write-Debug "Profile renamed to $ProfileName"
     }
 
     # add/overwrite the new/old profile
