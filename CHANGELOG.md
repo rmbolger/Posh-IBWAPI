@@ -1,3 +1,23 @@
+## 2.0.0 (2019-??-??)
+
+* Breaking Changes
+  * .NET 4.5+ is now required on PowerShell Desktop edition for full functionality. A warning will be thrown when loading the module if it is not found.
+  * The `WebSession` parameter has been removed from all functions except `Invoke-IBWAPI`. Session handling is now automatic.
+  * `Get-IBWAPIConfig`, `Set-IBWAPIConfig`, and `Remove-IBWAPIConfig` have been renamed to `Get-IBConfig`, `Set-IBConfig`, and `Remove-IBConfig` respectively.
+  * `Save-IBWAPIConfig` has been removed. Configs are now saved by default via `Set-IBConfig`.
+  * Configs are now referenced by a `ProfileName`. Old 1.x configs will be automatically backed up, converted, and the new profiles will have their WAPIHost value set as the initial profile name.
+  * `Set-IBConfig` now has `ProfileName` as its first parameter.
+  * `Get-IBConfig` and `Remove-IBConfig` now have `ProfileName` instead of `WAPIHost` as their selection parameter.
+  * The `IgnoreCertificateValidation` switch has been renamed to `SkipCertificateCheck` in all functions and configs to be more in line with PowerShell Core.
+* New Feature: Automatic session handling. The module will now automatically save and use WebSession objects to increase authentication efficiency over multiple requests and function calls.
+* New Feature: Named configuration profiles. This will allow you to save multiple profiles for the same WAPI host with different credentials, WAPI versions, etc.
+* New functions `Send-IBFile` and `Recieve-IBFile` which are convenient wrappers around the fileop functions. See the cmdlet help or the guide in the wiki for more details.
+* Config profiles are now automatically saved to disk when using `Set-IBConfig`.
+* `Set-IBConfig` now has a `NewName` parameter to rename the profile.
+* `Get-IBConfig` now returns a typed object with a automatically styled display.
+* `Remove-IBConfig` now has pipeline support both by value and property name so you can pipe the output of `Get-IBConfig` to it.
+* `Get-IBConfig`, `Set-IBConfig`, and `Remove-IBConfig` now have tab completion on PowerShell 5.0 or later.
+
 ## 1.6.0 (2019-04-04)
 
 * Added -NoPaging switch in Get-IBObject (#34) (Thanks @basvinken)
