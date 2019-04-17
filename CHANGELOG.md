@@ -9,6 +9,7 @@
   * `Set-IBConfig` now has `ProfileName` as its first parameter.
   * `Get-IBConfig` and `Remove-IBConfig` now have `ProfileName` instead of `WAPIHost` as their selection parameter.
   * The `IgnoreCertificateValidation` switch has been renamed to `SkipCertificateCheck` in all functions and configs to be more in line with PowerShell Core.
+  * The `ObjectRef` parameter in `Invoke-IBFunction` has been changed to `ObjectType` which is functionally how it always worked and was inappropriately named. Functions get called against object types not references.
 * New Feature: Automatic session handling. The module will now automatically save and use WebSession objects to increase authentication efficiency over multiple requests and function calls.
 * New Feature: Named configuration profiles. This will allow you to save multiple profiles for the same WAPI host with different credentials, WAPI versions, etc.
 * New functions `Send-IBFile` and `Recieve-IBFile` which are convenient wrappers around the fileop functions. See the cmdlet help or the guide in the wiki for more details.

@@ -8,6 +8,8 @@ function Receive-IBFile {
         [string]$OutFile,
         [Alias('args')]
         [hashtable]$FunctionArgs,
+        [Alias('type')]
+        [string]$ObjectType = 'fileop',
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -26,7 +28,7 @@ function Receive-IBFile {
     Process {
 
         # requestion the download token and url
-        $response = Invoke-IBFunction -ObjectRef 'fileop' `
+        $response = Invoke-IBFunction -ObjectType $ObjectType `
             -FunctionName $FunctionName -FunctionArgs $FunctionArgs @opts -EA Stop
         $dlUrl = $response.url
 
@@ -42,7 +44,7 @@ function Receive-IBFile {
         finally {
             # inform Infoblox that the download is complete
             if ($response.token) {
-                $null = Invoke-IBFunction -ObjectRef 'fileop' `
+                $null = Invoke-IBFunction -ObjectType 'fileop' `
                     -FunctionName 'downloadcomplete' -FunctionArgs @{token=$response.token} @opts
             }
         }
@@ -67,6 +69,9 @@ function Receive-IBFile {
 
     .PARAMETER FunctionArgs
         A hashtable with the required parameters for the function.  NOTE: 'token' parameters are handled automatically and can be ignored.
+
+    .PARAMETER ObjectType
+        Object type string. (e.g. network, record:host, range)
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
