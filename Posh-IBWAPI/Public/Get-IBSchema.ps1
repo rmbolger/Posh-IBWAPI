@@ -29,31 +29,32 @@ function Get-IBSchema {
     $opts.Remove('WAPIHost') | Out-Null
     $opts.Remove('WAPIVersion') | Out-Null
 
-    # make sure there's a config set reference for this host
-    # and get a reference to it
-    Set-IBConfig -WAPIHost $WAPIHost -NoSwitchProfile
-    $cfg = $script:Config.$WAPIHost
+    # add a schema cache for this host if it doesn't exist
+    if (-not $script:Schemas.$WAPIHost) {
+        $script:Schemas.$WAPIHost = @{}
+    }
+    $sCache = $script:Schemas.$WAPIHost
 
     # make sure we can actually query schema stuff for this WAPIHost
-    if (!$cfg.HighestVersion) {
-        $cfg.HighestVersion = (HighestVer $WAPIHost $opts.Credential -SkipCertificateCheck:$opts.SkipCertificateCheck)
-        Write-Verbose "Set highest version: $($cfg.HighestVersion)"
+    if (-not $sCache.HighestVersion) {
+        $sCache.HighestVersion = (HighestVer $WAPIHost $opts.Credential -SkipCertificateCheck:$opts.SkipCertificateCheck)
+        Write-Verbose "Set highest version: $($sCache.HighestVersion)"
     }
-    if ([Version]$cfg.HighestVersion -lt [Version]'1.7.5') {
-        throw "NIOS WAPI $($cfg.HighestVersion) doesn't support schema queries"
+    if ([Version]$sCache.HighestVersion -lt [Version]'1.7.5') {
+        throw "NIOS WAPI $($sCache.HighestVersion) doesn't support schema queries"
     }
 
     # cache some base schema stuff that we'll potentially need later
-    if (!$cfg.SupportedVersions -or !$cfg[$WAPIVersion]) {
+    if (-not $sCache.SupportedVersions -or -not $sCache[$WAPIVersion]) {
         $schema = Invoke-IBWAPI -Uri "$($APIBase)?_schema" @opts
 
         # set supported versions
-        $cfg.SupportedVersions = $schema.supported_versions | Sort-Object @{E={[Version]$_}}
-        Write-Verbose "Set supported versions: $($cfg.SupportedVersions -join ', ')"
+        $sCache.SupportedVersions = $schema.supported_versions | Sort-Object @{E={[Version]$_}}
+        Write-Verbose "Set supported versions: $($sCache.SupportedVersions -join ', ')"
 
         # set supported objects for this version
-        $cfg[$WAPIVersion] = $schema.supported_objects | Sort-Object
-        Write-Verbose "Set supported objects: $($cfg[$WAPIVersion] -join ', ')"
+        $sCache[$WAPIVersion] = $schema.supported_objects | Sort-Object
+        Write-Verbose "Set supported objects: $($sCache[$WAPIVersion] -join ', ')"
     }
 
     # The 'request' object is a weird outlier that only accepts POST requests against it
@@ -67,7 +68,7 @@ function Get-IBSchema {
     if (![String]::IsNullOrWhiteSpace($ObjectType)) {
         # We want to support wildcard searches and partial matching on object types.
         Write-Verbose "ObjectType: $ObjectType"
-        $objMatches = $cfg[$WAPIVersion] | ForEach-Object { if ($_ -like $ObjectType) { $_ } }
+        $objMatches = $sCache[$WAPIVersion] | ForEach-Object { if ($_ -like $ObjectType) { $_ } }
         Write-Verbose "Matches: $($objMatches.Count)"
         if ($objMatches.count -gt 1) {
             # multiple matches
@@ -80,7 +81,7 @@ function Get-IBSchema {
         elseif ($objMatches.count -eq 0 ) {
             Write-Verbose "Retrying matches with implied wildcards"
             # retry matching with implied wildcards
-            $objMatches = $cfg[$WAPIVersion] | ForEach-Object { if ($_ -like "*$ObjectType*") { $_ } }
+            $objMatches = $sCache[$WAPIVersion] | ForEach-Object { if ($_ -like "*$ObjectType*") { $_ } }
             if ($objMatches.count -gt 1) {
                 # multiple matches
                 $message = "Multiple object matches found for $($ObjectType)"
@@ -114,7 +115,7 @@ function Get-IBSchema {
     # using the additional schema options if the requested WAPI version supports it, we want
     # to always do it as long as the latest *supported* WAPI version supports them.
     $uri = "$APIBase$($ObjectType)?_schema=1"
-    if ([Version]$cfg.HighestVersion -ge [Version]'2.6') {
+    if ([Version]$schema.HighestVersion -ge [Version]'2.6') {
         $uri += "&_schema_version=2&_schema_searchable=1&_get_doc=1"
     }
 
