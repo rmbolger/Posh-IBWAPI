@@ -19,6 +19,8 @@ function Send-IBFile {
         [string]$Path,
         [Alias('args')]
         [hashtable]$FunctionArgs,
+        [Alias('type')]
+        [string]$ObjectType = 'fileop',
 
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
@@ -40,7 +42,7 @@ function Send-IBFile {
         $Path = $psCmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
 
         Write-Debug "Calling uploadinit"
-        $response = Invoke-IBFunction -ObjectRef 'fileop' -FunctionName 'uploadinit' @opts -EA Stop
+        $response = Invoke-IBFunction -ObjectType 'fileop' -FunctionName 'uploadinit' @opts -EA Stop
         $token = $response.token
         $uploadUrl = $response.url
 
@@ -75,7 +77,7 @@ function Send-IBFile {
 
         # finalize the upload with the actual requested function and arguments
         Write-Debug "Calling $FunctionName with associated arguments"
-        $response = Invoke-IBFunction -ObjectRef 'fileop' -FunctionName $FunctionName `
+        $response = Invoke-IBFunction -ObjectType $ObjectType -FunctionName $FunctionName `
             -FunctionArgs $FunctionArgs @opts -EA Stop
 
     }
@@ -97,6 +99,9 @@ function Send-IBFile {
 
     .PARAMETER FunctionArgs
         A hashtable with the required parameters for the function. NOTE: 'token' parameters are handled automatically and can be ignored.
+
+    .PARAMETER ObjectType
+        Object type string. (e.g. network, record:host, range)
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.

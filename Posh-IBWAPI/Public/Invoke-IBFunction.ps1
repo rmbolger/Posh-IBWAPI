@@ -3,8 +3,8 @@ function Invoke-IBFunction
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
-        [Alias('_ref','ref')]
-        [string]$ObjectRef,
+        [Alias('type')]
+        [string]$ObjectType,
         [Parameter(Mandatory=$True)]
         [Alias('name')]
         [string]$FunctionName,
@@ -32,7 +32,7 @@ function Invoke-IBFunction
 
     Process {
 
-        $uri = "$APIBase$($ObjectRef)?_function=$($FunctionName)"
+        $uri = "$APIBase$($ObjectType)?_function=$($FunctionName)"
 
         if ($FunctionArgs) {
             # convert the function body to json
@@ -65,8 +65,8 @@ function Invoke-IBFunction
     .DESCRIPTION
         This function allows you to call a WAPI function given a specific object reference and the function details.
 
-    .PARAMETER ObjectRef
-        Object reference string. This is usually found in the "_ref" field of returned objects.
+    .PARAMETER ObjectType
+        Object type string. (e.g. network, record:host, range)
 
     .PARAMETER FunctionName
         The name of the function to call.

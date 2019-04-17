@@ -8,7 +8,7 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 - Automatic paging for large GET result sets *(Requires WAPI version 1.5+)*
 - Optionally return all fields for an object without needing to specify each one individually *(Requires WAPI version 1.7.5+)*
 - Automatic session handling
-- `Receive-IBFile` and `Send-IBFile` wrappers for upload/download fileop WAPI functions. *See [guide](https://github.com/rmbolger/Posh-IBWAPI/wiki/Guide-to-Receive-IBFile-and-Send-IBFile) for details.*
+- `Receive-IBFile` and `Send-IBFile` wrappers for upload/download WAPI functions. *See [guide](https://github.com/rmbolger/Posh-IBWAPI/wiki/Guide-to-IBFile-Functions) for details.*
 - Use `Get-IBSchema` for `Get-Help` style querying of the WAPI object model *(Requires WAPI version 1.7.5+)*. *See [guide](https://github.com/rmbolger/Posh-IBWAPI/wiki/Guide-to-Get-IBSchema) for details.*
 - Error details in the body of HTTP 400 responses are exposed instead of being swallowed by Invoke-RestMethod.
 - Pipeline support so you can do things like pass the results from `Get-IBObject` directly to `Remove-IBObject`.
