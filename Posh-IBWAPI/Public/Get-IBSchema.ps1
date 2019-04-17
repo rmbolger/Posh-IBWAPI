@@ -115,7 +115,7 @@ function Get-IBSchema {
     # using the additional schema options if the requested WAPI version supports it, we want
     # to always do it as long as the latest *supported* WAPI version supports them.
     $uri = "$APIBase$($ObjectType)?_schema=1"
-    if ([Version]$schema.HighestVersion -ge [Version]'2.6') {
+    if ([Version]$sCache.HighestVersion -ge [Version]'2.6') {
         $uri += "&_schema_version=2&_schema_searchable=1&_get_doc=1"
     }
 
