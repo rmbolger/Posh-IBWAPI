@@ -3,12 +3,17 @@ function Import-IBConfig
     [CmdletBinding()]
     param()
 
+    # initialize empty profiles
     $script:CurrentProfile = [string]::Empty
     $script:Profiles = @{}
     $profiles = $script:Profiles
 
+    # make sure session and schema caches are initialized
     if (-not $script:Sessions) {
         $script:Sessions = @{}
+    }
+    if (-not $script:Schemas) {
+        $script:Schemas = @{}
     }
 
     # return early if there's no file to load
