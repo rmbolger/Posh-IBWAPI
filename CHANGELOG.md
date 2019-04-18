@@ -1,8 +1,9 @@
-## 2.0.0 (2019-??-??)
+## 2.0.0 (2019-04-18)
 
 * Breaking Changes
   * .NET 4.5+ is now required on PowerShell Desktop edition for full functionality. A warning will be thrown when loading the module if it is not found.
-  * The `WebSession` parameter has been removed from all functions except `Invoke-IBWAPI` and `New-IBSession` has been removed. Session handling is now automatic.
+  * The `WebSession` parameter has been removed from all functions except `Invoke-IBWAPI`. Session handling is now automatic.
+  * `New-IBSession` has been removed.
   * `Get-IBWAPIConfig`, `Set-IBWAPIConfig`, and `Remove-IBWAPIConfig` have been renamed to `Get-IBConfig`, `Set-IBConfig`, and `Remove-IBConfig` respectively.
   * `Save-IBWAPIConfig` has been removed. Configs are now saved by default via `Set-IBConfig`.
   * Configs are now referenced by a `ProfileName`. Old 1.x configs will be automatically backed up, converted, and the new profiles will have their WAPIHost value set as the initial profile name.
