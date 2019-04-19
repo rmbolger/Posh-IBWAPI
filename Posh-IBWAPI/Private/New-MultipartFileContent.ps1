@@ -14,20 +14,20 @@ function New-MultipartFileContent {
 
     # build the header and make sure to include quotes around Name
     # and FileName like https://github.com/PowerShell/PowerShell/pull/6782)
-    $fileHeader = [System.Net.Http.Headers.ContentDispositionHeaderValue]::new('form-data')
+    $fileHeader = New-Object System.Net.Http.Headers.ContentDispositionHeaderValue 'form-data'
     $fileHeader.Name = "`"$HeaderName`""
     $fileHeader.FileName = "`"$($File.Name)`""
 
     # build the content
-    $fs = [System.IO.FileStream]::new($File.FullName, [System.IO.FileMode]::Open)
-    $fileContent = [System.Net.Http.StreamContent]::new($fs)
+    $fs = New-Object System.IO.FileStream @($File.FullName, [System.IO.FileMode]::Open)
+    $fileContent = New-Object System.Net.Http.StreamContent $fs
     # $fileBytes = [System.IO.File]::ReadAllBytes($File.FullName)
-    # $fileContent = [System.Net.Http.ByteArrayContent]::new($fileBytes)
+    # $fileContent = New-Object System.Net.Http.ByteArrayContent $fileBytes
     $fileContent.Headers.ContentDisposition = $fileHeader
     $fileContent.Headers.ContentType = [System.Net.Http.Headers.MediaTypeHeaderValue]::Parse('application/octet-stream')
 
     # add it to a new MultipartFormDataContent object
-    $multipart = [System.Net.Http.MultipartFormDataContent]::new()
+    $multipart = New-Object System.Net.Http.MultipartFormDataContent
     $multipart.Add($fileContent)
 
     # get rid of the quotes around the boundary value
