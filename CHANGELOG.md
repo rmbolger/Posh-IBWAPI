@@ -1,3 +1,7 @@
+## 2.0.1 (2019-04-19)
+
+* Fixed `Send-IBFile` for PowerShell 3/4
+
 ## 2.0.0 (2019-04-18)
 
 * Breaking Changes
