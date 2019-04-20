@@ -3,8 +3,8 @@ function Invoke-IBFunction
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
-        [Alias('type')]
-        [string]$ObjectType,
+        [Alias('_ref','ref')]
+        [string]$ObjectRef,
         [Parameter(Mandatory=$True)]
         [Alias('name')]
         [string]$FunctionName,
@@ -32,7 +32,7 @@ function Invoke-IBFunction
 
     Process {
 
-        $uri = "$APIBase$($ObjectType)?_function=$($FunctionName)"
+        $uri = "$APIBase$($ObjectRef)?_function=$($FunctionName)"
 
         if ($FunctionArgs) {
             # convert the function body to json
@@ -65,8 +65,8 @@ function Invoke-IBFunction
     .DESCRIPTION
         This function allows you to call a WAPI function given a specific object reference and the function details.
 
-    .PARAMETER ObjectType
-        Object type string. (e.g. network, record:host, range)
+    .PARAMETER ObjectRef
+        Object reference string. This is usually found in the "_ref" field of returned objects.
 
     .PARAMETER FunctionName
         The name of the function to call.
@@ -87,10 +87,11 @@ function Invoke-IBFunction
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
 
     .EXAMPLE
-        $mynetwork = @{network='10.10.12.0/24';comment='my network'}
-        PS C:\>New-IBObject -ObjectType 'network' -IBObject $mynetwork
+        $grid = Get-IBObject -type grid
+        PS C:\>$restartArgs = @{restart_option='RESTART_IF_NEEDED'}
+        PS C:\>$grid | Invoke-IBFunction -name restartservices -args $restartArgs
 
-        Create a basic new network with a comment.
+        Restart grid services if necessary.
 
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI
