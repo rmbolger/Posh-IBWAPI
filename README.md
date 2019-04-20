@@ -20,7 +20,7 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 
 ## Release/Stable
 
-The [latest release version](https://www.powershellgallery.com/packages/Posh-IBWAPI/2.0.1) can found in the PowerShell Gallery. Installing from the gallery requires the PowerShellGet module which is installed by default on Windows 10 or later and all versions of PowerShell Core. See [Getting Started with the Gallery](https://www.powershellgallery.com/) for instructions on earlier OSes. Zip/Tar versions can also be downloaded from the [GitHub releases page](https://github.com/rmbolger/Posh-IBWAPI/releases).
+The [latest release version](https://www.powershellgallery.com/packages/Posh-IBWAPI/3.0.0) can found in the PowerShell Gallery. Installing from the gallery requires the PowerShellGet module which is installed by default on Windows 10 or later and all versions of PowerShell Core. See [Getting Started with the Gallery](https://www.powershellgallery.com/) for instructions on earlier OSes. Zip/Tar versions can also be downloaded from the [GitHub releases page](https://github.com/rmbolger/Posh-IBWAPI/releases).
 
 ```powershell
 # install for all users (requires elevated privs)

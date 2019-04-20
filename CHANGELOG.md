@@ -1,3 +1,10 @@
+## 3.0.0 (2019-04-20)
+
+* Breaking Changes
+  * The change to `ObjectType` parameter in `Invoke-IBFunction` has been reverted to `ObjectRef` like in 1.x. I totally confused myself during 2.x development of the *-IBFile functions and thought it had been wrong the whole time. It seems silly to do another major version change after two days. But breaking changes demand it according to semver.
+  * The `ObjectType` parameter in `Send-IBFile` and `Receive-IBFile` have been changed to `ObjectRef` to match `Invoke-IBFunction`. Both still default to 'fileop' and have parameter aliases for 'type' and 'ObjectType' to maintain compatibility with the short lived 2.x codebase.
+* Fixed example in `Invoke-IBFunction` help.
+
 ## 2.0.1 (2019-04-19)
 
 * Fixed `Send-IBFile` for PowerShell 3/4
