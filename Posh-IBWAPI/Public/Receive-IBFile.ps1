@@ -40,6 +40,12 @@ function Receive-IBFile {
                 SkipCertificateCheck = $true
                 ContentType = 'application/force-download'
             }
+            # We need to add an empty Body parameter on PowerShell Core to work around
+            # this bug:
+            # https://github.com/PowerShell/PowerShell/issues/9574
+            if ($PSEdition -and $PSEdition -eq 'Core') {
+                $dlOpts.Body = [String]::Empty
+            }
             Invoke-IBWAPI -Uri $dlUrl -OutFile $OutFile @dlOpts -EA Stop
         }
         finally {
