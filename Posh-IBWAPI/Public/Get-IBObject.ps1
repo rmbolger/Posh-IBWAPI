@@ -112,8 +112,8 @@ function Get-IBObject
 
             # Not all WAPI versions support schema queries, so handle appropriately
             try {
-                Write-Verbose "Querying schema for $oType fields"
-                $schema = Get-IBSchema $oType -Raw
+                Write-Verbose "Querying schema for $oType fields on version $WAPIVersion"
+                $schema = Get-IBSchema $oType -Raw -WAPIVersion $WAPIVersion
             } catch {
                 if ($_ -like "*doesn't support schema queries*") {
                     throw "The -ReturnAllFields parameter requires querying the schema and $_"
