@@ -1,3 +1,11 @@
+## 3.1.0 (2019-08-23)
+
+* Added `OverrideTransferHost` switch to `Send-IBFile` and `Receive-IBFile` which tweaks the WAPI supplied transfer URL so that the hostname matches the WAPIHost value originally passed to the function. It also copies the state of the `SkipCertificate` switch to the transfer call.
+* `Send-IBFile` will no longer lock the file being uploaded so other readers can't read it.
+* Fixed file encoding in `Send-IBFile` when uploading non-ascii files.
+* Fixed `Receive-IBFile` on PowerShell Core by working around an upstream bug (#43)
+* Fixed `Get-IBObject`'s `ReturnAllFields` parameter when not querying the latest WAPI version
+
 ## 3.0.0 (2019-04-20)
 
 * Breaking Changes

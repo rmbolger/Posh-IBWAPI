@@ -1,100 +1,34 @@
 @{
 
-# Script module or binary module file associated with this manifest.
 RootModule = 'Posh-IBWAPI.psm1'
-
-# Version number of this module.
-ModuleVersion = '3.0.0'
-
-# Supported PSEditions (WARNING: BREAKS COMPATIBILITY with pre-5.1 Powershell)
-# CompatiblePSEditions = 'Desktop','Core'
-
-# ID used to uniquely identify this module
+ModuleVersion = '3.1.0'
 GUID = '1483924a-a8bd-446f-ba0a-25443bcec77e'
-
-# Author of this module
 Author = 'Ryan Bolger'
-
-# Company or vendor of this module
-#CompanyName = ''
-
-# Copyright statement for this module
-Copyright = '(c) 2017-2018 Ryan Bolger. All rights reserved.'
-
-# Description of the functionality provided by this module
+Copyright = '(c) 2017-2019 Ryan Bolger. All rights reserved.'
 Description = 'Infoblox WAPI (REST API) related commands.'
-
-# Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '3.0'
 
-# Name of the Windows PowerShell host required by this module
-# PowerShellHostName = ''
-
-# Minimum version of the Windows PowerShell host required by this module
-# PowerShellHostVersion = ''
-
-# Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# DotNetFrameworkVersion = ''
-
-# Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# CLRVersion = ''
-
-# Processor architecture (None, X86, Amd64) required by this module
-# ProcessorArchitecture = ''
-
-# Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @()
-
-# Assemblies that must be loaded prior to importing this module
-# RequiredAssemblies = @()
-
-# Script files (.ps1) that are run in the caller's environment prior to importing this module.
-# ScriptsToProcess = @()
-
-# Type files (.ps1xml) to be loaded when importing this module
-# TypesToProcess = @()
-
-# Format files (.ps1xml) to be loaded when importing this module
 FormatsToProcess = 'Posh-IBWAPI.Format.ps1xml'
 
-# Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-# NestedModules = @()
-
-# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
-    'Get-IBConfig',
-    'Get-IBObject',
-    'Get-IBSchema',
-    'Invoke-IBFunction',
-    'Invoke-IBWAPI',
-    'New-IBObject',
-    'Receive-IBFile',
-    'Remove-IBConfig',
-    'Remove-IBObject',
-    'Send-IBFile',
-    'Set-IBConfig',
+    'Get-IBConfig'
+    'Get-IBObject'
+    'Get-IBSchema'
+    'Invoke-IBFunction'
+    'Invoke-IBWAPI'
+    'New-IBObject'
+    'Receive-IBFile'
+    'Remove-IBConfig'
+    'Remove-IBObject'
+    'Send-IBFile'
+    'Set-IBConfig'
     'Set-IBObject'
 )
 
-# Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
-
-# Variables to export from this module
 VariablesToExport = @()
-
-# Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 AliasesToExport = @()
 
-# DSC resources to export from this module
-# DscResourcesToExport = @()
-
-# List of all modules packaged with this module
-# ModuleList = @()
-
-# List of all files packaged with this module
-# FileList = @()
-
-# Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
 
     PSData = @{
@@ -113,22 +47,17 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-## 3.0.0 (2019-04-20)
+## 3.1.0 (2019-08-23)
 
-* Breaking Changes
-  * The change to `ObjectType` parameter in `Invoke-IBFunction` has been reverted to `ObjectRef` like in 1.x. I totally confused myself during 2.x development of the *-IBFile functions and thought it had been wrong the whole time. It seems silly to do another major version change after two days. But breaking changes demand it according to semver.
-  * The `ObjectType` parameter in `Send-IBFile` and `Receive-IBFile` have been changed to `ObjectRef` to match `Invoke-IBFunction`. Both still default to 'fileop' and have parameter aliases for 'type' and 'ObjectType' to maintain compatibility with the short lived 2.x codebase.
-* Fixed example in `Invoke-IBFunction` help.
+* Added `OverrideTransferHost` switch to `Send-IBFile` and `Receive-IBFile` which tweaks the WAPI supplied transfer URL so that the hostname matches the WAPIHost value originally passed to the function. It also copies the state of the `SkipCertificate` switch to the transfer call.
+* `Send-IBFile` will no longer lock the file being uploaded so other readers can't read it.
+* Fixed file encoding in `Send-IBFile` when uploading non-ascii files.
+* Fixed `Receive-IBFile` on PowerShell Core by working around an upstream bug (#43)
+* Fixed `Get-IBObject`'s `ReturnAllFields` parameter when not querying the latest WAPI version
 '@
 
     } # End of PSData hashtable
 
 } # End of PrivateData hashtable
-
-# HelpInfo URI of this module
-# HelpInfoURI = ''
-
-# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-# DefaultCommandPrefix = ''
 
 }
