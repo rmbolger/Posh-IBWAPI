@@ -29,7 +29,8 @@ function Send-IBFile {
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck
+        [switch]$SkipCertificateCheck,
+        [switch]$OverrideUploadHost
     )
 
     Begin {
@@ -65,6 +66,20 @@ function Send-IBFile {
                 Credential = $opts.Credential
                 SkipCertificateCheck = $true
                 ErrorAction = 'Stop'
+            }
+
+            if ($OverrideUploadHost) {
+                # make sure the host portion of the uploadUrl matches the original WAPIHost
+                $urlHost = ([uri]$uploadUrl).Host
+                if ($opts.WAPIHost -ne $urlHost) {
+                    $uploadUrl = $uploadUrl.Replace("https://$urlHost/", "https://$($opts.WAPIHost)/")
+                    Write-Verbose "Overrode upload URL host: $uploadUrl"
+                } else {
+                    Write-Verbose "Upload URL host already matches original. No need to override."
+                }
+
+                # and now match the state of SkipCertificateCheck
+                $uploadOpts.SkipCertificateCheck = $opts.SkipCertificateCheck.IsPresent
             }
 
             # upload the file to the designated URL
@@ -118,6 +133,9 @@ function Send-IBFile {
 
     .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
+
+    .PARAMETER OverrideUploadHost
+        If set, the hostname in the upload URL returned by WAPI will be overridden to match the original WAPIHost if they don't already match. The SkipCertificateCheck switch will also be updated to match the passed in value instead of always being set to true for the upload call.
 
     .EXAMPLE
         Send-IBFile uploadcertificate .\ca.pem -FunctionArgs @{certificate_usage='EAP_CA'}
