@@ -18,7 +18,8 @@ function Receive-IBFile {
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck
+        [switch]$SkipCertificateCheck,
+        [switch]$OverrideTransferHost
     )
 
     Begin {
@@ -35,18 +36,39 @@ function Receive-IBFile {
 
         # try to download the file
         try {
-            $dlOpts = @{
+            $restOpts = @{
+                Uri = $dlUrl
+                OutFile = $OutFile
                 Credential = $opts.Credential
                 SkipCertificateCheck = $true
                 ContentType = 'application/force-download'
+                ErrorAction = 'Stop'
             }
+
             # We need to add an empty Body parameter on PowerShell Core to work around
-            # this bug:
+            # this bug which kills the ContentType we set.
             # https://github.com/PowerShell/PowerShell/issues/9574
             if ($PSEdition -and $PSEdition -eq 'Core') {
-                $dlOpts.Body = [String]::Empty
+                $restOpts.Body = [String]::Empty
             }
-            Invoke-IBWAPI -Uri $dlUrl -OutFile $OutFile @dlOpts -EA Stop
+
+            if ($OverrideTransferHost) {
+                # make sure the host portion of the URL matches the original WAPIHost
+                $urlHost = ([uri]$restOpts.Uri).Host
+                if ($opts.WAPIHost -ne $urlHost) {
+                    $restOpts.Uri = $restOpts.Uri.Replace("https://$urlHost/", "https://$($opts.WAPIHost)/")
+                    Write-Verbose "Overrode URL host: $($opts.WAPIHost)"
+                } else {
+                    Write-Verbose "URL host already matches original. No need to override."
+                }
+
+                # and now match the state of SkipCertificateCheck
+                $restOpts.SkipCertificateCheck = $opts.SkipCertificateCheck.IsPresent
+            }
+
+            # download the file from the designated URL
+            Write-Debug "Downloading file"
+            Invoke-IBWAPI @restOpts
         }
         finally {
             # inform Infoblox that the download is complete
@@ -91,6 +113,9 @@ function Receive-IBFile {
 
     .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
+
+    .PARAMETER OverrideTransferHost
+        If set, the hostname in the transfer URL returned by WAPI will be overridden to match the original WAPIHost if they don't already match. The SkipCertificateCheck switch will also be updated to match the passed in value instead of always being set to true for the call.
 
     .EXAMPLE
         Receive-IBFile getgriddata .\backup.tar.gz -args @{type='BACKUP'}
