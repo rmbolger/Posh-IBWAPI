@@ -19,7 +19,7 @@ function New-MultipartFileContent {
     $fileHeader.FileName = "`"$($File.Name)`""
 
     # build the content
-    $fs = New-Object System.IO.FileStream @($File.FullName, [System.IO.FileMode]::Open)
+    $fs = New-Object System.IO.FileStream @($File.FullName, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
     $fileContent = New-Object System.Net.Http.StreamContent $fs
     # $fileBytes = [System.IO.File]::ReadAllBytes($File.FullName)
     # $fileContent = New-Object System.Net.Http.ByteArrayContent $fileBytes
