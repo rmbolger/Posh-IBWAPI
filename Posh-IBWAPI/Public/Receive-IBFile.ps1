@@ -10,6 +10,7 @@ function Receive-IBFile {
         [hashtable]$FunctionArgs,
         [Alias('_ref','ref','ObjectType','type')]
         [string]$ObjectRef = 'fileop',
+        [switch]$OverrideTransferHost,
 
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
@@ -18,8 +19,7 @@ function Receive-IBFile {
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [switch]$OverrideTransferHost
+        [switch]$SkipCertificateCheck
     )
 
     Begin {
@@ -102,6 +102,9 @@ function Receive-IBFile {
     .PARAMETER ObjectRef
         Object reference string. This is usually found in the "_ref" field of returned objects.
 
+    .PARAMETER OverrideTransferHost
+        If set, the hostname in the transfer URL returned by WAPI will be overridden to match the original WAPIHost if they don't already match. The SkipCertificateCheck switch will also be updated to match the passed in value instead of always being set to true for the call.
+
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
 
@@ -113,9 +116,6 @@ function Receive-IBFile {
 
     .PARAMETER SkipCertificateCheck
         If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
-
-    .PARAMETER OverrideTransferHost
-        If set, the hostname in the transfer URL returned by WAPI will be overridden to match the original WAPIHost if they don't already match. The SkipCertificateCheck switch will also be updated to match the passed in value instead of always being set to true for the call.
 
     .EXAMPLE
         Receive-IBFile getgriddata .\backup.tar.gz -args @{type='BACKUP'}
