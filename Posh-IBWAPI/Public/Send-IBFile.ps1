@@ -53,19 +53,23 @@ function Send-IBFile {
         $multipart = New-MultipartFileContent (Get-ChildItem $Path)
         $contentType = $multipart.Headers.ContentType.ToString()
         Write-Debug "ContentType: $contentType"
-        $body = $multipart.ReadAsStringAsync().Result
-        Write-Debug "Body:`n$body"
+        $bodyBytes = $multipart.ReadAsByteArrayAsync().Result
+        $body = [Text.Encoding]::GetEncoding('iso-8859-1').GetString($bodyBytes)
 
         try {
             $uploadOpts = @{
+                Uri = $uploadUrl
+                Method = 'Post'
+                ContentType = $contentType
+                Body = $body
                 Credential = $opts.Credential
                 SkipCertificateCheck = $true
-                ContentType = $contentType
+                ErrorAction = 'Stop'
             }
 
             # upload the file to the designated URL
             Write-Debug "Uploading file"
-            Invoke-IBWAPI $uploadUrl -Method Post -Body $body @uploadOpts -EA Stop
+            Invoke-IBWAPI @uploadOpts
         } catch {
             throw
         } finally {
