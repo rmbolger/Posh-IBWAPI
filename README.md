@@ -20,7 +20,7 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 
 ## Release/Stable
 
-The [latest release version](https://www.powershellgallery.com/packages/Posh-IBWAPI/3.0.0) can found in the PowerShell Gallery. Installing from the gallery requires the PowerShellGet module which is installed by default on Windows 10 or later and all versions of PowerShell Core. See [Getting Started with the Gallery](https://www.powershellgallery.com/) for instructions on earlier OSes. Zip/Tar versions can also be downloaded from the [GitHub releases page](https://github.com/rmbolger/Posh-IBWAPI/releases).
+The latest release version can found in the [PowerShell Gallery](https://www.powershellgallery.com/packages/Posh-IBWAPI) or the [GitHub releases page](https://github.com/rmbolger/Posh-IBWAPI/releases). Installing from the gallery is easiest using `Install-Module` from the PowerShellGet module. See [Installing PowerShellGet](https://docs.microsoft.com/en-us/powershell/gallery/installing-psget) if you don't already have it installed.
 
 ```powershell
 # install for all users (requires elevated privs)
@@ -32,17 +32,15 @@ Install-Module -Name Posh-IBWAPI -Scope CurrentUser
 
 ## Development
 
-To install the latest *development* version from the git master branch, use the following PowerShell command. This method assumes a default PowerShell environment that includes the [`PSModulePath`](https://msdn.microsoft.com/en-us/library/dd878326.aspx) environment variable. You must also make sure `Get-ExecutionPolicy` does not return `Restricted` or `AllSigned`.
+To install the latest *development* version from the git master branch, use the following command.
 
 ```powershell
-# If necessary, set less restrictive execution policy.
-# Not needed on non-Windows
+# (optional) set less restrictive execution policy
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 
 # install latest dev version
-iex (invoke-restmethod https://raw.githubusercontent.com/rmbolger/Posh-IBWAPI/master/instdev.ps1)
+iex (irm https://raw.githubusercontent.com/rmbolger/Posh-IBWAPI/master/instdev.ps1)
 ```
-
 
 
 # Quick Start
