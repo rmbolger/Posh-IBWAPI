@@ -32,8 +32,9 @@ function Set-IBConfig
             Write-Debug "Starting new profile $ProfileName"
         }
     } else {
-        if ($ProfileName = (Get-CurrentProfile)) {
+        if (Get-CurrentProfile) {
             # grab the current profile
+            $ProfileName = Get-CurrentProfile
             $cfg = $script:Profiles.$ProfileName
             Write-Debug "Using current profile $ProfileName"
         } else {
