@@ -1,3 +1,8 @@
+## 3.1.1 (2020-03-10)
+
+* Better error handling in Set-IBConfig when ProfileName not specified and no active profile selected. (#47)
+* Fixed dev install script for redirected docs locations
+
 ## 3.1.0 (2019-08-23)
 
 * Added `OverrideTransferHost` switch to `Send-IBFile` and `Receive-IBFile` which tweaks the WAPI supplied transfer URL so that the hostname matches the WAPIHost value originally passed to the function. It also copies the state of the `SkipCertificate` switch to the transfer call.
