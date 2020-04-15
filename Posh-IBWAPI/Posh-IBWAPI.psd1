@@ -1,10 +1,10 @@
 @{
 
 RootModule = 'Posh-IBWAPI.psm1'
-ModuleVersion = '3.1.1'
+ModuleVersion = '3.1.2'
 GUID = '1483924a-a8bd-446f-ba0a-25443bcec77e'
 Author = 'Ryan Bolger'
-Copyright = '(c) 2017-2019 Ryan Bolger. All rights reserved.'
+Copyright = '(c) 2017-2020 Ryan Bolger. All rights reserved.'
 Description = 'Infoblox WAPI (REST API) related commands.'
 PowerShellVersion = '3.0'
 
@@ -47,10 +47,9 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-## 3.1.1 (2020-03-10)
+## 3.1.2 (2020-04-15)
 
-* Better error handling in Set-IBConfig when ProfileName not specified and no active profile selected. (#47)
-* Fixed dev install script for redirected docs locations
+* Fixed bug with Remove-IBObject that would inherit invalid return field parameters in some cases.
 '@
 
     } # End of PSData hashtable

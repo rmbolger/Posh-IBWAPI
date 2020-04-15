@@ -1,3 +1,7 @@
+## 3.1.2 (2020-04-15)
+
+* Fixed bug with Remove-IBObject that would inherit invalid return field parameters in some cases.
+
 ## 3.1.1 (2020-03-10)
 
 * Better error handling in Set-IBConfig when ProfileName not specified and no active profile selected. (#47)
