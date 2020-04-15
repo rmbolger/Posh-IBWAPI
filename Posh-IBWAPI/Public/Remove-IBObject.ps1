@@ -24,6 +24,7 @@ function Remove-IBObject
         $opts.Remove('WAPIHost') | Out-Null
         $opts.Remove('WAPIVersion') | Out-Null
 
+        $querystring = [String]::Empty
         if ($DeleteArgs) {
             $querystring = "?$($DeleteArgs -join '&')"
         }
