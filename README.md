@@ -24,11 +24,13 @@ The latest release version can found in the [PowerShell Gallery](https://www.pow
 
 ```powershell
 # install for all users (requires elevated privs)
-Install-Module -Name Posh-IBWAPI
+Install-Module -Name Posh-IBWAPI -Scope AllUsers
 
 # install for current user
 Install-Module -Name Posh-IBWAPI -Scope CurrentUser
 ```
+
+*NOTE: If you use PowerShell 5.1 or earlier, `Install-Module` may throw an error depending on your Windows and .NET version due to a change PowerShell Gallery made to their TLS settings. For more info and a workaround, see the [official blog post](https://devblogs.microsoft.com/powershell/powershell-gallery-tls-support/).*
 
 ## Development
 
