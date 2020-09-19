@@ -2,7 +2,7 @@ function Remove-IBConfig
 {
     [CmdletBinding()]
     param(
-        [Parameter(ParameterSetName='Specific',ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ParameterSetName='Specific',Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('name')]
         [string]$ProfileName,
