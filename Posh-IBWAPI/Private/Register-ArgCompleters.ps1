@@ -20,7 +20,19 @@ function Register-ArgCompleters {
             [Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
         }
     }
-    $ProfileNameCommands = 'Get-IBConfig','Set-IBConfig','Remove-IBConfig'
+    $ProfileNameCommands = @(
+        'Get-IBConfig'
+        'Get-IBObject'
+        'Get-IBSchema'
+        'Invoke-IBFunction'
+        'New-IBObject'
+        'Receive-IBFile'
+        'Remove-IBConfig'
+        'Remove-IBObject'
+        'Send-IBFile'
+        'Set-IBConfig'
+        'Set-IBObject'
+    )
     Register-ArgumentCompleter -CommandName $ProfileNameCommands -ParameterName 'ProfileName' -ScriptBlock $ProfileNameCompleter
 
 }

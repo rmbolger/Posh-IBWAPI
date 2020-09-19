@@ -8,6 +8,7 @@ function Initialize-CallVars
         [string]$WAPIVersion,
         [PSCredential]$Credential,
         [switch]$SkipCertificateCheck,
+        [string]$ProfileName,
         [Parameter(ValueFromRemainingArguments=$true)]
         $ExtraParams
     )
@@ -18,7 +19,9 @@ function Initialize-CallVars
     # merged set of common connection parameters to use against
     # Invoke-IBWAPI. Calling functions will pass their set of explicit
     # parameters and we will merge them with the saved set for the
-    # currently active profile. Explicit params always override saved params.
+    # currently active profile.
+    # - Explicit profile overrides implicit profile.
+    # - Explicit params override implicit and explicit profile params.
 
     # Remove any non-connection related parameters we were passed
     $connParams = 'WAPIHost','WAPIVersion','Credential','SkipCertificateCheck'
@@ -28,9 +31,15 @@ function Initialize-CallVars
         }
     }
 
-    $curProfile = Get-CurrentProfile
-    $prof = $script:Profiles.$curProfile
-    Write-Debug "Using profile $curProfile"
+    # determine which base profile to use
+    if ($ProfileName) {
+        Write-Debug "Explicit profile: $ProfileName"
+        $profName = $ProfileName
+    } else {
+        $profName = Get-CurrentProfile
+        Write-Debug "Implicit profile: $profName"
+    }
+    $prof = $script:Profiles.$profName
 
     # make sure we have a WAPIHost
     if (-not $psb.WAPIHost) {

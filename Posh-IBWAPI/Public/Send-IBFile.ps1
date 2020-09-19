@@ -30,12 +30,14 @@ function Send-IBFile {
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck
+        [switch]$SkipCertificateCheck,
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName
     )
 
     Begin {
         # grab the variables we'll be using for our REST calls
-        $opts = Initialize-CallVars @PSBoundParameters
+        try { $opts = Initialize-CallVars @PSBoundParameters } catch { $PsCmdlet.ThrowTerminatingError($_) }
     }
 
     Process {

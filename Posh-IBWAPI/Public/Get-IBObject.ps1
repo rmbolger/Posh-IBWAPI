@@ -37,12 +37,14 @@ function Get-IBObject
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck
+        [switch]$SkipCertificateCheck,
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName
     )
 
     Begin {
         # grab the variables we'll be using for our REST calls
-        $opts = Initialize-CallVars @PSBoundParameters
+        try { $opts = Initialize-CallVars @PSBoundParameters } catch { $PsCmdlet.ThrowTerminatingError($_) }
         $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
         $WAPIVersion = $opts.WAPIVersion
         $opts.Remove('WAPIHost') | Out-Null
