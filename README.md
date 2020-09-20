@@ -4,7 +4,6 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 
 # Notable Features
 
-- [Powershell Core](https://github.com/PowerShell/PowerShell) 6.0+ support!
 - Automatic paging for large GET result sets *(Requires WAPI version 1.5+)*
 - Optionally return all fields for an object without needing to specify each one individually *(Requires WAPI version 1.7.5+)*
 - Automatic session handling
@@ -15,6 +14,7 @@ This PowerShell module makes it easier to automate Infoblox WAPI requests and fu
 - Optionally ignore certificate validation errors.
 - Save common connection parameters with `Set-IBConfig` so you don't need to pass them to every function call. Works between sessions.
 - Multiple connection profiles supported for multi-grid or multi-host environments or if you need to save different credentials for different purposes.
+- Cross-platform [Powershell](https://github.com/PowerShell/PowerShell) support
 
 # Install
 
@@ -47,14 +47,14 @@ iex (irm https://raw.githubusercontent.com/rmbolger/Posh-IBWAPI/master/instdev.p
 
 # Quick Start
 
-Every WAPI call needs a host, version, and credentials. Set them once for the session with `Set-IBConfig` and you won't need to add them to every call. If your grid is still using self-signed certs, you may also need to use the `-SkipCertificateCheck` parameter. In addition to standard version numbers like `'2.2'`, the `-WAPIVersion` parameter also accepts `'latest'` and will query the grid master for the latest supported version.
+Every WAPI call needs a host, version, and credentials. Set them once for the session with `Set-IBConfig` and you won't need to add them to every call. If your grid is still using self-signed certs, you may also need to use the `SkipCertificateCheck` parameter. In addition to standard version numbers like `'2.2'`, the `-WAPIVersion` parameter also accepts `'latest'` and will query the grid master for the latest supported version.
 
 ```powershell
 Set-IBConfig -ProfileName 'mygrid' -WAPIHost 'gridmaster.example.com' -WAPIVersion 'latest' `
     -Credential (Get-Credential) -SkipCertificateCheck
 ```
 
-Retrieve a set of objects using `Get-IBObject`. The only required parameter is `-ObjectType`. Everything else like filters and return fields are optional.
+Retrieve a set of objects using `Get-IBObject`. The only required parameter is `ObjectType`. Everything else like filters and return fields are optional.
 
 ```powershell
 Get-IBObject 'record:host'
@@ -67,7 +67,7 @@ If you're just exploring the WAPI object model, it can be helpful to convert the
 Get-IBObject 'record:host' | Select -First 1 | ConvertTo-Json -Depth 5
 ```
 
-You may notice that all objects returned by Infoblox have a `_ref` field. That is known as the object reference and can be used in any function that accepts `-ObjectRef`. In the case of `Get-IBObject`, it will return that specific object.
+You may notice that all objects returned by Infoblox have a `_ref` field. That is known as the object reference and can be used in any function that accepts an `ObjectRef` parameter. In the case of `Get-IBObject`, it will return that specific object.
 
 ```powershell
 Get-IBObject -ObjectRef 'record:host/asdfqwerasdfqwerasdfqwerasdfqwer'
@@ -134,7 +134,7 @@ For more examples, check the wiki page [The definitive list of REST examples](ht
 # Requirements and Platform Support
 
 * Supports Windows PowerShell 3.0 or later (Desktop edition) **with .NET Framework 4.5** or later
-* Supports [Powershell Core](https://github.com/PowerShell/PowerShell) 6.0 or later (Core edition) on all supported OS platforms.
+* Supports [Powershell](https://github.com/PowerShell/PowerShell) 6.0 or later (Core edition) on all supported OS platforms.
 * Tested against NIOS 7.3.x and 8.x.
 
 # Changelog
