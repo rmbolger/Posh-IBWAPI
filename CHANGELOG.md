@@ -1,3 +1,18 @@
+## 3.2.0 (2020-09-21)
+
+* An optional `ProfileName` parameter has been added to the public functions that already accept connection specific parameters (#49). This will allow you to switch profiles on a per-call basis more easily. The connection specific parameters will still override the a specified profile's values. These are the affected functions:
+  * Get-IBObject
+  * Get-IBSchema
+  * Invoke-IBFunction
+  * New-IBObject
+  * Receive-IBFile
+  * Remove-IBObject
+  * Send-IBFile
+  * Set-IBObject
+* `ProfileName` is now a positional parameter in `Remove-IBConfig`
+* Minor efficiency improvements in `Get-IBObject` for results with many pages.
+* The name of the default branch in git has been renamed from master to main.
+
 ## 3.1.2 (2020-04-15)
 
 * Fixed bug with Remove-IBObject that would inherit invalid return field parameters in some cases.
