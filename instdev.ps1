@@ -27,7 +27,7 @@ if ([String]::IsNullOrWhiteSpace($PSScriptRoot)) {
 
     # download and extract
     $webclient = New-Object System.Net.WebClient
-    $url = 'https://github.com/rmbolger/Posh-IBWAPI/archive/master.zip'
+    $url = 'https://github.com/rmbolger/Posh-IBWAPI/archive/main.zip'
     Write-Host "Downloading latest version of Posh-IBWAPI from $url" -ForegroundColor Cyan
     $file = Join-Path ([system.io.path]::GetTempPath()) 'Posh-IBWAPI.zip'
     $webclient.DownloadFile($url,$file)
@@ -48,8 +48,8 @@ if ([String]::IsNullOrWhiteSpace($PSScriptRoot)) {
     Write-Host "Removing any old copy" -ForegroundColor Cyan
     Remove-Item "$installpath\Posh-IBWAPI" -Recurse -Force -EA SilentlyContinue
     Write-Host "Renaming folder" -ForegroundColor Cyan
-    Copy-Item "$installpath\Posh-IBWAPI-master\Posh-IBWAPI" $installpath -Recurse -Force
-    Remove-Item "$installpath\Posh-IBWAPI-master" -recurse -confirm:$false
+    Copy-Item "$installpath\Posh-IBWAPI-main\Posh-IBWAPI" $installpath -Recurse -Force
+    Remove-Item "$installpath\Posh-IBWAPI-main" -recurse -confirm:$false
     Import-Module -Name Posh-IBWAPI -Force
 } else {
     # running locally
