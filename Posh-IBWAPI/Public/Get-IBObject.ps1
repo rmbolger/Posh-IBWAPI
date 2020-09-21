@@ -146,12 +146,12 @@ function Get-IBObject
             if ($MaxResults -lt $PageSize -and $MaxResults -lt 1000) { $PageSize = ($MaxResults+1) }
 
             $i = 0
-            $results = @()
             $querystring = "?_paging=1&_return_as_object=1&_max_results=$PageSize"
             if ($queryargs.Count -gt 0) {
                 $querystring += "&$($queryargs -join '&')"
             }
-            do {
+            $resultCount = 0
+            $results = do {
                 $i++
                 Write-Verbose "Fetching page $i"
                 if ($i -gt 1) {
@@ -168,18 +168,19 @@ function Get-IBObject
                         # But if there's no result object, something is wrong.
                         throw "No 'result' object found in server response"
                     }
-                    $results += $response.result
+                    $resultCount += $response.result.Count
+                    $response.result
                 }
-            } while ($response.next_page_id -and $results.Count -lt $MaxResults)
+            } while ($response.next_page_id -and $resultCount -lt $MaxResults)
 
             # Throw an error if they specified a negative MaxResults value and the result
             # count exceeds that value. Otherwise, just truncate the results to the MaxResults
             # value. This is basically copying how the _max_results query string argument works.
-            if ($ErrorOverMax -and $results.Count -gt $MaxResults) {
+            if ($ErrorOverMax -and $resultCount -gt $MaxResults) {
                 throw [Exception] "Result count exceeded MaxResults parameter."
             }
             else {
-                $results | Select-Object -first $MaxResults
+                $results | Select-Object -First $MaxResults
             }
         }
         else {
