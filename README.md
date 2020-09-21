@@ -34,14 +34,14 @@ Install-Module -Name Posh-IBWAPI -Scope CurrentUser
 
 ## Development
 
-To install the latest *development* version from the git master branch, use the following command.
+To install the latest *development* version from the git main branch, use the following command.
 
 ```powershell
 # (optional) set less restrictive execution policy
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 
 # install latest dev version
-iex (irm https://raw.githubusercontent.com/rmbolger/Posh-IBWAPI/master/instdev.ps1)
+iex (irm https://raw.githubusercontent.com/rmbolger/Posh-IBWAPI/main/instdev.ps1)
 ```
 
 
