@@ -37,7 +37,7 @@ PrivateData = @{
         Tags = 'Infoblox','IPAM','WAPI','REST','PSEdition_Desktop','PSEdition_Core','Linux','Mac'
 
         # A URL to the license for this module.
-        LicenseUri = 'https://github.com/rmbolger/Posh-IBWAPI/blob/master/LICENSE'
+        LicenseUri = 'https://github.com/rmbolger/Posh-IBWAPI/blob/main/LICENSE'
 
         # A URL to the main website for this project.
         ProjectUri = 'https://github.com/rmbolger/Posh-IBWAPI'
