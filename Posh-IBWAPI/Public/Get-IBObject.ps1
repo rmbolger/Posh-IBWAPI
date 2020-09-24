@@ -1,6 +1,6 @@
 function Get-IBObject
 {
-    [CmdletBinding(SupportsShouldProcess,DefaultParameterSetName='ByType')]
+    [CmdletBinding(DefaultParameterSetName='ByType')]
     param(
         [Parameter(ParameterSetName='ByType',Mandatory=$True,Position=0)]
         [Parameter(ParameterSetName='ByTypeNoPaging',Mandatory=$True,Position=0)]
@@ -57,19 +57,17 @@ function Get-IBObject
             $queryargs += $Filters
         }
 
-        # process the return field options
-        if ($ReturnAllFields) {
-            # Because this requires a schema query based on the object type to get the field
-            # names, we're going to postpone this work until the Process {} section in case
-            # they passed multiple different object types via _ref.
-        } else {
-            if ($ReturnFields.Count -gt 0) {
-                if ($ReturnBaseFields) {
-                    $queryargs += "_return_fields%2B=$($ReturnFields -join ',')"
-                }
-                else {
-                    $queryargs += "_return_fields=$($ReturnFields -join ',')"
-                }
+        # Process the return field options if there are any and if ReturnAllFields
+        # was not specified. ReturnAllFields requires a schema query based on the
+        # object type to get the field names. So we'll postpone that work until the
+        # Process {} section in case they passed multiple different object types
+        # via _ref.
+        if (-not $ReturnAllFields -and $ReturnFields.Count -gt 0) {
+            if ($ReturnBaseFields) {
+                $queryargs += "_return_fields%2B=$($ReturnFields -join ',')"
+            }
+            else {
+                $queryargs += "_return_fields=$($ReturnFields -join ',')"
             }
         }
 
@@ -80,35 +78,30 @@ function Get-IBObject
     }
 
     Process {
-        # default to using paging
-        $UsePaging = $true
 
-        switch ($PsCmdlet.ParameterSetName) {
-            'ByRef' {
-                # paging not supported on objref queries
+        # Determine what object we're querying and whether we're paging
+        if ($PsCmdlet.ParameterSetName -like 'ByType*') {
+            # ByType
+            $queryObj = $ObjectType
+            $UsePaging = $true
+
+            if ($NoPaging) {
                 $UsePaging = $false
-
-                $queryObj = $ObjectRef
-            }
-            'ByType' {
-                # WAPI versions older than 1.5 don't support paging
-                if ([Version]$WAPIVersion -lt [Version]'1.5') {
-                    Write-Verbose "Paging disabled for WAPIVersion $($WAPIVersion)"
-                    $UsePaging = $false
-                }
-
-                $queryObj = $ObjectType
-            }
-            'ByTypeNoPaging' {
+            } elseif ([Version]$WAPIVersion -lt [Version]'1.5') {
+                Write-Verbose "Paging disabled for WAPIVersion $WAPIVersion"
                 $UsePaging = $false
-                $queryObj = $ObjectType
             }
+        } else {
+            # ByRef
+            $queryObj = $ObjectRef
+            # paging not supported on objref queries
+            $UsePaging = $false
         }
 
         # deal with -ReturnAllFields now
         if ($ReturnAllFields) {
-            # Returning all fields requires doing a schema query against the object type first
-            # so we can compile the list of fields to request.
+            # Returning all fields requires doing a schema query against the object
+            # type so we can compile the list of fields to request.
             $oType = $queryObj
             if ($ObjectRef) { $oType = $oType.Substring(0,$oType.IndexOf("/")) }
 
@@ -123,73 +116,73 @@ function Get-IBObject
             }
 
             # grab the readable fields and add them to the querystring
-            $readFields = ($schema.fields | Where-Object { $_.supports -like '*r*' -and $_.wapi_primitive -ne 'funccall' }).name
+            $readFields = $schema.fields |
+                Where-Object { $_.supports -like '*r*' -and $_.wapi_primitive -ne 'funccall' } |
+                Select-Object -Expand name
             $queryargs += "_return_fields=$($readFields -join ',')"
         }
 
-        if ($UsePaging) {
-            # By default, the WAPI will return an error if the result count exceeds 1000
-            # unless you make multiple calls using paging. We want to remove this
-            # limitation by automatically paging on behalf of the caller. This will also
-            # allow the MaxResults parameter in this function to be arbitrarily large (within
-            # the bounds of Int32) and not capped at 1000.
+        # if we're not paging, just return the single call
+        if (-not $UsePaging) {
 
-            # separate the MaxResults value from the caller's request to error on "over max"
-            $ErrorOverMax = $false
-            if ($MaxResults -lt 0) {
-                $MaxResults = [Math]::Abs($MaxResults)
-                $ErrorOverMax = $true
+            $uri = "$APIBase$($queryObj)?$($queryargs -join '&')"
+            return (Invoke-IBWAPI -Uri $uri @opts)
+        }
+
+        # By default, the WAPI will return an error if the result count exceeds 1000
+        # unless you make multiple calls using paging. We want to remove this
+        # limitation by automatically paging on behalf of the caller. This will also
+        # allow the MaxResults parameter in this function to be arbitrarily large
+        # (within the bounds of Int32) and not capped at 1000 like a normal WAPI call.
+
+        # separate the MaxResults value from the caller's request to error on "over max"
+        $ErrorOverMax = $false
+        if ($MaxResults -lt 0) {
+            $MaxResults = [Math]::Abs($MaxResults)
+            $ErrorOverMax = $true
+        }
+
+        # make sure the $PageSize is never more than 1 over $MaxResults so we don't
+        # retrieve more data than necessary but "over max" errors will still trigger
+        if ($MaxResults -lt $PageSize -and $MaxResults -lt 1000) {
+            $PageSize = $MaxResults + 1
+        }
+
+        $querystring = "?_paging=1&_return_as_object=1&_max_results=$PageSize"
+        if ($queryargs.Count -gt 0) {
+            $querystring += "&$($queryargs -join '&')"
+        }
+        $pageNum = 0
+        $resultCount = 0
+        $results = do {
+            $pageNum++
+            Write-Verbose "Fetching page $pageNum"
+            if ($pageNum -gt 1) {
+                $querystring = "?_page_id=$($response.next_page_id)"
             }
 
-            # make sure the $PageSize is never more than 1 over $MaxResults so we don't
-            # retrieve more data than necessary but "over max" errors will still trigger
-            if ($MaxResults -lt $PageSize -and $MaxResults -lt 1000) { $PageSize = ($MaxResults+1) }
+            $uri = "$APIBase$($queryObj)$($querystring)"
 
-            $i = 0
-            $querystring = "?_paging=1&_return_as_object=1&_max_results=$PageSize"
-            if ($queryargs.Count -gt 0) {
-                $querystring += "&$($queryargs -join '&')"
+            $response = Invoke-IBWAPI -Uri $uri @opts
+            if ('result' -notin $response.PSObject.Properties.Name) {
+                # A normal response from WAPI will contain a 'result' object even
+                # if that object is empty because it couldn't find anything.
+                # But if there's no result object, something is wrong.
+                throw "No 'result' object found in server response"
             }
-            $resultCount = 0
-            $results = do {
-                $i++
-                Write-Verbose "Fetching page $i"
-                if ($i -gt 1) {
-                    $querystring = "?_page_id=$($response.next_page_id)"
-                }
+            $resultCount += $response.result.Count
+            $response.result
 
-                $uri = "$APIBase$($queryObj)$($querystring)"
+        } while ($response.next_page_id -and $resultCount -lt $MaxResults)
 
-                if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
-                    $response = Invoke-IBWAPI -Uri $uri @opts
-                    if ($response.PSObject.Properties.Name -notcontains "result") {
-                        # A normal response from WAPI will contain a 'result' object even
-                        # if that object is empty because it couldn't find anything.
-                        # But if there's no result object, something is wrong.
-                        throw "No 'result' object found in server response"
-                    }
-                    $resultCount += $response.result.Count
-                    $response.result
-                }
-            } while ($response.next_page_id -and $resultCount -lt $MaxResults)
-
-            # Throw an error if they specified a negative MaxResults value and the result
-            # count exceeds that value. Otherwise, just truncate the results to the MaxResults
-            # value. This is basically copying how the _max_results query string argument works.
-            if ($ErrorOverMax -and $resultCount -gt $MaxResults) {
-                throw [Exception] "Result count exceeded MaxResults parameter."
-            }
-            else {
-                $results | Select-Object -First $MaxResults
-            }
+        # Throw an error if they specified a negative MaxResults value and the result
+        # count exceeds that value. Otherwise, just truncate the results to the MaxResults
+        # value. This is basically copying how the _max_results query string argument works.
+        if ($ErrorOverMax -and $resultCount -gt $MaxResults) {
+            throw [Exception] "Result count exceeded MaxResults parameter."
         }
         else {
-            # no paging, just a single query on the object reference
-            $uri = "$APIBase$($queryObj)?$($queryargs -join '&')"
-
-            if ($PsCmdlet.ShouldProcess($uri, 'GET')) {
-                Invoke-IBWAPI -Uri $uri @opts
-            }
+            $results | Select-Object -First $MaxResults
         }
 
     }
