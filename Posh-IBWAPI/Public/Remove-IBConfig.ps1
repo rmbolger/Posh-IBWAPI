@@ -18,8 +18,8 @@ function Remove-IBConfig
                 Write-Verbose "Removing all connection profiles."
 
                 # delete the config file if it exists
-                if (Test-Path $script:ProfilesFile) {
-                    Remove-Item $script:ProfilesFile -Force
+                if (Test-Path $script:ConfigFile) {
+                    Remove-Item $script:ConfigFile -Force
                 }
 
                 Import-IBConfig
