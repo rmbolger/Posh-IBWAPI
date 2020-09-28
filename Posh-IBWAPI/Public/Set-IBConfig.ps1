@@ -21,10 +21,12 @@ function Set-IBConfig
     # This function allows callers to save connection parameters so they don't
     # need to supply them on every subsequent function call.
 
+    $profiles = Get-Profiles
+
     if ($ProfileName) {
-        if ($ProfileName -in $script:Profiles.Keys) {
+        if ($ProfileName -in $profiles.Keys) {
             # grab the referenced profile
-            $cfg = $script:Profiles.$ProfileName
+            $cfg = $profiles.$ProfileName
             Write-Debug "Using profile $ProfileName"
         } else {
             # start a new profile
@@ -35,7 +37,7 @@ function Set-IBConfig
         if (Get-CurrentProfile) {
             # grab the current profile
             $ProfileName = Get-CurrentProfile
-            $cfg = $script:Profiles.$ProfileName
+            $cfg = $profiles.$ProfileName
             Write-Debug "Using current profile $ProfileName"
         } else {
             # can't do anything with no current profile
@@ -85,17 +87,17 @@ function Set-IBConfig
 
     # deal with profile renames and add/overwrite the new/old profile
     if ($NewName -and $NewName -ne $ProfileName) {
-        $script:Profiles.Remove($ProfileName)
+        $profiles.Remove($ProfileName)
         $ProfileName = $NewName
         Write-Debug "Profile renamed to $ProfileName"
     }
 
     # add/overwrite the new/old profile
-    $script:Profiles.$ProfileName = $cfg
+    $profiles.$ProfileName = $cfg
 
     # switch to the profile unless otherwise specified
     if (-not $NoSwitchProfile) {
-        $script:CurrentProfile = $ProfileName
+        Set-CurrentProfile $ProfileName
     }
 
     # save the changes to disk

@@ -3,45 +3,64 @@ function Export-IBConfig
     [CmdletBinding()]
     param()
 
-    $coldConfig = @{
-        CurrentProfile = $script:CurrentProfile
+    $cfgToExport = @{
+        CurrentProfile = Get-CurrentProfile
         Profiles = @{}
     }
-    $profiles = $coldConfig.Profiles
 
     # ConvertTo-Json won't serialize the SecureString passwords in the PSCredential objects,
     # so we have to do some manual conversion into Username/Password combos that Import-IBConfig
     # will then re-hydrate later.
-    $script:Profiles.Keys | ForEach-Object {
-        $profiles.$_ = @{
-            WAPIHost = $script:Profiles.$_.WAPIHost
-            WAPIVersion = $script:Profiles.$_.WAPIVersion
-            Credential = $null
-            SkipCertificateCheck = $script:Profiles.$_.SkipCertificateCheck
+
+    $profiles = Get-Profiles
+
+    foreach ($profName in $profiles.Keys) {
+
+        $cfgToExport.Profiles.$profName = @{
+            WAPIHost             = $profiles.$profName.WAPIHost
+            WAPIVersion          = $profiles.$profName.WAPIVersion
+            Credential           = $null
+            SkipCertificateCheck = $profiles.$profName.SkipCertificateCheck
         }
-        if ($null -ne $script:Profiles.$_.Credential) {
 
-            $credSerialized = @{ Username = $script:Profiles.$_.Credential.Username }
+        if ($null -ne $profiles.$profName.Credential) {
 
-            # ConvertFrom-SecureString is currently only supported on Windows OSes because it
-            # depends on DPAPI and throws an ugly error on Linux/MacOS. So for now, we're just
-            # going to base64 encode the password on non-Windows and hope for better support
-            # in future versions of PowerShell Core.
-            if ('PSEdition' -notin $PSVersionTable.Keys -or $PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) {
-                $credSerialized.Password = ConvertFrom-SecureString $script:Profiles.$_.Credential.Password
-            } else {
-                $passPlain = $script:Profiles.$_.Credential.GetNetworkCredential().Password
-                $credSerialized.Password = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($passPlain))
+            $credSerialized = @{
+                Username = $profiles.$profName.Credential.Username
+            }
+
+            # ConvertFrom-SecureString is only really supported on Windows because
+            # it relies on DPAPI to do encryption which doesn't exist on other platforms.
+            # From PowerShell 6.0-6.1, using on non-Windows would throw an error.
+            # In PowerShell 6.2+, it works again but only obfuscates the text instead
+            # of encrypting it.
+            # We're going to Base64 encode the password on all non-Windows systems
+            # until there's a better cross-platform solution for encrypting it.
+
+            if ($IsWindows -or
+                'PSEdition' -notin $PSVersionTable.Keys -or
+                'Desktop' -eq $PSVersionTable.PSEdition)
+            {
+                $credSerialized.Password = ConvertFrom-SecureString $profiles.$profName.Credential.Password
+            }
+            else
+            {
+                $passPlain = $profiles.$profName.Credential.GetNetworkCredential().Password
+                $credSerialized.Password = [Convert]::ToBase64String(
+                    [Text.Encoding]::Unicode.GetBytes($passPlain)
+                )
                 $credSerialized.IsBase64 = $true
             }
-            $profiles.$_.Credential = $credSerialized
+            $cfgToExport.Profiles.$profName.Credential = $credSerialized
         }
     }
 
     # Make sure the config folder exists
-    New-Item $script:ConfigFolder -Type Directory -ErrorAction SilentlyContinue
+    $configFolder = Get-ConfigFolder
+    New-Item $configFolder -Type Directory -ErrorAction Ignore
 
-    # Save it to disk.
-    $coldConfig | ConvertTo-Json -Depth 5 | Out-File $script:ConfigFile -Encoding utf8
+    # Save it to disk
+    $configFile = Get-ConfigFile
+    $cfgToExport | ConvertTo-Json -Depth 5 | Out-File $configFile -Encoding utf8
 
 }

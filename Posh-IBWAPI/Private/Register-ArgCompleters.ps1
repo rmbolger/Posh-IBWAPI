@@ -14,7 +14,7 @@ function Register-ArgCompleters {
     $ProfileNameCompleter = {
         param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
 
-        $names = @($script:Profiles.Keys)
+        $names = @((Get-Profiles).Keys)
         $names | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
             # "::new()" syntax ok here because we'll only reach it on PS5+
             [Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)

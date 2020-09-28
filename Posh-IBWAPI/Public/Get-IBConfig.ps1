@@ -10,13 +10,15 @@ function Get-IBConfig
         [switch]$List
     )
 
+    $profiles = Get-Profiles
+
     if ('Specific' -eq $PSCmdlet.ParameterSetName) {
 
         if (-not $ProfileName) {
 
             # return the current profile
             $profName = Get-CurrentProfile
-            $p = [PSCustomObject]$script:Profiles.$profName |
+            $p = [PSCustomObject]$profiles.$profName |
                 Select-Object @{L='ProfileName';E={$profName}},WAPIHost,WAPIVersion,Credential,SkipCertificateCheck
             $p.PSObject.TypeNames.Insert(0,'PoshIBWAPI.IBConfig')
             return $p
@@ -24,8 +26,8 @@ function Get-IBConfig
         } else {
 
             # return the selected profile if it exists
-            if ($ProfileName -in $script:Profiles.Keys) {
-                $p = [PSCustomObject]$script:Profiles.$ProfileName |
+            if ($ProfileName -in $profiles.Keys) {
+                $p = [PSCustomObject]$profiles.$ProfileName |
                     Select-Object @{L='ProfileName';E={$ProfileName}},WAPIHost,WAPIVersion,Credential,SkipCertificateCheck
                 $p.PSObject.TypeNames.Insert(0,'PoshIBWAPI.IBConfig')
                 return $p
@@ -38,12 +40,11 @@ function Get-IBConfig
     } else {
 
         # list all configs
-        foreach ($profName in ($script:Profiles.Keys | Sort-Object)) {
-            $p = [PSCustomObject]$script:Profiles.$profName |
+        foreach ($profName in ($profiles.Keys | Sort-Object)) {
+            $p = [PSCustomObject]$profiles.$profName |
                 Select-Object @{L='ProfileName';E={$profName}},WAPIHost,WAPIVersion,Credential,SkipCertificateCheck
             $p.PSObject.TypeNames.Insert(0,'PoshIBWAPI.IBConfig')
             Write-Output $p
-
         }
 
     }

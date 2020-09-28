@@ -18,54 +18,57 @@ function Remove-IBConfig
                 Write-Verbose "Removing all connection profiles."
 
                 # delete the config file if it exists
-                if (Test-Path $script:ConfigFile) {
-                    Remove-Item $script:ConfigFile -Force
+                $configFile = Get-ConfigFile
+                if (Test-Path $configFile) {
+                    Remove-Item $configFile -Force
                 }
 
                 Import-IBConfig
-            }
-
-            # it's possible they called this with -AllProfiles:$false which is weird
-            # and we'll just not do anything
-
-        } else {
-
-            # decide which profile to remove
-            $profToRemove = $script:CurrentProfile
-            if ($ProfileName) {
-                $profToRemove = $ProfileName
-            }
-
-            Write-Verbose "Removing $profToRemove"
-
-            if ($profToRemove -in $script:Profiles.Keys) {
-
-                $script:Profiles.Remove($profToRemove)
-
-                # set a new CurrentProfile if necessary
-                if ($script:CurrentProfile -eq $profToRemove) {
-                    $script:CurrentProfile = [string]::Empty
-                    if ($script:Profiles.Count -gt 0) {
-                        $script:CurrentProfile = @(($script:Profiles.Keys | Sort-Object))[0]
-                    }
-                }
-
-            } else {
-                Write-Warning "`"$profToRemove`" not found in the set of existing profiles."
                 return
             }
 
-            # save changes to disk
+            # it's possible they called this with -AllProfiles:$false which is
+            # weird but valid and we'll just not do anything
 
-            # if this is the last entry, just delete the config file
-            if ($script:Profiles.Count -lt 1) {
-                if (Test-Path $script:ConfigFile) {
-                    Remove-Item $script:ConfigFile -Force
-                    Import-IBConfig
+        }
+
+        # decide which profile to remove
+        $profToRemove = Get-CurrentProfile
+        if ($ProfileName) {
+            $profToRemove = $ProfileName
+        }
+
+        Write-Verbose "Removing $profToRemove"
+        $profiles = Get-Profiles
+
+        if ($profToRemove -in $profiles.Keys) {
+
+            $profiles.Remove($profToRemove)
+
+            # set a new CurrentProfile if necessary
+            if ((Get-CurrentProfile) -eq $profToRemove) {
+                Set-CurrentProfile ([string]::Empty)
+                if ($profiles.Count -gt 0) {
+                    Set-CurrentProfile @(($profiles.Keys | Sort-Object))[0]
                 }
-            } else {
-                Export-IBConfig
             }
+
+        } else {
+            Write-Warning "`"$profToRemove`" not found in the set of existing profiles."
+            return
+        }
+
+        # save changes to disk
+
+        # if this is the last entry, just delete the config file
+        $configFile = Get-ConfigFile
+        if ($profiles.Count -lt 1) {
+            if (Test-Path $configFile -PathType Leaf) {
+                Remove-Item $configFile -Force
+                Import-IBConfig
+            }
+        } else {
+            Export-IBConfig
         }
 
     }

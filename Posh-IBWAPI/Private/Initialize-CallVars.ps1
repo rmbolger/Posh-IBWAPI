@@ -39,7 +39,7 @@ function Initialize-CallVars
         $profName = Get-CurrentProfile
         Write-Debug "Implicit profile: $profName"
     }
-    $prof = $script:Profiles.$profName
+    $prof = (Get-Profiles).$profName
 
     # make sure we have a WAPIHost
     if (-not $psb.WAPIHost) {
