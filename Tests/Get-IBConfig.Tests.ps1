@@ -23,7 +23,7 @@ BeforeAll {
 
 Describe "Get-IBConfig" {
 
-    Context "No profiles defined" {
+    Context "No profiles" {
 
         BeforeAll {
             Mock -ModuleName Posh-IBWAPI Get-Profiles { return @{} }
@@ -42,7 +42,7 @@ Describe "Get-IBConfig" {
 
     }
 
-    Context "1 active profile defined" {
+    Context "1 active profile" {
         BeforeAll {
             Mock -ModuleName Posh-IBWAPI Get-Profiles { return @{ 'prof1' = $prof1 } }
             Mock -ModuleName Posh-IBWAPI Get-CurrentProfile { return 'prof1' }
@@ -86,7 +86,7 @@ Describe "Get-IBConfig" {
         }
     }
 
-    Context "1 inactive profile defined" {
+    Context "1 inactive profile" {
         BeforeAll {
             Mock -ModuleName Posh-IBWAPI Get-Profiles { return @{ 'prof1' = $prof1 } }
             Mock -ModuleName Posh-IBWAPI Get-CurrentProfile { return [string]::Empty }
@@ -123,7 +123,7 @@ Describe "Get-IBConfig" {
         }
     }
 
-    Context "Multiple profiles defined with 1 active" {
+    Context "Multiple profiles with 1 active" {
         BeforeAll {
             Mock -ModuleName Posh-IBWAPI Get-Profiles { return @{
                 'prof1' = $prof1
