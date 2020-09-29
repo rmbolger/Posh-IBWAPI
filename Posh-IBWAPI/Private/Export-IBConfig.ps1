@@ -55,12 +55,14 @@ function Export-IBConfig
         }
     }
 
-    # Make sure the config folder exists
-    $configFolder = Get-ConfigFolder
-    New-Item $configFolder -Type Directory -ErrorAction Ignore
+    if ($profiles.Count -gt 0) {
+        # Make sure the config folder exists
+        $configFolder = Get-ConfigFolder
+        New-Item $configFolder -Type Directory -ErrorAction Ignore
 
-    # Save it to disk
-    $configFile = Get-ConfigFile
-    $cfgToExport | ConvertTo-Json -Depth 5 | Out-File $configFile -Encoding utf8
+        # Save it to disk
+        $configFile = Get-ConfigFile
+        $cfgToExport | ConvertTo-Json -Depth 5 | Out-File $configFile -Encoding utf8
+    }
 
 }
