@@ -123,6 +123,7 @@ Describe "Import-IBConfig" {
         BeforeAll {
             Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
             Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
+            Mock Write-Warning {}
 
             # write out a v1 config to the file
             New-Item $fakeConfigFolder -Type Directory -ErrorAction Ignore
@@ -163,6 +164,7 @@ Describe "Import-IBConfig" {
         BeforeAll {
             Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
             Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
+            Mock Write-Warning {}
 
             # write out a valid config to the file
             New-Item $fakeConfigFolder -Type Directory -ErrorAction Ignore
