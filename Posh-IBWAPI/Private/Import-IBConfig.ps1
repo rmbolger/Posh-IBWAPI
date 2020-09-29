@@ -51,7 +51,13 @@ function Import-IBConfig
     }
 
     # load the json content on disk to a pscustomobject
-    $json = Get-Content $script:ConfigFile -Encoding UTF8 -Raw | ConvertFrom-Json
+    try {
+        $json = Get-Content $configFile -Encoding UTF8 -Raw | ConvertFrom-Json
+    } catch {
+        Write-Warning "Unable to parse existing config file: $($_.Exception.Message)"
+        return
+    }
+
     $propNames = @($json.PSObject.Properties.Name)
     $backup1x = $false
 
