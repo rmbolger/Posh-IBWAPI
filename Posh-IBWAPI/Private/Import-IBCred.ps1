@@ -25,6 +25,9 @@ function Import-IBCred {
         # Try to convert the password back into a SecureString and into a PSCredential
         try {
             $secPass = $importedCred.Password | ConvertTo-SecureString -ErrorAction Stop
+            if ($IsLinux -or $IsMacOS) {
+                Write-Warning "Unexpected credential type on this platform for profile $($profileName). If your config was transferred from a Windows machine, it may be invalid and you can reset it with Set-IBConfig."
+            }
         } catch {
             Write-Warning "Unable to convert Credential for $($profileName): $($_.Exception.Message)"
             return $null
