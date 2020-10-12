@@ -54,7 +54,7 @@ function Get-IBObject
 
         # process the search fields
         if ($Filters.Count -gt 0) {
-            $queryargs += $Filters
+            $queryargs = @($Filters)
         }
 
         # Process the return field options if there are any and if ReturnAllFields
@@ -71,7 +71,10 @@ function Get-IBObject
             }
         }
 
-        # deal with ProxySearch flag (defaults to LOCAL)
+        # Deal with ProxySearch flag. From the WAPI docs
+        # If set to ‘GM’, the request is redirected to Grid master for processing.
+        # If set to ‘LOCAL’, the request is processed locally. This option is applicable
+        # only on vConnector grid members. The default is ‘LOCAL’.
         if ($ProxySearch) {
             $queryargs += "_proxy_search=GM"
         }
@@ -124,7 +127,6 @@ function Get-IBObject
 
         # if we're not paging, just return the single call
         if (-not $UsePaging) {
-
             $uri = "$APIBase$($queryObj)?$($queryargs -join '&')"
             return (Invoke-IBWAPI -Uri $uri @opts)
         }
