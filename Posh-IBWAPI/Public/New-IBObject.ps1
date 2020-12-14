@@ -116,7 +116,17 @@ function New-IBObject
         PS C:\>1..5 | %{ $template.name = "myhost$_"; $template } | New-IBObject -ObjectType 'record:host'
 
         Create a template object. Then create 5 new host records with sequential names using the next 5 available IPs in the specified network based on the template.
-
+    
+    .EXAMPLE
+        New-IBObject -IBObject @{method='POST';object='network';data=@{network='192.168.1.0/24'}},@{method='POST';object='network';data=@{network='192.168.2.0/24'}} -ObjectType 'request'
+        
+        Create two networks in bulk using request type, utilizing 1 API call instead of 2 in this example.
+    
+    .EXAMPLE
+        New-IBObject -ObjectType 'network' -IBObject @{network='192.168.1.0/24';extattrs=@{'Environment'=@{value='Production'}  } }
+        
+        Create a network object that has extensibility attribute 'Environment' with value of 'Production'
+        
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI
 
