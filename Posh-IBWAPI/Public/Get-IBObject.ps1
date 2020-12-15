@@ -250,6 +250,16 @@ function Get-IBObject
         Get-IBObject 'record:a' -Filters 'name~=.*\.example.com' -MaxResults 100 -ReturnFields 'comment' -ReturnBaseFields
 
         Get the first 100 A records in the example.com DNS zone and return the comment field in addition to the basic fields.
+    
+    .EXAMPLE
+        Get-IBObject -ObjectType 'networkcontainer' -Filters 'network_container=192.168.1.0/19'
+        
+        Get all network containers that have a parent container of 192.168.1.0/19
+        
+    .EXAMPLE
+        Get-IBObject -ObjectType 'network' -Filters 'network_container=192.168.1.0/20'
+        
+        Get all networks that have a parent container of 192.168.1.0/20
 
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI
