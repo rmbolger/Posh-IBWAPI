@@ -127,6 +127,19 @@ function New-IBObject
         
         Create a network object that has extensibility attribute 'Environment' with value of 'Production'
         
+    .EXAMPLE
+        New-IBObject -ObjectType 'extensibleattributedef' -IBObject @{name='TestAttribute';flags = 'I';type='STRING';allowed_object_types='Network','NetworkContainer'}
+        
+        Create an extensible attribute of STRING type with name of 'TestAttribute' enabled for object types IPV4 Network and IPV4 NetworkContainer and enable inheritance
+        Note that Network is a case sensitive string, this will not work if one would used 'network' or 'Networkcontainer'.
+        
+    .EXAMPLE
+        New-IBObject -ObjectType 'extensibleattributedef' -IBObject @{comment = 'test'; name='TestAttribute';flags = 'I';type='STRING';allowed_object_types=,'Network'}
+        
+        Create an extensible attribute of STRING type with name of 'TestAttribute', comment of 'test',  enabled for object type IPV4 Network and enable inheritance.
+        Note that Network is a case sensitive string, this will not work if one would used 'network'.
+        Note that when enabling extensible attribue only for 1 object type, it is still required to send an array object and not single string.
+        
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI
 
