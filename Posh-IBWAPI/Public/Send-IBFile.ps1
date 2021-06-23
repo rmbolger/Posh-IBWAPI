@@ -18,7 +18,7 @@ function Send-IBFile {
         })]
         [string]$Path,
         [Alias('args')]
-        [hashtable]$FunctionArgs,
+        [hashtable]$FunctionArgs = @{},
         [Alias('_ref','ref','ObjectType','type')]
         [string]$ObjectRef = 'fileop',
         [switch]$OverrideTransferHost,
@@ -94,7 +94,7 @@ function Send-IBFile {
         }
 
         # add/update the token in the function args
-        $FunctionArgs.token = $token
+        $FunctionArgs["token"] = $token
 
         # finalize the upload with the actual requested function and arguments
         Write-Debug "Calling $FunctionName with associated arguments"
