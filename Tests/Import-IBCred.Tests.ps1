@@ -5,7 +5,7 @@ BeforeAll {
 Describe "Import-IBCred" {
 
     BeforeAll {
-        Mock Write-Warning {}
+        Mock Write-Warning -ModuleName Posh-IBWAPI {}
     }
 
     It "Processes a valid SecureString credential" {
@@ -21,9 +21,9 @@ Describe "Import-IBCred" {
 
             $cred = Import-IBCred $test 'prof1'
             if ($IsLinux -or $IsMacOS) {
-                Should -Invoke Write-Warning
+                Should -Invoke Write-Warning -ModuleName Posh-IBWAPI
             } else {
-                Should -Not -Invoke Write-Warning
+                Should -Not -Invoke Write-Warning -ModuleName Posh-IBWAPI
             }
 
             $cred = Import-IBCred $test 'prof1'
@@ -47,7 +47,7 @@ Describe "Import-IBCred" {
             { Import-IBCred $test 'prof1' } | Should -Not -Throw
 
             $cred = Import-IBCred $test 'prof1'
-            Should -Not -Invoke Write-Warning
+            Should -Not -Invoke Write-Warning -ModuleName Posh-IBWAPI
 
             $cred | Should -BeOfType System.Management.Automation.PSCredential
             $cred.Username | Should -Be 'admin1'
@@ -67,7 +67,7 @@ Describe "Import-IBCred" {
             { Import-IBCred $test 'prof1' } | Should -Not -Throw
 
             $cred = Import-IBCred $test 'prof1'
-            Should -Invoke Write-Warning
+            Should -Invoke Write-Warning -ModuleName Posh-IBWAPI
 
             if ($IsLinux -or $IsMacOS) {
                 # non-Windows will succeed blindly parsing the securestring
@@ -91,7 +91,7 @@ Describe "Import-IBCred" {
             { Import-IBCred $test 'prof1' } | Should -Not -Throw
 
             Import-IBCred $test 'prof1' | Should -BeNullOrEmpty
-            Should -Invoke Write-Warning
+            Should -Invoke Write-Warning -ModuleName Posh-IBWAPI
         }
     }
 }

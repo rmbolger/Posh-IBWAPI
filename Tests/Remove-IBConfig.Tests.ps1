@@ -23,9 +23,9 @@ Describe "Remove-IBConfig" {
     Context "No existing config" {
 
         BeforeAll {
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
-            Mock Write-Warning {}
+            Mock Get-ConfigFolder -ModuleName Posh-IBWAPI { $fakeConfigFolder }
+            Mock Get-ConfigFile -ModuleName Posh-IBWAPI { $fakeConfigFile }
+            Mock Write-Warning -ModuleName Posh-IBWAPI {}
         }
 
         BeforeEach {
@@ -49,22 +49,22 @@ Describe "Remove-IBConfig" {
             { $prof | Remove-IBConfig }             | Should -Not -Throw
 
             Remove-IBConfig 'prof1'
-            Should -Invoke Write-Warning
+            Should -Invoke Write-Warning -ModuleName Posh-IBWAPI
 
             'prof1' | Remove-IBConfig
-            Should -Invoke Write-Warning
+            Should -Invoke Write-Warning -ModuleName Posh-IBWAPI
 
             $prof | Remove-IBConfig
-            Should -Invoke Write-Warning
+            Should -Invoke Write-Warning -ModuleName Posh-IBWAPI
         }
     }
 
     Context "1 active profile" {
 
         BeforeAll {
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
-            Mock Write-Warning {}
+            Mock Get-ConfigFolder -ModuleName Posh-IBWAPI { $fakeConfigFolder }
+            Mock Get-ConfigFile -ModuleName Posh-IBWAPI { $fakeConfigFile }
+            Mock Write-Warning -ModuleName Posh-IBWAPI {}
 
             New-Item $fakeConfigFolder -Type Directory -ErrorAction Ignore
         }
@@ -150,9 +150,9 @@ Describe "Remove-IBConfig" {
     Context "1 inactive profile" {
 
         BeforeAll {
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
-            Mock Write-Warning {}
+            Mock Get-ConfigFolder -ModuleName Posh-IBWAPI { $fakeConfigFolder }
+            Mock Get-ConfigFile -ModuleName Posh-IBWAPI { $fakeConfigFile }
+            Mock Write-Warning -ModuleName Posh-IBWAPI {}
 
             New-Item $fakeConfigFolder -Type Directory -ErrorAction Ignore
         }
@@ -240,9 +240,9 @@ Describe "Remove-IBConfig" {
     Context "2 profiles 1 active" {
 
         BeforeAll {
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
-            Mock Write-Warning {}
+            Mock Get-ConfigFolder -ModuleName Posh-IBWAPI { $fakeConfigFolder }
+            Mock Get-ConfigFile -ModuleName Posh-IBWAPI { $fakeConfigFile }
+            Mock Write-Warning -ModuleName Posh-IBWAPI {}
 
             New-Item $fakeConfigFolder -Type Directory -ErrorAction Ignore
         }
@@ -346,9 +346,9 @@ Describe "Remove-IBConfig" {
     Context "2 profiles neither active" {
 
         BeforeAll {
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
-            Mock Write-Warning {}
+            Mock Get-ConfigFolder -ModuleName Posh-IBWAPI { $fakeConfigFolder }
+            Mock Get-ConfigFile -ModuleName Posh-IBWAPI { $fakeConfigFile }
+            Mock Write-Warning -ModuleName Posh-IBWAPI {}
 
             New-Item $fakeConfigFolder -Type Directory -ErrorAction Ignore
         }

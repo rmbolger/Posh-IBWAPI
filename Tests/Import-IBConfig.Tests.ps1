@@ -66,8 +66,8 @@ Describe "Import-IBConfig" {
     Context "No existing config" {
 
         BeforeAll {
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
+            Mock Get-ConfigFolder -ModuleName Posh-IBWAPI { $fakeConfigFolder }
+            Mock Get-ConfigFile -ModuleName Posh-IBWAPI { $fakeConfigFile }
         }
 
         It "Initializes everything" {
@@ -90,9 +90,9 @@ Describe "Import-IBConfig" {
     Context "Corrupt/Unparseable config" {
 
         BeforeAll {
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
-            Mock Write-Warning { }
+            Mock Get-ConfigFolder -ModuleName Posh-IBWAPI { $fakeConfigFolder }
+            Mock Get-ConfigFile -ModuleName Posh-IBWAPI { $fakeConfigFile }
+            Mock Write-Warning -ModuleName Posh-IBWAPI { }
 
             # write out some unparsable json to the file
             New-Item $fakeConfigFolder -Type Directory -ErrorAction Ignore
@@ -104,7 +104,7 @@ Describe "Import-IBConfig" {
 
                 { Import-IBConfig } | Should -Not -Throw
 
-                Should -Invoke Write-Warning
+                Should -Invoke Write-Warning -ModuleName Posh-IBWAPI
 
                 $script:CurrentProfile | Should -Be ''
 
@@ -121,9 +121,9 @@ Describe "Import-IBConfig" {
     Context "Old V1 Config" {
 
         BeforeAll {
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
-            Mock Write-Warning {}
+            Mock Get-ConfigFolder -ModuleName Posh-IBWAPI { $fakeConfigFolder }
+            Mock Get-ConfigFile -ModuleName Posh-IBWAPI { $fakeConfigFile }
+            Mock Write-Warning -ModuleName Posh-IBWAPI {}
 
             # write out a v1 config to the file
             New-Item $fakeConfigFolder -Type Directory -ErrorAction Ignore
@@ -162,9 +162,9 @@ Describe "Import-IBConfig" {
     Context "Valid Current Config" {
 
         BeforeAll {
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
-            Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
-            Mock Write-Warning {}
+            Mock Get-ConfigFolder -ModuleName Posh-IBWAPI { $fakeConfigFolder }
+            Mock Get-ConfigFile -ModuleName Posh-IBWAPI { $fakeConfigFile }
+            Mock Write-Warning -ModuleName Posh-IBWAPI {}
 
             # write out a valid config to the file
             New-Item $fakeConfigFolder -Type Directory -ErrorAction Ignore

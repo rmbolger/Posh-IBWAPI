@@ -6,7 +6,7 @@ Describe "Get-IBObject" {
         $pass1 = ConvertTo-SecureString 'pass1' -AsPlainText -Force
         $cred1 = New-Object PSCredential 'admin1',$pass1
 
-        Mock -ModuleName Posh-IBWAPI Initialize-CallVars { return @{
+        Mock Initialize-CallVars -ModuleName Posh-IBWAPI { return @{
             WAPIHost = 'gm1'
             WAPIVersion = '2.11.1'
             Credential = $cred1
@@ -17,11 +17,11 @@ Describe "Get-IBObject" {
     Context "Return Fields" {
 
         BeforeAll {
-            Mock Invoke-IBWAPI { [pscustomobject]@{ result = @(
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI { [pscustomobject]@{ result = @(
                 [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'}
             )}}
             # fake schema results to say d,e,f are fields to query
-            Mock Get-IBSchema { [pscustomobject]@{ fields = @(
+            Mock Get-IBSchema -ModuleName Posh-IBWAPI { [pscustomobject]@{ fields = @(
                 [pscustomobject]@{ name='d'; supports='r' }
                 [pscustomobject]@{ name='e'; supports='r' }
                 [pscustomobject]@{ name='f'; supports='r' }
@@ -43,7 +43,7 @@ Describe "Get-IBObject" {
             @{ splat=@{ ObjectType='fake'; NoPaging=$true } }
         ) {
             Get-IBObject @splat | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter {
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
                 $Uri.OriginalString -notlike '*_return_fields*'
             }
         }
@@ -66,7 +66,7 @@ Describe "Get-IBObject" {
                 $check += "_return_fields=$($splat.ReturnFields -join ',')"
             }
 
-            Should -Invoke Invoke-IBWAPI -ParameterFilter {
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
                 $Uri.OriginalString -like "*$check*"
             }
         }
@@ -81,8 +81,8 @@ Describe "Get-IBObject" {
         ) {
             Get-IBObject @splat | Out-Null
 
-            Should -Invoke Get-IBSchema
-            Should -Invoke Invoke-IBWAPI -ParameterFilter {
+            Should -Invoke Get-IBSchema -ModuleName Posh-IBWAPI
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
                 $Uri.OriginalString -like "*_return_fields=d,e,f*"
             }
         }
@@ -91,7 +91,7 @@ Describe "Get-IBObject" {
     Context "Filters" {
 
         BeforeAll {
-            Mock Invoke-IBWAPI { [pscustomobject]@{ result = @(
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI { [pscustomobject]@{ result = @(
                 [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'}
             )}}
         }
@@ -106,7 +106,7 @@ Describe "Get-IBObject" {
         ) {
             Get-IBObject @splat | Out-Null
 
-            Should -Invoke Invoke-IBWAPI -ParameterFilter {
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
                 $Uri.OriginalString -like "*$($splat.Filters -join '&')*"
             }
         }
@@ -115,7 +115,7 @@ Describe "Get-IBObject" {
     Context "Paging" {
 
         It "Throws when MaxResults/PageSize out of bounds" {
-            Mock Invoke-IBWAPI { [pscustomobject]@{ result = @(
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI { [pscustomobject]@{ result = @(
                 [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'}
             )}}
 
@@ -130,94 +130,94 @@ Describe "Get-IBObject" {
         }
 
         It "Sets page size appropriately" {
-            Mock Invoke-IBWAPI { [pscustomobject]@{ result = @(
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI { [pscustomobject]@{ result = @(
                 [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'}
             )}}
 
             # default 1000
             Get-IBObject fake | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
 
             # explicit PageSize
             Get-IBObject fake -PageSize 100 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=100' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=100' }
 
             # PageSize = MaxResults + 1 (up to 1000) when less than default/explicit page size
             Get-IBObject fake -MaxResults 100 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
             Get-IBObject fake -MaxResults -100 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
             Get-IBObject fake -MaxResults 999 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
             Get-IBObject fake -MaxResults -999 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
             Get-IBObject fake -MaxResults 999999 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
             Get-IBObject fake -MaxResults -999999 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
             Get-IBObject fake -MaxResults 100 -PageSize 50 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=50' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=50' }
             Get-IBObject fake -MaxResults -100 -PageSize 50 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=50' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=50' }
             Get-IBObject fake -MaxResults 100 -PageSize 200 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
             Get-IBObject fake -MaxResults -100 -PageSize 200 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
         }
 
 
         It "Disables paging for WAPIVersion < 1.5" {
-            Mock -ModuleName Posh-IBWAPI Initialize-CallVars { return @{
+            Mock Initialize-CallVars -ModuleName Posh-IBWAPI { return @{
                 WAPIHost = 'gm1'
                 WAPIVersion = '1.4'
                 Credential = $cred1
                 SkipCertificateCheck = $false
             }}
-            Mock Invoke-IBWAPI { }
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI { }
 
             Get-IBObject fake | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter {
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
                 $Uri.OriginalString -notlike '*_paging=1*'
             }
         }
 
         It "Disables paging with -NoPaging" {
-            Mock Invoke-IBWAPI { }
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI { }
 
             Get-IBObject fake -NoPaging | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter {
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
                 $Uri.OriginalString -notlike '*_paging=1*'
             }
         }
 
         It "Retrieves all pages" {
-            Mock Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like "*_paging=1*" } -MockWith {
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like "*_paging=1*" } -MockWith {
                 [pscustomobject]@{
                     result = @( [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'} )
                     next_page_id = '2'
                 }
             }
-            Mock Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like "*_page_id=2*" } -MockWith {
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like "*_page_id=2*" } -MockWith {
                 [pscustomobject]@{
                     result = @( [pscustomobject]@{'_ref' = 'fake/23456:Infoblox'} )
                     next_page_id = '3'
                 }
             }
-            Mock Invoke-IBWAPI -ParameterFilter { $Uri.OriginalString -like "*_page_id=3*" } -MockWith {
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like "*_page_id=3*" } -MockWith {
                 [pscustomobject]@{
                     result = @( [pscustomobject]@{'_ref' = 'fake/34567:Infoblox'} )
                 }
             }
 
             Get-IBObject fake | Out-Null
-            Should -Invoke Invoke-IBWAPI -Exactly 3
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -Exactly 3
         }
     }
 
     Context "MaxResults" {
 
         It "Has no effect when Abs(MaxResults) > result count" {
-            Mock Invoke-IBWAPI {
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI {
                 [pscustomobject]@{
                     result = @(
                         [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'}
@@ -237,7 +237,7 @@ Describe "Get-IBObject" {
         }
 
         It "Limits results when MaxResults positive" {
-            Mock Invoke-IBWAPI {
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI {
                 [pscustomobject]@{
                     result = @(
                         [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'}
@@ -261,7 +261,7 @@ Describe "Get-IBObject" {
         }
 
         It "Throws when MaxResults negative" {
-            Mock Invoke-IBWAPI {
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI {
                 [pscustomobject]@{
                     result = @(
                         [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'}
@@ -285,23 +285,23 @@ Describe "Get-IBObject" {
     Context "Misc" {
 
         It "Uses ProxySearch" {
-            Mock Invoke-IBWAPI { [pscustomobject]@{ result = @(
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI { [pscustomobject]@{ result = @(
                 [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'}
             )}}
 
             Get-IBObject fake -ProxySearch | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter {
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
                 $Uri.OriginalString -like '*_proxy_search=GM*'
             }
         }
 
         It "Passes Credential and SkipCertificateCheck" {
-            Mock Invoke-IBWAPI { [pscustomobject]@{ result = @(
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI { [pscustomobject]@{ result = @(
                 [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'}
             )}}
 
             Get-IBObject fake | Out-Null
-            Should -Invoke Invoke-IBWAPI -ParameterFilter {
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
                 $Credential.Username -eq 'admin1' -and
                 $SkipCertificateCheck.IsPresent -eq $true
             }
