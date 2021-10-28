@@ -56,7 +56,7 @@ function Get-IBSchema {
 
         # set supported objects for this version
         $sCache[$WAPIVersion] = $schema.supported_objects | Sort-Object
-        Write-Verbose "Set supported objects: $($sCache[$WAPIVersion] -join ', ')"
+        Write-Verbose "Set supported objects for $($WAPIVersion): $($sCache[$WAPIVersion] -join ', ')"
     }
 
     # The 'request' object is a weird outlier that only accepts POST requests against it

@@ -16,7 +16,6 @@ function Register-ArgCompleters {
 
         $names = @((Get-Profiles).Keys)
         $names | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
-            # "::new()" syntax ok here because we'll only reach it on PS5+
             [Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
         }
     }
@@ -34,5 +33,27 @@ function Register-ArgCompleters {
         'Set-IBObject'
     )
     Register-ArgumentCompleter -CommandName $ProfileNameCommands -ParameterName 'ProfileName' -ScriptBlock $ProfileNameCompleter
+
+    # ObjectType
+    $ObjectTypeCompleter = {
+        param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
+
+        # we need the call variables so we know what set of object types to filter from
+        try { $opts = Initialize-CallVars @fakeBoundParameter -Debug:$false } catch { return }
+
+        # return early if we don't have cached schema info matching the call variables
+        if (-not $script:Schemas[$opts.WAPIHost] -or
+            -not $script:Schemas[$opts.WAPIHost][$opts.WAPIVersion])
+        {
+            return
+        }
+
+        $objectTypes = $script:Schemas[$opts.WAPIHost][$opts.WAPIVersion]
+
+        $objectTypes | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
+            [Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+        }
+    }
+    Register-ArgumentCompleter -CommandName 'Get-IBObject','Get-IBSchema','New-IBObject' -ParameterName 'ObjectType' -ScriptBlock $ObjectTypeCompleter
 
 }
