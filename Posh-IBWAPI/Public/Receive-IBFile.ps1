@@ -65,7 +65,7 @@ function Receive-IBFile {
                 }
 
                 # and now match the state of SkipCertificateCheck
-                $restOpts.SkipCertificateCheck = $opts.SkipCertificateCheck.IsPresent
+                $restOpts.SkipCertificateCheck = $opts.SkipCertificateCheck
             }
 
             # download the file from the designated URL
