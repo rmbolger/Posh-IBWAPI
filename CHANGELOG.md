@@ -1,3 +1,8 @@
+## 3.2.2 (2022-03-17)
+
+* Added ObjectType argument completer for Get-IBObject, New-IBObject, and Get-IBSchema. Currently requires having already run Get-IBSchema to cache the potential values.
+* Fixed issue propagating SkipCertificateCheck switch in api calls during `Send-IBFile` and `Receive-IBFile`
+
 ## 3.2.1 (2021-08-02)
 
 * Added additional examples on `New-IBObject` and `Get-IBObject` (Thanks @qlikq)

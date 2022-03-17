@@ -1,7 +1,7 @@
 @{
 
 RootModule = 'Posh-IBWAPI.psm1'
-ModuleVersion = '3.2.1'
+ModuleVersion = '3.2.2'
 GUID = '1483924a-a8bd-446f-ba0a-25443bcec77e'
 Author = 'Ryan Bolger'
 Copyright = '(c) 2017-2020 Ryan Bolger. All rights reserved.'
@@ -47,14 +47,10 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-## 3.2.1 (2021-08-02)
+## 3.2.2 (2022-03-17)
 
-* Added additional examples on `New-IBObject` and `Get-IBObject` (Thanks @qlikq)
-* Fixed `Send-IBFile` throwing a PropertyNotFound exception when no FunctionArgs are specified. (#55) (Thanks @demdante)
-* Fixed `Remove-IBConfig -All` not working
-* Corrupt or unparseable config files are now handled more gracefully.
-* Added a warning when importing a config on Linux/Mac that was originally created on Windows
-* `Export-IBConfig` no longer writes an output file if no profiles are defined.
+* Added ObjectType argument completer for Get-IBObject, New-IBObject, and Get-IBSchema. Currently requires having already run Get-IBSchema to cache the potential values.
+* Fixed issue propagating SkipCertificateCheck switch in api calls during `Send-IBFile` and `Receive-IBFile`
 '@
 
     } # End of PSData hashtable
