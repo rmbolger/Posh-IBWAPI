@@ -81,7 +81,7 @@ function Send-IBFile {
                 }
 
                 # and now match the state of SkipCertificateCheck
-                $restOpts.SkipCertificateCheck = $opts.SkipCertificateCheck.IsPresent
+                $restOpts.SkipCertificateCheck = $opts.SkipCertificateCheck
             }
 
             # upload the file to the designated URL
