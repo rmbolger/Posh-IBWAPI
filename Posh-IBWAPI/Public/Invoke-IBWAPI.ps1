@@ -32,7 +32,7 @@ function Invoke-IBWAPI
     # Build a hashtable out of our optional parameters that we will later
     # send to Invoke-RestMethod via splatting
     # https://msdn.microsoft.com/en-us/powershell/reference/5.1/microsoft.powershell.core/about/about_splatting
-    $opts = @{}
+    $opts = @{Verbose = $false}
     $paramNames = 'Method','Credential','Body','ContentType','OutFile','WebSession'
     $PSBoundParameters.Keys | Where-Object { $_ -in $paramNames } | ForEach-Object { $opts.$_ = $PSBoundParameters.$_ }
 
@@ -55,10 +55,9 @@ function Invoke-IBWAPI
     if ($opts.WebSession) {
         Write-Debug "using explicit session"
     } elseif ($savedSession = Get-IBSession $Uri $opts.Credential) {
-        Write-Debug "using saved session"
         $opts.WebSession = $savedSession
     } else {
-        Write-Debug "no existing session"
+        Write-Debug "creating new session"
         # prepare to save the session for later
         $opts.SessionVariable = 'innerSession'
     }
@@ -74,6 +73,7 @@ function Invoke-IBWAPI
             if ($PSCmdlet.ShouldProcess($Uri, $opts.Method)) {
 
                 # send the request
+                Write-Verbose "$($opts.Method) $Uri"
                 $response = Invoke-RestMethod -Uri $Uri @opts
 
                 # attempt to detect a master candidate's meta refresh tag
@@ -83,6 +83,7 @@ function Invoke-IBWAPI
 
                     # retry the request using the parsed grid master
                     $Uri = [uri]$Uri.ToString().Replace($Uri.Authority, $gridmaster)
+                    Write-Verbose "$($opts.Method) $Uri"
                     Invoke-RestMethod -Uri $Uri @opts
                 } else {
                     Write-Output $response
@@ -113,37 +114,34 @@ function Invoke-IBWAPI
     }
     catch
     {
-        $response = $_.Exception.Response
+        $ex = $_.Exception
+        $response = $ex.Response
 
-        if ($response.StatusCode -eq [System.Net.HttpStatusCode]::BadRequest) {
+        if ($response.StatusCode -in 400,404) {
 
             # Since we can't catch explicit exception types between PowerShell editions
             # without errors for non-existent types, we need to string match the type names
             # and re-throw anything we don't care about.
-            $exType = $_.Exception.GetType().FullName
+            $exType = $ex.GetType().FullName
             if ('System.Net.WebException' -eq $exType) {
 
                 # This is the exception that gets thrown in PowerShell Desktop edition
-
-                # get the response object: System.Net.HttpWebResponse
-                $response = $_.Exception.Response
 
                 # grab the raw response body
                 $sr = New-Object IO.StreamReader($response.GetResponseStream())
                 $sr.BaseStream.Position = 0
                 $sr.DiscardBufferedData()
                 $body = $sr.ReadToEnd()
-                Write-Debug "Error Body: $body"
+                Write-Debug "Error Body:`n$body"
 
             } elseif ('Microsoft.PowerShell.Commands.HttpResponseException' -eq $exType) {
 
                 # This is the exception that gets thrown in PowerShell Core edition
 
-                # get the response object
+                # Response object type depends on platform
                 # Linux type: System.Net.Http.CurlHandler+CurlResponseMessage
                 #   Mac type: ???
                 #   Win type: System.Net.Http.HttpResponseMessage
-                $response = $_.Exception.Response
 
                 # Currently in PowerShell 6, there's no way to get the raw response body from an
                 # HttpResponseException because they dispose the response stream.
@@ -154,21 +152,29 @@ function Invoke-IBWAPI
                 # tags. And since our body should be JSON, there shouldn't be any tags to remove.
                 # So we'll just go with it for now until someone reports a problem.
                 $body = $_.ErrorDetails.Message
-                Write-Debug "Error Body: $body"
+                Write-Debug "Error Body:`n$body"
 
-            } else { throw }
-
-            Write-Verbose $body
-            $wapiErr = ConvertFrom-Json $body -EA SilentlyContinue
-            if ($wapiErr) {
-                throw [Exception] "$($wapiErr.Error)"
             } else {
-                throw [Exception] $body
+                $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
+                    $_, $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                ))
+                return
+            }
+
+            $wapiErr = ConvertFrom-Json $body -EA Ignore
+            if ($wapiErr) {
+                $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
+                    $wapiErr.Error, $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                ))
+            } else {
+                $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
+                    $body, $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                ))
             }
 
         } else {
-            # just re-throw everything else
-            throw
+            Write-Debug ($response | ConvertTo-Json)
+            $PSCmdlet.WriteError($_)
         }
     }
 
