@@ -11,6 +11,7 @@ function New-IBObject
         [string[]]$ReturnFields,
         [Alias('base')]
         [switch]$ReturnBaseFields,
+        [switch]$BatchMode,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -46,18 +47,63 @@ function New-IBObject
             $querystring = "?_return_fields%2B"
         }
 
+        if ($BatchMode) {
+            # create a list to save the objects in
+            $newObjects = [Collections.Generic.List[PSObject]]::new()
+        }
     }
 
     Process {
+
+        if ($BatchMode) {
+            # add the object to the list for processing during End{}
+            $newObjects.Add($IBObject)
+            return
+        }
+
+        # process the object now
         $bodyJson = $IBObject | ConvertTo-Json -Compress -Depth 5
         $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
         Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json -Depth 5)"
 
-        $uri = "$APIBase$($ObjectType)$($querystring)"
-
+        $uri = '{0}{1}{2}' -f $APIBase,$ObjectType,$querystring
         if ($PSCmdlet.ShouldProcess($uri, "POST")) {
             Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
         }
+    }
+
+    End {
+        if (-not $BatchMode -or $newObjects.Count -eq 0) { return }
+        Write-Debug "BatchMode deferred objects: $($newObjects.Count)"
+
+        # build the 'args' value for each object
+        $retArgs = @{}
+        if ($ReturnFields.Count -gt 0) {
+            if ($ReturnBaseFields) {
+                $retArgs.'_return_fields+' = $ReturnFields -join ','
+            } else {
+                $retArgs.'_return_fields'  = $ReturnFields -join ','
+            }
+        } else {
+            $retArgs.'_return_fields+' = ''
+        }
+
+        # build the json for all the objects
+        $bodyJson = $newObjects | ForEach-Object {
+            @{
+                method = 'POST'
+                object = $ObjectType
+                data = $_
+                args = $retArgs
+            }
+        } | ConvertTo-Json -Compress -Depth 5
+        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
+
+        $uri = '{0}request' -f $APIBase
+        if ($PSCmdlet.ShouldProcess($uri, 'POST')) {
+            Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
+        }
+
     }
 
 
@@ -82,6 +128,9 @@ function New-IBObject
 
     .PARAMETER ReturnBaseFields
         If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.
+
+    .PARAMETER BatchMode
+        If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance significantly.
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
@@ -116,30 +165,30 @@ function New-IBObject
         PS C:\>1..5 | %{ $template.name = "myhost$_"; $template } | New-IBObject -ObjectType 'record:host'
 
         Create a template object. Then create 5 new host records with sequential names using the next 5 available IPs in the specified network based on the template.
-    
+
     .EXAMPLE
         New-IBObject -IBObject @{method='POST';object='network';data=@{network='192.168.1.0/24'}},@{method='POST';object='network';data=@{network='192.168.2.0/24'}} -ObjectType 'request'
-        
+
         Create two networks in bulk using request type, utilizing 1 API call instead of 2 in this example.
-    
+
     .EXAMPLE
         New-IBObject -ObjectType 'network' -IBObject @{network='192.168.1.0/24';extattrs=@{'Environment'=@{value='Production'}  } }
-        
+
         Create a network object that has extensibility attribute 'Environment' with value of 'Production'
-        
+
     .EXAMPLE
         New-IBObject -ObjectType 'extensibleattributedef' -IBObject @{name='TestAttribute';flags = 'I';type='STRING';allowed_object_types='Network','NetworkContainer'}
-        
+
         Create an extensible attribute of STRING type with name of 'TestAttribute' enabled for object types IPV4 Network and IPV4 NetworkContainer and enable inheritance
         Note that Network is a case sensitive string, this will not work if one would used 'network' or 'Networkcontainer'.
-        
+
     .EXAMPLE
         New-IBObject -ObjectType 'extensibleattributedef' -IBObject @{comment = 'test'; name='TestAttribute';flags = 'I';type='STRING';allowed_object_types=,'Network'}
-        
+
         Create an extensible attribute of STRING type with name of 'TestAttribute', comment of 'test',  enabled for object type IPV4 Network and enable inheritance.
         Note that Network is a case sensitive string, this will not work if one would used 'network'.
         Note that when enabling extensible attribue only for 1 object type, it is still required to send an array object and not single string.
-        
+
     .LINK
         Project: https://github.com/rmbolger/Posh-IBWAPI
 

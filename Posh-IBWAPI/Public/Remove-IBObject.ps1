@@ -7,6 +7,7 @@ function Remove-IBObject
         [string]$ObjectRef,
         [Alias('args')]
         [string[]]$DeleteArgs,
+        [switch]$BatchMode,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -30,13 +31,45 @@ function Remove-IBObject
         if ($DeleteArgs) {
             $querystring = "?$($DeleteArgs -join '&')"
         }
+
+        if ($BatchMode) {
+            # create a list to save the objects in
+            $delObjects = [Collections.Generic.List[PSObject]]::new()
+        }
     }
 
     Process {
-        $uri = "$APIBase$($ObjectRef)$querystring"
+
+        if ($BatchMode) {
+            # add the object to the list for processing during End{}
+            $delObjects.Add($ObjectRef)
+            return
+        }
+
+        $uri = '{0}{1}{2}' -f $APIBase,$ObjectRef,$querystring
         if ($PSCmdlet.ShouldProcess($uri, 'DELETE')) {
             Invoke-IBWAPI -Method Delete -Uri $uri @opts
         }
+    }
+
+    End {
+        if (-not $BatchMode -or $delObjects.Count -eq 0) { return }
+        Write-Debug "BatchMode deferred objects: $($delObjects.Count)"
+
+        # build the json for all the objects
+        $bodyJson = $delObjects | ForEach-Object {
+            @{
+                method = 'DELETE'
+                object = $_
+            }
+        } | ConvertTo-Json -Compress -Depth 5
+        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
+
+        $uri = '{0}request' -f $APIBase
+        if ($PSCmdlet.ShouldProcess($uri, 'POST')) {
+            Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
+        }
+
     }
 
 
@@ -54,6 +87,9 @@ function Remove-IBObject
 
     .PARAMETER DeleteArgs
         Additional delete arguments for this object. For example, 'remove_associated_ptr=true' can be used with record:a. Requires WAPI 2.1+.
+
+    .PARAMETER BatchMode
+        If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance significantly.
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
