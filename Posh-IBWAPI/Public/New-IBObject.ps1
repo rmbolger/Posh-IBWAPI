@@ -49,7 +49,7 @@ function New-IBObject
 
         if ($BatchMode) {
             # create a list to save the objects in
-            $newObjects = [Collections.Generic.List[PSObject]]::new()
+            $deferredObjects = [Collections.Generic.List[PSObject]]::new()
         }
     }
 
@@ -57,7 +57,7 @@ function New-IBObject
 
         if ($BatchMode) {
             # add the object to the list for processing during End{}
-            $newObjects.Add($IBObject)
+            $deferredObjects.Add($IBObject)
             return
         }
 
@@ -73,8 +73,8 @@ function New-IBObject
     }
 
     End {
-        if (-not $BatchMode -or $newObjects.Count -eq 0) { return }
-        Write-Debug "BatchMode deferred objects: $($newObjects.Count)"
+        if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
+        Write-Debug "BatchMode deferred objects: $($deferredObjects.Count)"
 
         # build the 'args' value for each object
         $retArgs = @{}
@@ -89,7 +89,7 @@ function New-IBObject
         }
 
         # build the json for all the objects
-        $bodyJson = $newObjects | ForEach-Object {
+        $bodyJson = $deferredObjects | ForEach-Object {
             @{
                 method = 'POST'
                 object = $ObjectType
@@ -130,7 +130,7 @@ function New-IBObject
         If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.
 
     .PARAMETER BatchMode
-        If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance significantly.
+        If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance but if any of the individual calls fail, the whole group is cancelled.
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.

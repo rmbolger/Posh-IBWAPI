@@ -34,7 +34,7 @@ function Remove-IBObject
 
         if ($BatchMode) {
             # create a list to save the objects in
-            $delObjects = [Collections.Generic.List[PSObject]]::new()
+            $deferredObjects = [Collections.Generic.List[string]]::new()
         }
     }
 
@@ -42,7 +42,7 @@ function Remove-IBObject
 
         if ($BatchMode) {
             # add the object to the list for processing during End{}
-            $delObjects.Add($ObjectRef)
+            $deferredObjects.Add($ObjectRef)
             return
         }
 
@@ -53,11 +53,11 @@ function Remove-IBObject
     }
 
     End {
-        if (-not $BatchMode -or $delObjects.Count -eq 0) { return }
-        Write-Debug "BatchMode deferred objects: $($delObjects.Count)"
+        if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
+        Write-Debug "BatchMode deferred objects: $($deferredObjects.Count)"
 
         # build the json for all the objects
-        $bodyJson = $delObjects | ForEach-Object {
+        $bodyJson = $deferredObjects | ForEach-Object {
             @{
                 method = 'DELETE'
                 object = $_
@@ -89,7 +89,7 @@ function Remove-IBObject
         Additional delete arguments for this object. For example, 'remove_associated_ptr=true' can be used with record:a. Requires WAPI 2.1+.
 
     .PARAMETER BatchMode
-        If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance significantly.
+        If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance but if any of the individual calls fail, the whole group is cancelled.
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.

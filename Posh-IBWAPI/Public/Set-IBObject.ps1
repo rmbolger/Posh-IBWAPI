@@ -16,6 +16,7 @@ function Set-IBObject
         [string[]]$ReturnFields,
         [Alias('base')]
         [switch]$ReturnBaseFields,
+        [switch]$BatchMode,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -50,33 +51,103 @@ function Set-IBObject
             $querystring = "?_return_fields%2B"
         }
 
+        if ($BatchMode) {
+            # create a list to save the objects in
+            $deferredObjects = [Collections.Generic.List[PSObject]]::new()
+        }
     }
 
     Process {
 
-        switch ($PsCmdlet.ParameterSetName) {
-            "ObjectOnly" {
-                if (!$IBObject._ref) {
-                    throw "IBObject is missing '_ref' field."
-                }
-                # copy out the ObjectRef from the object
-                $ObjectRef = $IBObject._ref
-
-                # create the json body
-                $bodyJson = $IBObject | ConvertTo-Json -Compress -Depth 5
-                $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
-                Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json -Depth 5)"
+        if ($BatchMode) {
+            # add the appropriate object to the list for processing during End{}
+            if ('ObjectOnly' -eq $PsCmdlet.ParameterSetName) {
+                $deferredObjects.Add($IBObject)
+            } else {
+                $deferredObjects.Add($ObjectRef)
             }
-            "RefAndTemplate" {
-                # create the json body
-                $bodyJson = $TemplateObject | ConvertTo-Json -Compress -Depth 5
-                $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
-                Write-Verbose "JSON body:`n$($TemplateObject | ConvertTo-Json -Depth 5)"
-            }
+            return
         }
-        $uri = "$APIBase$($ObjectRef)$($querystring)"
+
+        if ('ObjectOnly' -eq $PsCmdlet.ParameterSetName) {
+
+            # get the ObjectRef from the input object
+            if (-not $IBObject._ref) {
+                $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
+                    "IBObject is missing '_ref' field.", $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                ))
+                return
+            }
+            $ObjectRef = $IBObject._ref
+            $IBObject.PSObject.Properties.Remove('_ref')
+
+            $TemplateObject = $IBObject
+        }
+
+        # create the json body
+        $bodyJson = $TemplateObject | ConvertTo-Json -Compress -Depth 5
+        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
+        Write-Verbose "JSON body:`n$($TemplateObject | ConvertTo-Json -Depth 5)"
+
+        $uri = '{0}{1}{2}' -f $APIBase,$ObjectRef,$querystring
         if ($PsCmdlet.ShouldProcess($uri, 'PUT')) {
             Invoke-IBWAPI -Method Put -Uri $uri -Body $bodyJson @opts
+        }
+    }
+
+    End {
+        if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
+        Write-Debug "BatchMode deferred objects: $($deferredObjects.Count)"
+
+        # build the 'args' value for each object
+        $retArgs = @{}
+        if ($ReturnFields.Count -gt 0) {
+            if ($ReturnBaseFields) {
+                $retArgs.'_return_fields+' = $ReturnFields -join ','
+            } else {
+                $retArgs.'_return_fields'  = $ReturnFields -join ','
+            }
+        } else {
+            $retArgs.'_return_fields+' = ''
+        }
+
+        # build the json for all the objects
+        $bodyJson = $deferredObjects | ForEach-Object {
+
+            if ('ObjectOnly' -eq $PsCmdlet.ParameterSetName) {
+
+                # get the ObjectRef from the input object
+                if (-not $_._ref) {
+                    $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
+                        "IBObject is missing '_ref' field.", $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                    ))
+                    return
+                }
+                $ObjectRef = $_._ref
+                $_.PSObject.Properties.Remove('_ref')
+
+                $TemplateObject = $_
+            } else {
+                $ObjectRef = $_
+            }
+
+            @{
+                method = 'PUT'
+                object = $ObjectRef
+                data = $TemplateObject
+                args = $retArgs
+            }
+        } | ConvertTo-Json -Compress -Depth 5
+
+        if ([String]::IsNullOrWhiteSpace($bodyJson)) {
+            Write-Warning "No batched objects to update. WAPI call cancelled."
+            return
+        }
+        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
+
+        $uri = '{0}request' -f $APIBase
+        if ($PSCmdlet.ShouldProcess($uri, 'POST')) {
+            Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
         }
 
     }
@@ -105,6 +176,9 @@ function Set-IBObject
 
     .PARAMETER ReturnBaseFields
         If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.
+
+    .PARAMETER BatchMode
+        If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance but if any of the individual calls fail, the whole group is cancelled.
 
     .PARAMETER WAPIHost
         The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
