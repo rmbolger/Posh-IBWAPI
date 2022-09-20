@@ -10,6 +10,8 @@ function Get-IBObject
         [Parameter(ParameterSetName='ByRef',Mandatory=$True,Position=0,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
         [string]$ObjectRef,
+        [Parameter(ParameterSetName='ByRef')]
+        [switch]$BatchMode,
 
         [Parameter(ParameterSetName='ByType')]
         [Parameter(ParameterSetName='ByTypeNoPaging')]
@@ -43,8 +45,9 @@ function Get-IBObject
     )
 
     Begin {
-        # grab the variables we'll be using for our REST calls
+        # grab the variables we'll be using for our REST and sub calls
         try { $opts = Initialize-CallVars @PSBoundParameters } catch { $PsCmdlet.ThrowTerminatingError($_) }
+        $subOpts = [hashtable]::new($opts)
         $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
         $WAPIVersion = $opts.WAPIVersion
         $opts.Remove('WAPIHost') | Out-Null
@@ -71,12 +74,26 @@ function Get-IBObject
             }
         }
 
+        # Make sure we can do schema queries if ReturnAllFields was specified
+        if ($ReturnAllFields) {
+            # make a basic schema query if a cache for this host doesn't already exist
+            if (-not $script:Schemas[$subOpts.WAPIHost]) {
+                try { $null = Get-IBSchema @opts }
+                catch { $PSCmdlet.ThrowTerminatingError($_) }
+            }
+        }
+
         # Deal with ProxySearch flag. From the WAPI docs
         # If set to ‘GM’, the request is redirected to Grid master for processing.
         # If set to ‘LOCAL’, the request is processed locally. This option is applicable
         # only on vConnector grid members. The default is ‘LOCAL’.
         if ($ProxySearch) {
             $queryargs += "_proxy_search=GM"
+        }
+
+        if ($BatchMode) {
+            # create a list to save the objects in
+            $deferredObjects = [Collections.Generic.List[PSObject]]::new()
         }
     }
 
@@ -99,6 +116,10 @@ function Get-IBObject
             $queryObj = $ObjectRef
             # paging not supported on objref queries
             $UsePaging = $false
+
+            if ($BatchMode) {
+                $deferredObjects.Add(@{ object = $ObjectRef })
+            }
         }
 
         # deal with -ReturnAllFields now
@@ -108,21 +129,20 @@ function Get-IBObject
             $oType = $queryObj
             if ($ObjectRef) { $oType = $oType.Substring(0,$oType.IndexOf("/")) }
 
-            # Not all WAPI versions support schema queries, so handle appropriately
-            try {
-                Write-Verbose "Querying schema for $oType fields on version $WAPIVersion"
-                $schema = Get-IBSchema $oType -Raw -WAPIVersion $WAPIVersion
-            } catch {
-                if ($_ -like "*doesn't support schema queries*") {
-                    throw "The -ReturnAllFields parameter requires querying the schema and $_"
-                } else { throw }
-            }
+            $readFields = Get-ReadFieldsForType -ObjectType $oType @subOpts
 
-            # grab the readable fields and add them to the querystring
-            $readFields = $schema.fields |
-                Where-Object { $_.supports -like '*r*' -and $_.wapi_primitive -ne 'funccall' } |
-                Select-Object -Expand name
-            $queryargs += "_return_fields=$($readFields -join ',')"
+            if ($BatchMode) {
+                $deferredObjects[-1].args = @{
+                    '_return_fields' = $readFields -join ','
+                }
+            } else {
+                $queryargs += "_return_fields=$($readFields -join ',')"
+            }
+        }
+
+        if ($BatchMode) {
+            # everything else is deferred to End{}, so just return
+            return
         }
 
         # if we're not paging, just return the single call
@@ -189,6 +209,35 @@ function Get-IBObject
 
     }
 
+    End {
+        if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
+        Write-Debug "BatchMode deferred objects: $($deferredObjects.Count)"
+
+        # build the 'args' value for each object
+        $retArgs = @{}
+        if ($ReturnFields.Count -gt 0) {
+            if ($ReturnBaseFields) {
+                $retArgs.'_return_fields+' = $ReturnFields -join ','
+            } else {
+                $retArgs.'_return_fields'  = $ReturnFields -join ','
+            }
+        } else {
+            $retArgs.'_return_fields+' = ''
+        }
+
+        # build the json for all the objects
+        $bodyJson = $deferredObjects | ForEach-Object {
+            @{
+                method = 'GET'
+                object = $_.object
+                args = if ($_.args) { $_.args } else { $retArgs }
+            }
+        } | ConvertTo-Json -Compress -Depth 5
+        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
+
+        $uri = '{0}request' -f $APIBase
+        Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
+    }
 
 
 
@@ -204,6 +253,9 @@ function Get-IBObject
 
     .PARAMETER ObjectType
         Object type string. (e.g. network, record:host, range)
+
+    .PARAMETER BatchMode
+        If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance but if any of the individual calls fail, the whole group is cancelled.
 
     .PARAMETER Filters
         An array of search filter conditions. (e.g. "name~=myhost","ipv4addr=10.10.10.10"). All conditions must be satisfied to match an object. See Infoblox WAPI documentation for advanced usage details.
@@ -250,15 +302,15 @@ function Get-IBObject
         Get-IBObject 'record:a' -Filters 'name~=.*\.example.com' -MaxResults 100 -ReturnFields 'comment' -ReturnBaseFields
 
         Get the first 100 A records in the example.com DNS zone and return the comment field in addition to the basic fields.
-    
+
     .EXAMPLE
         Get-IBObject -ObjectType 'networkcontainer' -Filters 'network_container=192.168.1.0/19'
-        
+
         Get all network containers that have a parent container of 192.168.1.0/19
-        
+
     .EXAMPLE
         Get-IBObject -ObjectType 'network' -Filters 'network_container=192.168.1.0/20'
-        
+
         Get all networks that have a parent container of 192.168.1.0/20
 
     .LINK
