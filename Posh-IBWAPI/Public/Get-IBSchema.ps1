@@ -33,7 +33,7 @@ function Get-IBSchema {
 
     # add a schema cache for this host if it doesn't exist
     if (-not $script:Schemas.$WAPIHost) {
-        $script:Schemas.$WAPIHost = @{}
+        $script:Schemas.$WAPIHost = @{ ReadFields = @{} }
     }
     $sCache = $script:Schemas.$WAPIHost
 
