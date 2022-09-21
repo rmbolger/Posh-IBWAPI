@@ -40,7 +40,7 @@ function Get-IBSchema {
     # make sure we can actually query schema stuff for this WAPIHost
     if (-not $sCache.HighestVersion) {
         $sCache.HighestVersion = (HighestVer $WAPIHost $opts.Credential -SkipCertificateCheck:$opts.SkipCertificateCheck)
-        Write-Verbose "Set highest version: $($sCache.HighestVersion)"
+        Write-Debug "Set highest version: $($sCache.HighestVersion)"
     }
     if ([Version]$sCache.HighestVersion -lt [Version]'1.7.5') {
         throw "NIOS WAPI $($sCache.HighestVersion) doesn't support schema queries"
@@ -52,11 +52,11 @@ function Get-IBSchema {
 
         # set supported versions
         $sCache.SupportedVersions = $schema.supported_versions | Sort-Object @{E={[Version]$_}}
-        Write-Verbose "Set supported versions: $($sCache.SupportedVersions -join ', ')"
+        Write-Debug "Set supported versions: $($sCache.SupportedVersions -join ', ')"
 
         # set supported objects for this version
         $sCache[$WAPIVersion] = $schema.supported_objects | Sort-Object
-        Write-Verbose "Set supported objects for $($WAPIVersion): $($sCache[$WAPIVersion] -join ', ')"
+        Write-Debug "Set supported objects for $($WAPIVersion): $($sCache[$WAPIVersion] -join ', ')"
     }
 
     # The 'request' object is a weird outlier that only accepts POST requests against it
@@ -69,9 +69,9 @@ function Get-IBSchema {
 
     if (![String]::IsNullOrWhiteSpace($ObjectType)) {
         # We want to support wildcard searches and partial matching on object types.
-        Write-Verbose "ObjectType: $ObjectType"
+        Write-Debug "ObjectType: $ObjectType"
         $objMatches = $sCache[$WAPIVersion] | ForEach-Object { if ($_ -like $ObjectType) { $_ } }
-        Write-Verbose "Matches: $($objMatches.Count)"
+        Write-Debug "Matches: $($objMatches.Count)"
         if ($objMatches.count -gt 1) {
             # multiple matches
             $message = "Multiple object matches found for $($ObjectType)"
@@ -81,7 +81,7 @@ function Get-IBSchema {
             return
         }
         elseif ($objMatches.count -eq 0 ) {
-            Write-Verbose "Retrying matches with implied wildcards"
+            Write-Debug "Retrying matches with implied wildcards"
             # retry matching with implied wildcards
             $objMatches = $sCache[$WAPIVersion] | ForEach-Object { if ($_ -like "*$ObjectType*") { $_ } }
             if ($objMatches.count -gt 1) {

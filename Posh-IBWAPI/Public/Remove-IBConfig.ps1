@@ -38,7 +38,7 @@ function Remove-IBConfig
             $profToRemove = $ProfileName
         }
 
-        Write-Verbose "Removing $profToRemove"
+        Write-Verbose "Removing $profToRemove profile"
         $profiles = Get-Profiles
 
         if ($profToRemove -in $profiles.Keys) {

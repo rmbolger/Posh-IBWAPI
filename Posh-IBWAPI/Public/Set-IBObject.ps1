@@ -97,7 +97,7 @@ function Set-IBObject
 
     End {
         if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
-        Write-Debug "BatchMode deferred objects: $($deferredObjects.Count)"
+        Write-Verbose "BatchMode deferred objects: $($deferredObjects.Count)"
 
         # build the 'args' value for each object
         $retArgs = @{}

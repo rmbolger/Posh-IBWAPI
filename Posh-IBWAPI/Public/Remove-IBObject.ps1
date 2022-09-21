@@ -54,7 +54,7 @@ function Remove-IBObject
 
     End {
         if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
-        Write-Debug "BatchMode deferred objects: $($deferredObjects.Count)"
+        Write-Verbose "BatchMode deferred objects: $($deferredObjects.Count)"
 
         # build the json for all the objects
         $bodyJson = $deferredObjects | ForEach-Object {

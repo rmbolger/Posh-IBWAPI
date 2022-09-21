@@ -75,9 +75,9 @@ function Send-IBFile {
                 $urlHost = ([uri]$restOpts.Uri).Host
                 if ($opts.WAPIHost -ne $urlHost) {
                     $restOpts.Uri = $restOpts.Uri.Replace("https://$urlHost/", "https://$($opts.WAPIHost)/")
-                    Write-Verbose "Overrode URL host: $($opts.WAPIHost)"
+                    Write-Debug "Overrode URL host: $($opts.WAPIHost)"
                 } else {
-                    Write-Verbose "URL host already matches original. No need to override."
+                    Write-Debug "URL host already matches original. No need to override."
                 }
 
                 # and now match the state of SkipCertificateCheck

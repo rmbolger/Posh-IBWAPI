@@ -73,7 +73,7 @@ function Invoke-IBWAPI
             if ($PSCmdlet.ShouldProcess($Uri, $opts.Method)) {
 
                 # send the request
-                Write-Verbose "$($opts.Method) $Uri"
+                Write-Verbose "$($opts.Method.ToString().ToUpper()) $Uri"
                 $response = Invoke-RestMethod -Uri $Uri @opts
 
                 # attempt to detect a master candidate's meta refresh tag
@@ -83,7 +83,7 @@ function Invoke-IBWAPI
 
                     # retry the request using the parsed grid master
                     $Uri = [uri]$Uri.ToString().Replace($Uri.Authority, $gridmaster)
-                    Write-Verbose "$($opts.Method) $Uri"
+                    Write-Verbose "$($opts.Method.ToString().ToUpper()) $Uri"
                     Invoke-RestMethod -Uri $Uri @opts
                 } else {
                     Write-Output $response

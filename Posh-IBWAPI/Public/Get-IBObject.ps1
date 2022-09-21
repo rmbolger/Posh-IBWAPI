@@ -108,7 +108,7 @@ function Get-IBObject
             if ($NoPaging) {
                 $UsePaging = $false
             } elseif ([Version]$WAPIVersion -lt [Version]'1.5') {
-                Write-Verbose "Paging disabled for WAPIVersion $WAPIVersion"
+                Write-Verbose "Paging not supported for WAPIVersion $WAPIVersion"
                 $UsePaging = $false
             }
         } else {
@@ -211,7 +211,7 @@ function Get-IBObject
 
     End {
         if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
-        Write-Debug "BatchMode deferred objects: $($deferredObjects.Count)"
+        Write-Verbose "BatchMode deferred objects: $($deferredObjects.Count)"
 
         # build the 'args' value for each object
         $retArgs = @{}
