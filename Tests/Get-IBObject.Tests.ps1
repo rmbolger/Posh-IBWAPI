@@ -20,12 +20,13 @@ Describe "Get-IBObject" {
             Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI { [pscustomobject]@{ result = @(
                 [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'}
             )}}
-            # fake schema results to say d,e,f are fields to query
+            # fake schema results
             Mock Get-IBSchema -ModuleName Posh-IBWAPI { [pscustomobject]@{ fields = @(
                 [pscustomobject]@{ name='d'; supports='r' }
                 [pscustomobject]@{ name='e'; supports='r' }
                 [pscustomobject]@{ name='f'; supports='r' }
             )}}
+            Mock Get-ReadFieldsForType -ModuleName Posh-IBWAPI { @('d','e','f') }
         }
 
         It "Won't ask for return fields when not specified" -TestCases @(
