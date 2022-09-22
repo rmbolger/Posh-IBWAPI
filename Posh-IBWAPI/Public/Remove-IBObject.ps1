@@ -107,13 +107,13 @@ function Remove-IBObject
         The object reference string of the deleted item.
 
     .EXAMPLE
-        $myhost = Get-IBObject -ObjectType 'record:host' -Filters 'name=myhost'
+        $myhost = Get-IBObject -ObjectType 'record:host' -Filter 'name=myhost'
         PS C:\>Remove-IBObject -ObjectRef $myhost._ref
 
         Search for a host record called 'myhost' and delete it.
 
     .EXAMPLE
-        $hostsToDelete = Get-IBObject 'record:host' -Filters 'comment=decommissioned'
+        $hostsToDelete = Get-IBObject 'record:host' -Filter 'comment=decommissioned'
         PS C:\>$hostsToDelete | Remove-IBObject
 
         Search for hosts with their comment set to 'decommissioned' and delete them all.

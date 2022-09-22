@@ -196,20 +196,20 @@ function Set-IBObject
         The object reference string of the modified item or a custom object if -ReturnFields or -ReturnBaseFields was used.
 
     .EXAMPLE
-        $myhost = Get-IBObject -ObjectType 'record:host' -Filters 'name=myhost' -ReturnFields 'comment'
+        $myhost = Get-IBObject -ObjectType 'record:host' -Filter 'name=myhost' -ReturnFields 'comment'
         PS C:\>$myhost.comment = 'new comment'
         PS C:\>Set-IBObject -ObjectRef $myhost._ref -IBObject $myhost
 
         Search for a host record called 'myhost', update the comment field, and save it.
 
     .EXAMPLE
-        $toChange = Get-IBObject -type 'record:host' -Filters 'name~=oldname' -fields 'name'
+        $toChange = Get-IBObject -type 'record:host' -Filter 'name~=oldname' -fields 'name'
         PS C:\>$toChange | %{ $_.name = $_.name.Replace('oldname','newname'); $_ } | Set-IBObject
 
         Find all hosts with 'oldname' in the name, change the references to 'newname', and send them through the pipeline to Set-IBObject for saving.
 
     .EXAMPLE
-        $myhosts = Get-IBObject 'record:host' -Filters 'comment=web server'
+        $myhosts = Get-IBObject 'record:host' -Filter 'comment=web server'
         PS C:\>$myhosts | Set-IBObject -TemplateObject @{comment='db server'}
 
         Find all host records with comment 'web server' and change them to 'db server' with a manually created template

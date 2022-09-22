@@ -15,7 +15,8 @@ function Get-IBObject
 
         [Parameter(ParameterSetName='ByType')]
         [Parameter(ParameterSetName='ByTypeNoPaging')]
-        [string[]]$Filters,
+        [Alias('Filters')]
+        [object]$Filter,
 
         [Parameter(ParameterSetName='ByType')]
         [int]$MaxResults=[int]::MaxValue,
@@ -53,11 +54,47 @@ function Get-IBObject
         $opts.Remove('WAPIHost') | Out-Null
         $opts.Remove('WAPIVersion') | Out-Null
 
-        $queryargs = @()
+        $queryargs = [Collections.Generic.List[string]]::new()
 
-        # process the search fields
-        if ($Filters.Count -gt 0) {
-            $queryargs = @($Filters)
+        # Filter must be one of:
+        #     [string]    like 'name=foo'
+        #     [string[]]  like 'name=foo','view=bar'
+        #     [hashtable] like @{ 'name~'='foo' }
+        # Because filters end up in the URL querystring, they should be properly URL
+        # encoded to avoid WAPI misinterpreting what is being asked for. But historically,
+        # string based filters are assumed to have been properly URL encoded in advance
+        # by the user because if we blindly encoded the input values, the "=" character
+        # separating the field name and value would also be encoded and not work.
+        # Consider this Regex based filter:
+        #     name~=foo\d+
+        # The properly URL encoded version of this should be:
+        #     name%7E=foo%5Cd%2B
+        # The hashtable option was added in 4.0 so that users no longer have to pre-encode
+        # their filters. We can blindly encode the key and value pairs individually before
+        # joining them with a non-encoded "=".
+        if ($Filter) {
+            if ($Filter -is [string]) {
+                # add as-is
+                $queryargs.Add($Filter)
+            }
+            elseif ($Filter -is [array] -and $Filter[0] -is [string]) {
+                # add as-is
+                $queryargs.AddRange([string[]]$Filter)
+            }
+            elseif ($Filter -is [hashtable]) {
+                # URL encode the pairs and join with '=' before adding
+                $Filter.GetEnumerator().foreach{
+                    $queryargs.Add(
+                        ('{0}={1}' -f [Web.HttpUtility]::UrlEncode($_.Key),[Web.HttpUtility]::UrlEncode($_.Value))
+                    )
+                }
+            }
+            else {
+                $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                    "Filter parameter is not a supported type. Must be string, string array, or hashtable.",
+                    $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                ))
+            }
         }
 
         # Process the return field options if there are any and if ReturnAllFields
@@ -67,10 +104,10 @@ function Get-IBObject
         # via _ref.
         if (-not $ReturnAllFields -and $ReturnFields.Count -gt 0) {
             if ($ReturnBaseFields) {
-                $queryargs += "_return_fields%2B=$($ReturnFields -join ',')"
+                $queryargs.Add("_return_fields%2B=$($ReturnFields -join ',')")
             }
             else {
-                $queryargs += "_return_fields=$($ReturnFields -join ',')"
+                $queryargs.Add("_return_fields=$($ReturnFields -join ',')")
             }
         }
 
@@ -88,7 +125,7 @@ function Get-IBObject
         # If set to ‘LOCAL’, the request is processed locally. This option is applicable
         # only on vConnector grid members. The default is ‘LOCAL’.
         if ($ProxySearch) {
-            $queryargs += "_proxy_search=GM"
+            $queryargs.Add("_proxy_search=GM")
         }
 
         if ($BatchMode) {
@@ -136,7 +173,7 @@ function Get-IBObject
                     '_return_fields' = $readFields -join ','
                 }
             } else {
-                $queryargs += "_return_fields=$($readFields -join ',')"
+                $queryargs.Add("_return_fields=$($readFields -join ',')")
             }
         }
 
@@ -246,7 +283,7 @@ function Get-IBObject
         Retrieve objects from the Infoblox database.
 
     .DESCRIPTION
-        Query a specific object's details by specifying ObjectRef or search for a set of objects using ObjectType and optionall Filters. For large result sets, query pagination will automatically be used to fetch all results. The result count can be limited with the -MaxResults parameter.
+        Query a specific object's details by specifying ObjectRef or search for a set of objects using ObjectType and optional Filter arguments. For large result sets, query pagination will automatically be used to fetch all results. The result count can be limited with the -MaxResults parameter.
 
     .PARAMETER ObjectRef
         Object reference string. This is usually found in the "_ref" field of returned objects.
@@ -257,8 +294,8 @@ function Get-IBObject
     .PARAMETER BatchMode
         If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance but if any of the individual calls fail, the whole group is cancelled.
 
-    .PARAMETER Filters
-        An array of search filter conditions. (e.g. "name~=myhost","ipv4addr=10.10.10.10"). All conditions must be satisfied to match an object. See Infoblox WAPI documentation for advanced usage details.
+    .PARAMETER Filter
+        A string array of search filter conditions (e.g. "name%7E=myhost","ipv4addr=10.10.10.10") or hashtable (e.g. @{'name~'='myhost';ipv4addr='10.10.10.10'}). All conditions must be satisfied to match an object. String based filters must be properly URL encoded. Hashtable filters will be automatically URL encoded. See Infoblox WAPI documentation for advanced usage details.
 
     .PARAMETER MaxResults
         If set to a positive number, the results list will be truncated to that number if necessary. If set to a negative number and the results would exceed the absolute value, an error is thrown.
@@ -299,17 +336,17 @@ function Get-IBObject
         Get the basic fields for a specific Host record.
 
     .EXAMPLE
-        Get-IBObject 'record:a' -Filters 'name~=.*\.example.com' -MaxResults 100 -ReturnFields 'comment' -ReturnBaseFields
+        Get-IBObject 'record:a' -Filter 'name~=.*\.example.com' -MaxResults 100 -ReturnFields 'comment' -ReturnBaseFields
 
         Get the first 100 A records in the example.com DNS zone and return the comment field in addition to the basic fields.
 
     .EXAMPLE
-        Get-IBObject -ObjectType 'networkcontainer' -Filters 'network_container=192.168.1.0/19'
+        Get-IBObject -ObjectType 'networkcontainer' -Filter 'network_container=192.168.1.0/19'
 
         Get all network containers that have a parent container of 192.168.1.0/19
 
     .EXAMPLE
-        Get-IBObject -ObjectType 'network' -Filters 'network_container=192.168.1.0/20'
+        Get-IBObject -ObjectType 'network' -Filter 'network_container=192.168.1.0/20'
 
         Get all networks that have a parent container of 192.168.1.0/20
 

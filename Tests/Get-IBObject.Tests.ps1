@@ -36,8 +36,8 @@ Describe "Get-IBObject" {
             @{ splat=@{ ObjectType='fake' } }
             @{ splat=@{ ObjectType='fake'; ReturnBaseFields=$true } }
             @{ splat=@{ ObjectType='fake'; ProxySearch=$true } }
-            @{ splat=@{ ObjectType='fake'; Filters='flt1=foo' } }
-            @{ splat=@{ ObjectType='fake'; Filters='flt1=foo','flt2=bar' } }
+            @{ splat=@{ ObjectType='fake'; Filter='flt1=foo' } }
+            @{ splat=@{ ObjectType='fake'; Filter='flt1=foo','flt2=bar' } }
             @{ splat=@{ ObjectType='fake'; MaxResults=10 } }
             @{ splat=@{ ObjectType='fake'; MaxResults=-10 } }
             @{ splat=@{ ObjectType='fake'; PageSize=10 } }
@@ -89,7 +89,7 @@ Describe "Get-IBObject" {
         }
     }
 
-    Context "Filters" {
+    Context "Filter" {
 
         BeforeAll {
             Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI { [pscustomobject]@{ result = @(
@@ -98,17 +98,17 @@ Describe "Get-IBObject" {
         }
 
         It "Asks for specified filters" -TestCases @(
-            @{ splat=@{ ObjectType='fake'; Filters='arg1=foo' } }
-            @{ splat=@{ ObjectType='fake'; Filters='arg1!=foo' } }
-            @{ splat=@{ ObjectType='fake'; Filters='arg1~=foo' } }
-            @{ splat=@{ ObjectType='fake'; Filters='arg1<=foo' } }
-            @{ splat=@{ ObjectType='fake'; Filters='arg1>=foo' } }
-            @{ splat=@{ ObjectType='fake'; Filters='arg1=foo','arg2=bar' } }
+            @{ splat=@{ ObjectType='fake'; Filter='arg1=foo' } }
+            @{ splat=@{ ObjectType='fake'; Filter='arg1!=foo' } }
+            @{ splat=@{ ObjectType='fake'; Filter='arg1~=foo' } }
+            @{ splat=@{ ObjectType='fake'; Filter='arg1<=foo' } }
+            @{ splat=@{ ObjectType='fake'; Filter='arg1>=foo' } }
+            @{ splat=@{ ObjectType='fake'; Filter='arg1=foo','arg2=bar' } }
         ) {
             Get-IBObject @splat | Out-Null
 
             Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
-                $Uri.OriginalString -like "*$($splat.Filters -join '&')*"
+                $Uri.OriginalString -like "*$($splat.Filter -join '&')*"
             }
         }
     }
