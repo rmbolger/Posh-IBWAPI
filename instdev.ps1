@@ -1,4 +1,4 @@
-#Requires -Version 3.0
+#Requires -Version 5.1
 
 # set the user module path based on edition and platform
 if ('PSEdition' -notin $PSVersionTable.Keys -or $PSVersionTable.PSEdition -eq 'Desktop') {

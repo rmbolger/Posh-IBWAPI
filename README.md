@@ -133,9 +133,9 @@ For more examples, check the wiki page [The definitive list of REST examples](ht
 
 # Requirements and Platform Support
 
-* Supports Windows PowerShell 3.0 or later (Desktop edition) **with .NET Framework 4.5** or later
-* Supports [Powershell](https://github.com/PowerShell/PowerShell) 6.0 or later (Core edition) on all supported OS platforms.
-* Tested against NIOS 7.3.x and 8.x.
+* Supports Windows PowerShell 5.1 (Desktop edition) with .NET Framework 4.5.2 or later
+* Supports [Powershell](https://github.com/PowerShell/PowerShell) 7.0 or later (Core edition) on all supported OS platforms.
+* Supports any NIOS/WAPI version, but only regularly tested against Infoblox supported versions.
 
 # Changelog
 

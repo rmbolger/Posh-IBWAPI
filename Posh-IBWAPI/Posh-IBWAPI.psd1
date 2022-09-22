@@ -4,9 +4,15 @@ RootModule = 'Posh-IBWAPI.psm1'
 ModuleVersion = '3.2.2'
 GUID = '1483924a-a8bd-446f-ba0a-25443bcec77e'
 Author = 'Ryan Bolger'
-Copyright = '(c) 2017-2020 Ryan Bolger. All rights reserved.'
+Copyright = '(c) 2017-2022 Ryan Bolger. All rights reserved.'
 Description = 'Infoblox WAPI (REST API) related commands.'
-PowerShellVersion = '3.0'
+CompatiblePSEditions = @('Desktop','Core')
+PowerShellVersion = '5.1'
+DotNetFrameworkVersion = '4.5.2'
+
+RequiredAssemblies = @(
+    'System.Web'
+)
 
 FormatsToProcess = 'Posh-IBWAPI.Format.ps1xml'
 
@@ -34,7 +40,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Infoblox','IPAM','WAPI','REST','PSEdition_Desktop','PSEdition_Core','Linux','Mac'
+        Tags = 'Infoblox','IPAM','WAPI','REST','Linux','Mac'
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/rmbolger/Posh-IBWAPI/blob/main/LICENSE'

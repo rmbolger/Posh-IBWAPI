@@ -18,11 +18,11 @@ cd \path\to\Posh-IBWAPI
 # Windows PowerShell
 powershell.exe -C "Invoke-Pester"
 
-# PowerShell 6+
+# PowerShell 7+
 pwsh.exe -C "Invoke-Pester"
 ```
 
-Keep in mind, the tests should be able to pass on Windows with PowerShell as old as 3.0 with .NET 4.5. They should also pass with PowerShell 6+ on any OS.
+Keep in mind, the tests should be able to pass on Windows with PowerShell as old as 5.1 with .NET 4.5.2. They should also pass with PowerShell 7+ on any OS.
 
 ## The Wiki
 
