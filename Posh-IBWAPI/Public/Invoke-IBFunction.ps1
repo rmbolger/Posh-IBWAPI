@@ -34,24 +34,17 @@ function Invoke-IBFunction
 
     Process {
 
-        $uri = "$APIBase$($ObjectRef)?_function=$($FunctionName)"
-
-        if ($FunctionArgs) {
-            # convert the function body to json
-            $bodyJson = $FunctionArgs | ConvertTo-Json -Compress -Depth 5
-            $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
-            Write-Verbose "JSON body:`n$($FunctionArgs | ConvertTo-Json -Depth 5)"
-
-            # make the call
-            if ($PSCmdlet.ShouldProcess($uri, "POST")) {
-                Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
-            }
+        $queryParams = @{
+            Method = 'Post'
+            Uri = '{0}{1}?_function={2}' -f $APIBase,$ObjectRef,$FunctionName
         }
-        else {
-            # make the call
-            if ($PSCmdlet.ShouldProcess($uri, "POST")) {
-                Invoke-IBWAPI -Method Post -Uri $uri @opts
-            }
+        if ($FunctionArgs) {
+            $queryParams.Body = $FunctionArgs
+        }
+
+        # make the call
+        if ($PSCmdlet.ShouldProcess($queryParams.Uri, "POST")) {
+            Invoke-IBWAPI @queryParams @opts
         }
 
     }

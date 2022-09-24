@@ -7,7 +7,7 @@ function Invoke-IBWAPI
         [Microsoft.PowerShell.Commands.WebRequestMethod]$Method=([Microsoft.PowerShell.Commands.WebRequestMethod]::Get),
         [PSCredential]$Credential,
         [Object]$Body,
-        [string]$ContentType='application/json; charset=utf-8',
+        [string]$ContentType = 'application/json; charset=utf-8',
         [string]$OutFile,
         [string]$SessionVariable,
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
@@ -29,16 +29,44 @@ function Invoke-IBWAPI
     # back on. This issue only affects the Desktop edition.
     ###########################################################################
 
-    # Build a hashtable out of our optional parameters that we will later
-    # send to Invoke-RestMethod via splatting
-    # https://msdn.microsoft.com/en-us/powershell/reference/5.1/microsoft.powershell.core/about/about_splatting
-    $opts = @{Verbose = $false}
-    $paramNames = 'Method','Credential','Body','ContentType','OutFile','WebSession'
-    $PSBoundParameters.Keys | Where-Object { $_ -in $paramNames } | ForEach-Object { $opts.$_ = $PSBoundParameters.$_ }
+    # Build a hashtable of parameters that we will later send to Invoke-RestMethod via splatting
+    $opts = @{
+        Uri         = $Uri          # mandatory param
+        Method      = $Method       # has default value, should always exist
+        ContentType = $ContentType  # has default value, should always exist
+        Verbose     = $false
+        ErrorAction = 'Stop'
+    }
+    if ($PSBoundParameters.Credential) { $opts.Credential = $PSBoundParameters.Credential }
+    if ($PSBoundParameters.OutFile)    { $opts.OutFile    = $PSBoundParameters.OutFile }
+    if ($PSBoundParameters.WebSession) { $opts.WebSession = $PSBoundParameters.WebSession }
 
-    # parameters with default values don't appear in $PSBoundParameters, so we need to add manually
-    if (-not $opts.Method) { $opts.Method = $Method }
-    if (-not $opts.ContentType) { $opts.ContentType = $ContentType }
+    if ($Body) {
+        # If the ContentType was explicitly specified, we're going to assume the caller
+        # wants the body passed to Invoke-RestMethod as-is. Otherwise, we're going to try
+        # and make sure we send properly UTF-8 encoded JSON so non-ASCII characters don't
+        # get messed up.
+        if ($PSBoundParameters.ContentType) {
+            Write-Debug "Using Body as-is"
+            $opts.Body = $Body
+            $bodyDebug = $Body
+        }
+        elseif ($Body -is [string]) {
+            # A string value may or may not be valid JSON, but we're goint to UTF-8 encode
+            # encode it anyway because the ContentType still claims it is.
+            Write-Debug "UTF-8 encoding string Body"
+            $opts.Body = [Text.Encoding]::UTF8.GetBytes($Body)
+            $bodyDebug = $Body
+        }
+        else {
+            # All that's left is some sort of object that should be JSON convertable
+            Write-Debug "Converting Body to JSON and UTF-8 encoding"
+            $opts.Body = [Text.Encoding]::UTF8.GetBytes(
+                ($Body | ConvertTo-Json -Compress -Depth 5)
+            )
+            $bodyDebug = $Body | ConvertTo-Json -Depth 5
+        }
+    }
 
     # add Core edition parameters if necessary
     if ($SkipCertificateCheck -and $script:SkipCertSupported) {
@@ -54,7 +82,7 @@ function Invoke-IBWAPI
     # deal with session stuff
     if ($opts.WebSession) {
         Write-Debug "using explicit session"
-    } elseif ($savedSession = Get-IBSession $Uri $opts.Credential) {
+    } elseif ($savedSession = Get-IBSession $opts.Uri $opts.Credential) {
         $opts.WebSession = $savedSession
     } else {
         Write-Debug "creating new session"
@@ -70,21 +98,25 @@ function Invoke-IBWAPI
         }
 
         try {
-            if ($PSCmdlet.ShouldProcess($Uri, $opts.Method)) {
+            $methodUpper = $opts.Method.ToString().ToUpper()
+
+            if ($PSCmdlet.ShouldProcess($opts.Uri, $methodUpper)) {
 
                 # send the request
-                Write-Verbose "$($opts.Method.ToString().ToUpper()) $Uri"
-                $response = Invoke-RestMethod -Uri $Uri @opts
+                Write-Verbose "$methodUpper $($opts.Uri)"
+                if ($bodyDebug) { Write-Verbose "Body:`n$bodyDebug" }
+                $response = Invoke-RestMethod @opts
 
                 # attempt to detect a master candidate's meta refresh tag
                 if ($response -is [Xml.XmlDocument] -and $response.OuterXml -match 'CONTENT="0; URL=https://(?<gm>[\w.]+)"') {
                     $gridmaster = $matches.gm
-                    Write-Warning "WAPIHost $($Uri.Authority) is requesting a redirect to $gridmaster. Retrying request against that host."
+                    Write-Warning "WAPIHost $($opts.Uri.Authority) is requesting a redirect to $gridmaster. Retrying request against that host."
 
                     # retry the request using the parsed grid master
-                    $Uri = [uri]$Uri.ToString().Replace($Uri.Authority, $gridmaster)
-                    Write-Verbose "$($opts.Method.ToString().ToUpper()) $Uri"
-                    Invoke-RestMethod -Uri $Uri @opts
+                    $opts.Uri = [uri]$opts.Uri.ToString().Replace($opts.Uri.Authority, $gridmaster)
+                    Write-Verbose "$methodUpper $($opts.Uri)"
+                    if ($bodyDebug) { Write-Verbose "Body:`n$bodyDebug" }
+                    Invoke-RestMethod @opts
                 } else {
                     Write-Output $response
                 }
@@ -100,7 +132,7 @@ function Invoke-IBWAPI
                     }
 
                     # save the session variable internally to re-use later
-                    Set-IBSession $Uri $opts.Credential $innerSession
+                    Set-IBSession $opts.Uri $opts.Credential $innerSession
                 }
 
             }
@@ -198,10 +230,10 @@ function Invoke-IBWAPI
         Username and password for the Infoblox appliance. This parameter is required unless -WebSession is specified.
 
     .PARAMETER Body
-        The body of the request. This is usually a JSON string if needed. NOTE: If you have non-ASCII characters, you may need to explicitly encode your JSON body as UTF-8. For example, [Text.Encoding]::UTF8.GetBytes($body).
+        The body of the request. This is usually either a JSON string or an object that will be converted to JSON automatically by the function. If the ContentType parameter is used, this function will not attempt to automatically convert the Body to JSON.
 
     .PARAMETER ContentType
-        The Content-Type header for the request. Default is 'application/json; charset=utf-8'.
+        The Content-Type header for the request. Default is 'application/json; charset=utf-8'. If specified along with a Body parameter, the Body will not be modified before being passed to the WAPI.
 
     .PARAMETER OutFile
         Specifies the output file that this cmdlet saves the response body. Enter a path and file name. If you omit the path, the default is the current location.

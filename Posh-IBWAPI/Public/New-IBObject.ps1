@@ -62,13 +62,13 @@ function New-IBObject
         }
 
         # process the object now
-        $bodyJson = $IBObject | ConvertTo-Json -Compress -Depth 5
-        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
-        Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json -Depth 5)"
-
-        $uri = '{0}{1}{2}' -f $APIBase,$ObjectType,$querystring
-        if ($PSCmdlet.ShouldProcess($uri, "POST")) {
-            Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
+        $queryParams = @{
+            Method = 'Post'
+            Uri = '{0}{1}{2}' -f $APIBase,$ObjectType,$querystring
+            Body = $IBObject
+        }
+        if ($PSCmdlet.ShouldProcess($queryParams.Uri, "POST")) {
+            Invoke-IBWAPI @queryParams @opts
         }
     }
 
@@ -89,19 +89,18 @@ function New-IBObject
         }
 
         # build the json for all the objects
-        $bodyJson = $deferredObjects | ForEach-Object {
+        $body = $deferredObjects | ForEach-Object {
             @{
                 method = 'POST'
                 object = $ObjectType
                 data = $_
                 args = $retArgs
             }
-        } | ConvertTo-Json -Compress -Depth 5
-        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
+        }
 
         $uri = '{0}request' -f $APIBase
         if ($PSCmdlet.ShouldProcess($uri, 'POST')) {
-            Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
+            Invoke-IBWAPI -Method Post -Uri $uri -Body $body @opts
         }
 
     }

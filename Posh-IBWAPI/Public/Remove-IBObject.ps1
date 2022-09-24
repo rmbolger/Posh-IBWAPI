@@ -57,17 +57,16 @@ function Remove-IBObject
         Write-Verbose "BatchMode deferred objects: $($deferredObjects.Count)"
 
         # build the json for all the objects
-        $bodyJson = $deferredObjects | ForEach-Object {
+        $body = $deferredObjects | ForEach-Object {
             @{
                 method = 'DELETE'
                 object = $_
             }
-        } | ConvertTo-Json -Compress -Depth 5
-        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
+        }
 
         $uri = '{0}request' -f $APIBase
         if ($PSCmdlet.ShouldProcess($uri, 'POST')) {
-            Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
+            Invoke-IBWAPI -Method Post -Uri $uri -Body $body @opts
         }
 
     }

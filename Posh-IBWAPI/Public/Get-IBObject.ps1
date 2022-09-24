@@ -263,17 +263,16 @@ function Get-IBObject
         }
 
         # build the json for all the objects
-        $bodyJson = $deferredObjects | ForEach-Object {
+        $body = $deferredObjects | ForEach-Object {
             @{
                 method = 'GET'
                 object = $_.object
                 args = if ($_.args) { $_.args } else { $retArgs }
             }
-        } | ConvertTo-Json -Compress -Depth 5
-        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
+        }
 
         $uri = '{0}request' -f $APIBase
-        Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
+        Invoke-IBWAPI -Method Post -Uri $uri -Body $body @opts
     }
 
 

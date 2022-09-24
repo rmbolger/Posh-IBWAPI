@@ -84,14 +84,9 @@ function Set-IBObject
             $TemplateObject = $IBObject
         }
 
-        # create the json body
-        $bodyJson = $TemplateObject | ConvertTo-Json -Compress -Depth 5
-        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
-        Write-Verbose "JSON body:`n$($TemplateObject | ConvertTo-Json -Depth 5)"
-
         $uri = '{0}{1}{2}' -f $APIBase,$ObjectRef,$querystring
         if ($PsCmdlet.ShouldProcess($uri, 'PUT')) {
-            Invoke-IBWAPI -Method Put -Uri $uri -Body $bodyJson @opts
+            Invoke-IBWAPI -Method Put -Uri $uri -Body $TemplateObject @opts
         }
     }
 
@@ -112,7 +107,7 @@ function Set-IBObject
         }
 
         # build the json for all the objects
-        $bodyJson = $deferredObjects | ForEach-Object {
+        $body = $deferredObjects | ForEach-Object {
 
             if ('ObjectOnly' -eq $PsCmdlet.ParameterSetName) {
 
@@ -137,17 +132,16 @@ function Set-IBObject
                 data = $TemplateObject
                 args = $retArgs
             }
-        } | ConvertTo-Json -Compress -Depth 5
+        }
 
-        if ([String]::IsNullOrWhiteSpace($bodyJson)) {
+        if (-not $body) {
             Write-Warning "No batched objects to update. WAPI call cancelled."
             return
         }
-        $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
 
         $uri = '{0}request' -f $APIBase
         if ($PSCmdlet.ShouldProcess($uri, 'POST')) {
-            Invoke-IBWAPI -Method Post -Uri $uri -Body $bodyJson @opts
+            Invoke-IBWAPI -Method Post -Uri $uri -Body $body @opts
         }
 
     }
