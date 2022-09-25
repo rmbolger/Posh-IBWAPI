@@ -43,7 +43,10 @@ function Get-IBSchema {
         Write-Debug "Set highest version: $($sCache.HighestVersion)"
     }
     if ([Version]$sCache.HighestVersion -lt [Version]'1.7.5') {
-        throw "NIOS WAPI $($sCache.HighestVersion) doesn't support schema queries"
+        $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+            "NIOS WAPI $($sCache.HighestVersion) doesn't support schema queries",
+            $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+        ))
     }
 
     # cache some base schema stuff that we'll potentially need later
@@ -75,7 +78,11 @@ function Get-IBSchema {
         if ($objMatches.count -gt 1) {
             # multiple matches
             $message = "Multiple object matches found for $($ObjectType)"
-            if ($Raw) { throw $message }
+            if ($Raw) {
+                $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                    $message,$null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                ))
+            }
             Write-Output "$($message):"
             $objMatches | ForEach-Object { Write-Output $_ }
             return
@@ -87,7 +94,11 @@ function Get-IBSchema {
             if ($objMatches.count -gt 1) {
                 # multiple matches
                 $message = "Multiple object matches found for $($ObjectType)"
-                if ($Raw) { throw $message }
+                if ($Raw) {
+                    $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                        $message,$null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                    ))
+                }
                 Write-Output "$($message):"
                 $objMatches | ForEach-Object { Write-Output $_ }
                 return
@@ -95,7 +106,11 @@ function Get-IBSchema {
             elseif ($objMatches.count -eq 0) {
                 # no matches, even with wildcards
                 $message = "No matches found for $($ObjectType)"
-                if ($Raw) { throw $message }
+                if ($Raw) {
+                    $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                        $message,$null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                    ))
+                }
                 else { Write-Warning $message }
                 return
             } else {

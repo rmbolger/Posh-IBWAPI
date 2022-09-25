@@ -41,7 +41,10 @@ function Set-IBConfig
             Write-Debug "Using current profile $ProfileName"
         } else {
             # can't do anything with no current profile
-            throw "ProfileName not specified and no active profile to modify."
+            $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                "ProfileName not specified and no active profile to modify.",
+                $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+            ))
         }
     }
 
@@ -50,7 +53,10 @@ function Set-IBConfig
         Write-Debug "WAPIHost set to $($cfg.WAPIHost)"
     } elseif (-not $cfg.WAPIHost) {
         # we don't allow new profiles with no host
-        throw "New profiles must contain a WAPIHost."
+        $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+            "New profiles must contain a WAPIHost.",
+            $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+        ))
     }
 
     if ($Credential) {
@@ -58,7 +64,10 @@ function Set-IBConfig
         Write-Debug "Credential set to $($cfg.Credential.Username)"
     } elseif (-not $cfg.Credential) {
         # we don't allow new profiles with no credential
-        throw "New profiles must contain a Credential."
+        $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+            "New profiles must contain a Credential.",
+            $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+        ))
     }
 
     # SkipCertificateCheck defaults to false, but can also be explicitly set to false
@@ -82,7 +91,10 @@ function Set-IBConfig
         Write-Debug "WAPIVersion set to $($cfg.WAPIVersion)"
     } elseif (-not $cfg.WAPIVersion) {
         # we don't allow new profiles with no WAPIVersion
-        throw "New profiles must contain a WAPIVersion."
+        $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+            "New profiles must contain a WAPIVersion.",
+            $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+        ))
     }
 
     # deal with profile renames and add/overwrite the new/old profile

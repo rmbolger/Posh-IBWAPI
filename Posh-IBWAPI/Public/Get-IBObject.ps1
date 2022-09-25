@@ -227,18 +227,24 @@ function Get-IBObject
                 # A normal response from WAPI will contain a 'result' object even
                 # if that object is empty because it couldn't find anything.
                 # But if there's no result object, something is wrong.
-                throw "No 'result' object found in server response"
+                $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                    "No 'result' object found in server response",
+                    $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                ))
             }
             $resultCount += $response.result.Count
             $response.result
 
         } while ($response.next_page_id -and $resultCount -lt $MaxResults)
 
-        # Throw an error if they specified a negative MaxResults value and the result
+        # Error if they specified a negative MaxResults value and the result
         # count exceeds that value. Otherwise, just truncate the results to the MaxResults
         # value. This is basically copying how the _max_results query string argument works.
         if ($ErrorOverMax -and $resultCount -gt $MaxResults) {
-            throw [Exception] "Result count exceeded MaxResults parameter."
+            $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
+                "Result count exceeded MaxResults parameter.",
+                $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+            ))
         }
         else {
             $results | Select-Object -First $MaxResults
