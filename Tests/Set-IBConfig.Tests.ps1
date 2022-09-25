@@ -1,20 +1,20 @@
-BeforeAll {
-    Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
-
-    # setup fake profile export location
-    $fakeConfigFolder = 'TestDrive:\config'
-    $fakeConfigFile   = 'TestDrive:\config\posh-ibwapi.json'
-
-    # setup fake credentials to use
-    $fakePass1 = ConvertTo-SecureString 'password1' -AsPlainText -Force
-    $fakeCred1 = New-Object PSCredential 'admin1',$fakePass1
-    $fakePass2 = ConvertTo-SecureString 'password2' -AsPlainText -Force
-    $fakeCred2 = New-Object PSCredential 'admin2',$fakePass2
-}
-
 Describe "Set-IBConfig" {
 
     BeforeAll {
+        $env:LOCALAPPDATA = 'TestDrive:\'
+        $env:HOME = 'TestDrive:\'
+        Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
+
+        # setup fake profile export location
+        $fakeConfigFolder = 'TestDrive:\config'
+        $fakeConfigFile   = 'TestDrive:\config\posh-ibwapi.json'
+
+        # setup fake credentials to use
+        $fakePass1 = ConvertTo-SecureString 'password1' -AsPlainText -Force
+        $fakeCred1 = New-Object PSCredential 'admin1',$fakePass1
+        $fakePass2 = ConvertTo-SecureString 'password2' -AsPlainText -Force
+        $fakeCred2 = New-Object PSCredential 'admin2',$fakePass2
+
         Mock -ModuleName Posh-IBWAPI Get-ConfigFolder { $fakeConfigFolder }
         Mock -ModuleName Posh-IBWAPI Get-ConfigFile { $fakeConfigFile }
         Mock -ModuleName Posh-IBWAPI HighestVer { '99' }

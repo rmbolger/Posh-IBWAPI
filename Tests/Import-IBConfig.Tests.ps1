@@ -1,67 +1,69 @@
-BeforeAll {
-    Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
-
-    # setup fake profile export location
-    $fakeConfigFolder = 'TestDrive:\config'
-    $fakeConfigFile   = 'TestDrive:\config\posh-ibwapi.json'
-
-    # setup fake credentials to use
-    $fakePass1 = ConvertTo-SecureString 'password1' -AsPlainText -Force
-    $fakeCred1 = New-Object PSCredential 'admin1',$fakePass1
-    $fakePass2 = ConvertTo-SecureString 'password2' -AsPlainText -Force
-    $fakeCred2 = New-Object PSCredential 'admin2',$fakePass2
-
-    # setup fake V1 config
-    $fakeV1Config = @{
-        CurrentHost = 'gm1'
-        Hosts = @{
-            'gm1' = @{
-                WAPIHost = 'gm1'
-                WAPIVersion = '1.0'
-                Credential = @{
-                    Username = $fakeCred1.UserName
-                    Password = $fakeCred1.Password | ConvertFrom-SecureString
-                }
-            }
-            'gm2' = @{
-                WAPIHost = 'gm2'
-                WAPIVersion = '2.0'
-                Credential = @{
-                    Username = $fakeCred2.UserName
-                    Password = $fakeCred2.Password | ConvertFrom-SecureString
-                }
-                IgnoreCertificateValidation = $true
-            }
-        }
-    }
-
-    # setup fake current config
-    $fakeConfig = @{
-        CurrentProfile = 'prof1'
-        Profiles = @{
-            'prof1' = @{
-                WAPIHost = 'gm1'
-                WAPIVersion = '1.0'
-                Credential = @{
-                    Username = $fakeCred1.UserName
-                    Password = $fakeCred1.Password | ConvertFrom-SecureString
-                }
-                SkipCertificateCheck = $false
-            }
-            'prof2' = @{
-                WAPIHost = 'gm2'
-                WAPIVersion = '2.0'
-                Credential = @{
-                    Username = $fakeCred2.UserName
-                    Password = $fakeCred2.Password | ConvertFrom-SecureString
-                }
-                SkipCertificateCheck = $true
-            }
-        }
-    }
-}
-
 Describe "Import-IBConfig" {
+
+    BeforeAll {
+        $env:LOCALAPPDATA = 'TestDrive:\'
+        $env:HOME = 'TestDrive:\'
+        Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
+
+        # setup fake profile export location
+        $fakeConfigFolder = 'TestDrive:\config'
+        $fakeConfigFile   = 'TestDrive:\config\posh-ibwapi.json'
+
+        # setup fake credentials to use
+        $fakePass1 = ConvertTo-SecureString 'password1' -AsPlainText -Force
+        $fakeCred1 = New-Object PSCredential 'admin1',$fakePass1
+        $fakePass2 = ConvertTo-SecureString 'password2' -AsPlainText -Force
+        $fakeCred2 = New-Object PSCredential 'admin2',$fakePass2
+
+        # setup fake V1 config
+        $fakeV1Config = @{
+            CurrentHost = 'gm1'
+            Hosts = @{
+                'gm1' = @{
+                    WAPIHost = 'gm1'
+                    WAPIVersion = '1.0'
+                    Credential = @{
+                        Username = $fakeCred1.UserName
+                        Password = $fakeCred1.Password | ConvertFrom-SecureString
+                    }
+                }
+                'gm2' = @{
+                    WAPIHost = 'gm2'
+                    WAPIVersion = '2.0'
+                    Credential = @{
+                        Username = $fakeCred2.UserName
+                        Password = $fakeCred2.Password | ConvertFrom-SecureString
+                    }
+                    IgnoreCertificateValidation = $true
+                }
+            }
+        }
+
+        # setup fake current config
+        $fakeConfig = @{
+            CurrentProfile = 'prof1'
+            Profiles = @{
+                'prof1' = @{
+                    WAPIHost = 'gm1'
+                    WAPIVersion = '1.0'
+                    Credential = @{
+                        Username = $fakeCred1.UserName
+                        Password = $fakeCred1.Password | ConvertFrom-SecureString
+                    }
+                    SkipCertificateCheck = $false
+                }
+                'prof2' = @{
+                    WAPIHost = 'gm2'
+                    WAPIVersion = '2.0'
+                    Credential = @{
+                        Username = $fakeCred2.UserName
+                        Password = $fakeCred2.Password | ConvertFrom-SecureString
+                    }
+                    SkipCertificateCheck = $true
+                }
+            }
+        }
+    }
 
     Context "No existing config" {
 

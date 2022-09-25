@@ -9,6 +9,8 @@ Describe "Initialize-CallVars" {
     $cred3 = New-Object PSCredential 'admin3',$pass2
 
     BeforeAll {
+        $env:LOCALAPPDATA = 'TestDrive:\'
+        $env:HOME = 'TestDrive:\'
         Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
 
         # setup fake profiles for mocking with

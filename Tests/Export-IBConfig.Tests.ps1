@@ -1,31 +1,33 @@
-BeforeAll {
-    Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
-
-    # setup fake profile export location
-    $fakeConfigFolder = 'TestDrive:\config'
-    $fakeConfigFile   = 'TestDrive:\config\posh-ibwapi.json'
-
-    # setup fake profiles for mocking with
-    $fakePass1 = ConvertTo-SecureString 'password1' -AsPlainText -Force
-    $fakeCred1 = New-Object PSCredential 'admin1',$fakePass1
-    $prof1 = @{
-        WAPIHost = 'gm1'
-        WAPIVersion = '1.0'
-        Credential = $fakeCred1
-        SkipCertificateCheck = $false
-    }
-
-    $fakePass2 = ConvertTo-SecureString 'password2' -AsPlainText -Force
-    $fakeCred2 = New-Object PSCredential 'admin2',$fakePass2
-    $prof2 = @{
-        WAPIHost = 'gm2'
-        WAPIVersion = '2.0'
-        Credential = $fakeCred2
-        SkipCertificateCheck = $true
-    }
-}
-
 Describe "Export-IBConfig" {
+
+    BeforeAll {
+        $env:LOCALAPPDATA = 'TestDrive:\'
+        $env:HOME = 'TestDrive:\'
+        Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
+
+        # setup fake profile export location
+        $fakeConfigFolder = 'TestDrive:\config'
+        $fakeConfigFile   = 'TestDrive:\config\posh-ibwapi.json'
+
+        # setup fake profiles for mocking with
+        $fakePass1 = ConvertTo-SecureString 'password1' -AsPlainText -Force
+        $fakeCred1 = [pscredential]::new('admin1',$fakePass1)
+        $prof1 = @{
+            WAPIHost = 'gm1'
+            WAPIVersion = '1.0'
+            Credential = $fakeCred1
+            SkipCertificateCheck = $false
+        }
+
+        $fakePass2 = ConvertTo-SecureString 'password2' -AsPlainText -Force
+        $fakeCred2 = New-Object PSCredential 'admin2',$fakePass2
+        $prof2 = @{
+            WAPIHost = 'gm2'
+            WAPIVersion = '2.0'
+            Credential = $fakeCred2
+            SkipCertificateCheck = $true
+        }
+    }
 
     Context "No profiles" {
 

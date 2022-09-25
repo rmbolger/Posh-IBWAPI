@@ -1,6 +1,8 @@
 Describe "Get-IBObject" {
 
     BeforeAll {
+        $env:LOCALAPPDATA = 'TestDrive:\'
+        $env:HOME = 'TestDrive:\'
         Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
 
         $pass1 = ConvertTo-SecureString 'pass1' -AsPlainText -Force
