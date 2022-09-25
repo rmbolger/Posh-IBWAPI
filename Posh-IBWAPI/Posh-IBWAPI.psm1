@@ -25,7 +25,7 @@ if ($PSEdition -eq 'Core' -and $PSVersionTable.PSVersion -lt [version]'7.0') {
 }
 
 # Set the persistent config file path based on edition/platform
-if ('PSEdition' -notin $PSVersionTable.Keys -or $PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) {
+if (-not $PSEdition -or $PSEdition -eq 'Desktop' -or $IsWindows) {
     $script:ConfigFolder = $env:LOCALAPPDATA
 } elseif ($IsLinux) {
     $script:ConfigFolder = Join-Path $env:HOME '.config'
