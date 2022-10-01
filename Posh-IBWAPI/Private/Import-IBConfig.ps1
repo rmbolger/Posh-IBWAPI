@@ -28,15 +28,10 @@ function Import-IBConfig
     }
 
     $propNames = @($json.PSObject.Properties.Name)
-    $backup1x = $false
 
     # grab the current profile
     if ('CurrentProfile' -in $propNames) {
         Set-CurrentProfile $json.CurrentProfile
-    } elseif ('CurrentHost' -in $propNames) {
-        # allow for legacy 1.x config import
-        Set-CurrentProfile $json.CurrentHost
-        $backup1x = $true
     }
 
     # load the rest of the profiles
@@ -55,30 +50,6 @@ function Import-IBConfig
                 $profiles.$_.SkipCertificateCheck = $true
             }
         }
-    } elseif ('Hosts' -in $propNames) {
-        # allow for legacy 1.x config import
-        $json.Hosts.PSObject.Properties.Name | ForEach-Object {
-            $profiles.$_ = @{
-                WAPIHost    = $json.Hosts.$_.WAPIHost
-                WAPIVersion = $json.Hosts.$_.WAPIVersion
-                Credential  = $null
-                SkipCertificateCheck = $false
-            }
-            if ('Credential' -in $json.Hosts.$_.PSObject.Properties.Name) {
-                $profiles.$_.Credential = (Import-IBCred $json.Hosts.$_.Credential $_)
-            }
-            if ($json.Hosts.$_.IgnoreCertificateValidation) {
-                $profiles.$_.SkipCertificateCheck = $true
-            }
-        }
-        $backup1x = $true
-    }
-
-    # backup the old 1.x config file and save the new version
-    if ($backup1x) {
-        Write-Verbose "Backing up imported v1 config file"
-        Copy-Item $configFile "$configFile.v1" -Force
-        Export-IBConfig
     }
 
 }
