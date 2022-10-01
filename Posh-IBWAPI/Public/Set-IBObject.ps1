@@ -74,7 +74,7 @@ function Set-IBObject
             # get the ObjectRef from the input object
             if (-not $IBObject._ref) {
                 $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
-                    "IBObject is missing '_ref' field.", $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                    "IBObject is missing '_ref' field.", $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
                 ))
                 return
             }
@@ -114,7 +114,7 @@ function Set-IBObject
                 # get the ObjectRef from the input object
                 if (-not $_._ref) {
                     $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
-                        "IBObject is missing '_ref' field.", $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                        "IBObject is missing '_ref' field.", $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
                     ))
                     return
                 }

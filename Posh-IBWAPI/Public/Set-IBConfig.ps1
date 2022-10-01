@@ -43,7 +43,7 @@ function Set-IBConfig
             # can't do anything with no current profile
             $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
                 "ProfileName not specified and no active profile to modify.",
-                $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
             ))
         }
     }
@@ -55,7 +55,7 @@ function Set-IBConfig
         # we don't allow new profiles with no host
         $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
             "New profiles must contain a WAPIHost.",
-            $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+            $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
         ))
     }
 
@@ -66,7 +66,7 @@ function Set-IBConfig
         # we don't allow new profiles with no credential
         $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
             "New profiles must contain a Credential.",
-            $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+            $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
         ))
     }
 
@@ -93,7 +93,7 @@ function Set-IBConfig
         # we don't allow new profiles with no WAPIVersion
         $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
             "New profiles must contain a WAPIVersion.",
-            $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+            $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
         ))
     }
 

@@ -45,7 +45,7 @@ function Get-IBSchema {
     if ([Version]$sCache.HighestVersion -lt [Version]'1.7.5') {
         $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
             "NIOS WAPI $($sCache.HighestVersion) doesn't support schema queries",
-            $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+            $null, [Management.Automation.ErrorCategory]::InvalidOperation, $null
         ))
     }
 
@@ -80,7 +80,7 @@ function Get-IBSchema {
             $message = "Multiple object matches found for $($ObjectType)"
             if ($Raw) {
                 $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
-                    $message,$null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                    $message,$null, [Management.Automation.ErrorCategory]::LimitsExceeded, $null
                 ))
             }
             Write-Output "$($message):"
@@ -96,7 +96,7 @@ function Get-IBSchema {
                 $message = "Multiple object matches found for $($ObjectType)"
                 if ($Raw) {
                     $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
-                        $message,$null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                        $message,$null, [Management.Automation.ErrorCategory]::LimitsExceeded, $null
                     ))
                 }
                 Write-Output "$($message):"
@@ -108,7 +108,7 @@ function Get-IBSchema {
                 $message = "No matches found for $($ObjectType)"
                 if ($Raw) {
                     $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
-                        $message,$null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                        $message,$null, [Management.Automation.ErrorCategory]::ObjectNotFound, $null
                     ))
                 }
                 else { Write-Warning $message }

@@ -188,7 +188,7 @@ function Invoke-IBWAPI
 
             } else {
                 $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
-                    $_, $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                    $_, $null, [Management.Automation.ErrorCategory]::InvalidOperation, $null
                 ))
                 return
             }
@@ -196,11 +196,11 @@ function Invoke-IBWAPI
             $wapiErr = ConvertFrom-Json $body -EA Ignore
             if ($wapiErr) {
                 $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
-                    $wapiErr.Error, $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                    $wapiErr.Error, $null, [Management.Automation.ErrorCategory]::InvalidOperation, $null
                 ))
             } else {
                 $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
-                    $body, $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                    $body, $null, [Management.Automation.ErrorCategory]::InvalidOperation, $null
                 ))
             }
 

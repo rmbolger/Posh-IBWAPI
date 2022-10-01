@@ -92,7 +92,7 @@ function Get-IBObject
             else {
                 $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
                     "Filter parameter is not a supported type. Must be string, string array, or hashtable.",
-                    $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                    $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
                 ))
             }
         }
@@ -229,7 +229,7 @@ function Get-IBObject
                 # But if there's no result object, something is wrong.
                 $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
                     "No 'result' object found in server response",
-                    $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                    $null, [Management.Automation.ErrorCategory]::ObjectNotFound, $null
                 ))
             }
             $resultCount += $response.result.Count
@@ -243,7 +243,7 @@ function Get-IBObject
         if ($ErrorOverMax -and $resultCount -gt $MaxResults) {
             $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
                 "Result count exceeded MaxResults parameter.",
-                $null, [Management.Automation.ErrorCategory]::InvalidData, $null
+                $null, [Management.Automation.ErrorCategory]::LimitsExceeded, $null
             ))
         }
         else {

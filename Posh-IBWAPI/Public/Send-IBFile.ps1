@@ -88,7 +88,7 @@ function Send-IBFile {
             Write-Debug "Uploading file"
             Invoke-IBWAPI @restOpts
         } catch {
-            throw
+            $PsCmdlet.ThrowTerminatingError($_)
         } finally {
             if ($null -ne $multipart) { $multipart.Dispose() }
         }
