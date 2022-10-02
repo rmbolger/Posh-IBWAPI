@@ -21,6 +21,13 @@ function Set-IBConfig
     # This function allows callers to save connection parameters so they don't
     # need to supply them on every subsequent function call.
 
+    # Ignore these calls when running stateless with an environment variable
+    # based profile.
+    if ('ENV' -eq (Get-CurrentProfile)) {
+        Write-Warning "Set-IBConfig is not available when using an environment variable based profile."
+        return
+    }
+
     $profiles = Get-Profiles
 
     if ($ProfileName) {

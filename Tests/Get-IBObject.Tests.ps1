@@ -278,9 +278,9 @@ Describe "Get-IBObject" {
                 }
             }
 
-            { Get-IBObject fake -MaxResults -4 } | Should -Throw
+            { Get-IBObject fake -MaxResults -4 -EA Stop } | Should -Throw
 
-            { Get-IBObject fake -MaxResults -5 } | Should -Throw
+            { Get-IBObject fake -MaxResults -5 -EA Stop } | Should -Throw
         }
 
     }

@@ -10,7 +10,21 @@ function Remove-IBConfig
         [switch]$AllProfiles
     )
 
+    Begin {
+        # Ignore these calls when running stateless with an environment variable
+        # based profile.
+        if ('ENV' -eq (Get-CurrentProfile)) {
+            Write-Warning "Remove-IBConfig is not available when using an environment variable based profile."
+        }
+    }
+
     Process {
+
+        # Ignore these calls when running stateless with an environment variable
+        # based profile.
+        if ('ENV' -eq (Get-CurrentProfile)) {
+            return
+        }
 
         if ('All' -eq $PSCmdlet.ParameterSetName) {
 
