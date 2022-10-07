@@ -16,50 +16,50 @@ function Import-IBConfig
     }
 
     # Check for an environment variable based profile overriding anything else
-    if (Test-NonEmptyString $env:IBWAPI_HOST) {
+    if ($envProfile = Get-EnvProfile) {
 
-        if ($env:IBWAPI_VERSION -and (Test-VersionString $env:IBWAPI_VERSION)) {
+        Set-CurrentProfile 'ENV'
+        $profiles.ENV = $envProfile
 
-            if (Test-NonEmptyString $env:IBWAPI_USERNAME) {
+        Write-Verbose "Using env variable profile $($envProfile.Credential.Username) @ $($envProfile.WAPIHost) $($envProfile.WAPIVersion)"
 
-                if (Test-NonEmptyString $env:IBWAPI_PASSWORD) {
-
-                    # securify the password
-                    $secPass = ConvertTo-SecureString $env:IBWAPI_PASSWORD -AsPlainText -Force
-
-                    # add the profile
-                    Set-CurrentProfile 'ENV'
-                    $profiles.ENV = @{
-                        WAPIHost    = $env:IBWAPI_HOST
-                        WAPIVersion = $env:IBWAPI_VERSION
-                        Credential  = [pscredential]::new($env:IBWAPI_USERNAME,$secPass)
-                    }
-
-                    # Check for optional skip cert check. Any value other than the explicit
-                    # set of "no" strings will be treated as $true
-                    $falseStrings = 'False','0','No'
-                    if ($env:IBWAPI_SKIPCERTCHECK -and $env:IBWAPI_SKIPCERTCHECK -notin $falseStrings) {
-                        $profiles.ENV.SkipCertificateCheck = $true
-                    } else {
-                        $profiles.ENV.SkipCertificateCheck = $false
-                    }
-                    Write-Verbose "Using env variable profile $($env:IBWAPI_USERNAME) @ $($env:IBWAPI_HOST) $($env:IBWAPI_VERSION)"
-
-                    # don't bother trying to load the local profiles
-                    return
-                }
-                else {
-                    Write-Warning "IBWAPI_PASSWORD environment variable missing or empty. Unable to use environment variable profile."
-                }
-            }
-            else {
-                Write-Warning "IBWAPI_USERNAME environment variable missing or empty. Unable to use environment variable profile."
-            }
-        }
-        else {
-            Write-Warning "IBWAPI_VERSION environment variable missing or invalid. Unable to use environment variable profile."
-        }
+        # don't bother trying to load the local profiles
+        return
     }
+
+    # Check for Vault based profile config
+    if ($vaultCfg = $script:VaultConfig = (Get-VaultConfig -Refresh)) {
+
+        $vaultProfiles = Get-VaultProfiles -VaultConfig $vaultCfg
+
+        foreach ($profName in $vaultProfiles.Keys) {
+
+            $profRaw = $vaultProfiles.$profName
+
+            # hydrate the PSCredential from the plaintext username/password
+            $secPass = $profRaw.Credential.Password | ConvertTo-SecureString -AsPlainText -Force
+            $profCred = [pscredential]::new($profRaw.Credential.Username, $secPass)
+
+            # hydrate the raw profile
+            $profiles.$profName = @{
+                WAPIHost    = $profRaw.WAPIHost
+                WAPIVersion = $profRaw.WAPIVersion
+                Credential  = $profCred
+                SkipCertificateCheck = $profRaw.SkipCertificateCheck
+            }
+
+            # set it as current if appropriate
+            if ($profRaw.Current) {
+                Set-CurrentProfile $profName
+            }
+        }
+
+        # no need to continue processing a local config
+        return
+    }
+
+    # If we've gotten this far, there's no ENV profile or working Vault config
+    # So just try to load the local config
 
     # return early if there's no file to load
     $configFile = Get-ConfigFile

@@ -3,58 +3,114 @@ function Export-IBConfig
     [CmdletBinding()]
     param()
 
-    $cfgToExport = @{
-        CurrentProfile = Get-CurrentProfile
-        Profiles = @{}
-    }
-
-    # ConvertTo-Json won't serialize the SecureString passwords in the PSCredential objects,
-    # so we have to do some manual conversion into Username/Password combos that Import-IBConfig
-    # will then re-hydrate later.
-
+    $curProfile = Get-CurrentProfile
     $profiles = Get-Profiles
+
+    # For vault-based config storage, each profile will exist as a unique secret
+    # in the vault. For local config storage, we'll continue using a single JSON
+    # file as in 3.x.
+
+    if ($vaultCfg = Get-VaultConfig) {
+        $vaultProfiles = Get-VaultProfiles -VaultConfig $vaultCfg
+
+        # delete any vault profiles that no longer exist in memory
+        foreach ($profName in @($vaultProfiles.Keys)) {
+            if ($profName -notin $profiles.Keys) {
+                $secretName = $vaultCfg.Template -f $profName
+                Write-Debug "Removing vault profile '$secretName'."
+                $vaultProfiles.Remove($profName)
+                Remove-Secret -Vault $vaultCfg.Name -Name $secretName
+            }
+        }
+    }
+    else {
+        # prep the local config object we'll be converting to JSON later
+        $cfgToExport = @{
+            CurrentProfile = $curProfile
+            Profiles = @{}
+        }
+    }
 
     foreach ($profName in $profiles.Keys) {
 
-        $cfgToExport.Profiles.$profName = @{
+        $profRaw = @{
             WAPIHost             = $profiles.$profName.WAPIHost
             WAPIVersion          = $profiles.$profName.WAPIVersion
             Credential           = $null
             SkipCertificateCheck = $profiles.$profName.SkipCertificateCheck
         }
 
-        if ($null -ne $profiles.$profName.Credential) {
-
-            $credSerialized = @{
-                Username = $profiles.$profName.Credential.Username
-            }
-
-            # ConvertFrom-SecureString is only really supported on Windows because
-            # it relies on DPAPI to do encryption which doesn't exist on other platforms.
-            # From PowerShell 6.0-6.1, using on non-Windows would throw an error.
-            # In PowerShell 6.2+, it works again but only obfuscates the text instead
-            # of encrypting it.
-            # We're going to Base64 encode the password on all non-Windows systems
-            # until there's a better cross-platform solution for encrypting it.
-
-            if ($IsWindows -or
-                'PSEdition' -notin $PSVersionTable.Keys -or
-                'Desktop' -eq $PSVersionTable.PSEdition)
-            {
-                $credSerialized.Password = ConvertFrom-SecureString $profiles.$profName.Credential.Password
-            }
-            else
-            {
-                $passPlain = $profiles.$profName.Credential.GetNetworkCredential().Password
-                $credSerialized.Password = [Convert]::ToBase64String(
-                    [Text.Encoding]::Unicode.GetBytes($passPlain)
-                )
-                $credSerialized.IsBase64 = $true
-            }
-            $cfgToExport.Profiles.$profName.Credential = $credSerialized
+        if ($vaultCfg) {
+            # Since we can't rely on secret metadata to store whether this profile
+            # is the current profile, we'll just add it to the JSON blob instead.
+            $profRaw.Current = if ($curProfile -eq $profName) { $true } else { $false }
         }
+        else {
+            # add the raw profile to the export object
+            $cfgToExport.Profiles.$profName = $profRaw
+        }
+
+        # deal with the credential
+        $credSerialized = @{
+            Username = $profiles.$profName.Credential.Username
+        }
+
+        # For vault storage, we're going to leave the serialized password
+        # as plain text and rely on the vault's native encryption to protect it.
+        # For local storage, we'll continue to use the DPAPI/Base64 method
+        # depending on the platform since there's still no good way to encrypt
+        # serialized SecureString values cross-platform in PowerShell 7+ unless
+        # you provide your own key.
+
+        if ($vaultCfg) {
+            # store the plaintext password
+            $credSerialized.Password = $profiles.$profName.Credential.GetNetworkCredential().Password
+        }
+        elseif ($IsWindows -or $PSEdition -eq 'Desktop') {
+            # store the DPAPI encrypted password
+            $credSerialized.Password = ConvertFrom-SecureString $profiles.$profName.Credential.Password
+        }
+        else {
+            # store the Base64 encoded password
+            $passPlain = $profiles.$profName.Credential.GetNetworkCredential().Password
+            $credSerialized.Password = [Convert]::ToBase64String(
+                [Text.Encoding]::Unicode.GetBytes($passPlain)
+            )
+            $credSerialized.IsBase64 = $true
+        }
+
+        $profRaw.Credential = $credSerialized
+
+        # For vault profiles, we only want to store if it changed or doesn't already exist
+        if ($vaultCfg) {
+
+            $vaultProf = $vaultProfiles.$profName
+
+            if ($profName -notin $vaultProfiles.Keys -or
+                $profRaw.WAPIHost             -ne $vaultProf.WAPIHost -or
+                $profRaw.WAPIVersion          -ne $vaultProf.WAPIVersion -or
+                $profRaw.Credential.Username  -ne $vaultProf.Credential.Username -or
+                $profRaw.Credential.Password  -ne $vaultProf.Credential.Password -or
+                $profRaw.SkipCertificateCheck -ne $vaultProf.SkipCertificateCheck -or
+                $profRaw.Current              -ne $vaultProf.Current
+            ) {
+
+                $secretName = $vaultCfg.Template -f $profName
+                Write-Debug "Storing vault profile '$secretName'."
+                $secretJson = $profRaw | ConvertTo-Json -Compress
+
+                Set-Secret -Vault $vaultCfg.Name -Name $secretName -Secret $secretJson
+            }
+
+
+        }
+
     }
 
+    # we're done if we used the vault
+    if ($vaultCfg) { return }
+
+    # otherwise, save to disk if we have anything to save
     if ($profiles.Count -gt 0) {
         # Make sure the config folder exists
         $configFolder = Get-ConfigFolder

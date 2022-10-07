@@ -3,6 +3,9 @@ Describe "Remove-IBConfig" {
     BeforeAll {
         $env:LOCALAPPDATA = 'TestDrive:\'
         $env:HOME = 'TestDrive:\'
+        $env:IBWAPI_VAULT_NAME = $null
+        $env:IBWAPI_VAULT_PASS = $null
+        $env:IBWAPI_VAULT_SECRET_TEMPLATE = $null
         Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
 
         # setup fake profile export location

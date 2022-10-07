@@ -115,11 +115,12 @@ function Set-IBConfig
     $profiles.$ProfileName = $cfg
 
     # switch to the profile unless otherwise specified
-    if (-not $NoSwitchProfile) {
+    if (-not $NoSwitchProfile -and $ProfileName -ne (Get-CurrentProfile)) {
+        Write-Verbose "Setting $ProfileName as the active profile"
         Set-CurrentProfile $ProfileName
     }
 
-    # save the changes to disk
+    # persist the changes
     Export-IBConfig
 
 

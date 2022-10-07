@@ -8,6 +8,9 @@ Describe "Import-IBConfig" {
         $env:IBWAPI_USERNAME = $null
         $env:IBWAPI_PASSWORD = $null
         $env:IBWAPI_SKIPCERTCHECK = $null
+        $env:IBWAPI_VAULT_NAME = $null
+        $env:IBWAPI_VAULT_PASS = $null
+        $env:IBWAPI_VAULT_SECRET_TEMPLATE = $null
         Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
 
         # setup fake profile export location

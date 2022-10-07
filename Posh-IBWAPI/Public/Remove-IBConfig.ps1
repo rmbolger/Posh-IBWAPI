@@ -26,34 +26,40 @@ function Remove-IBConfig
             return
         }
 
+        $profiles = Get-Profiles
+
         if ('All' -eq $PSCmdlet.ParameterSetName) {
 
-            if ($AllProfiles) {
-                Write-Verbose "Removing all connection profiles."
-
-                # delete the config file if it exists
-                $configFile = Get-ConfigFile
-                if (Test-Path $configFile) {
-                    Remove-Item $configFile -Force
-                }
-
-                Import-IBConfig
+            if (-not $AllProfiles) {
+                # For some reason they used -AllProfiles:$false which is
+                # weird but valid. So we'll just not do anything.
                 return
             }
 
-            # it's possible they called this with -AllProfiles:$false which is
-            # weird but valid and we'll just not do anything
+            Write-Verbose "Removing all connection profiles."
 
+            # remove the profiles from memory
+            foreach ($profName in @($profiles.Keys)) {
+                $profiles.Remove($profName)
+            }
+
+            # erase the current profile name
+            Set-CurrentProfile ([string]::Empty)
+
+            # delete the config file if it exists
+            $configFile = Get-ConfigFile
+            if (Test-Path $configFile) {
+                Remove-Item $configFile -Force
+            }
+
+            # persist the changes and return
+            Export-IBConfig
+            return
         }
 
         # decide which profile to remove
-        $profToRemove = Get-CurrentProfile
-        if ($ProfileName) {
-            $profToRemove = $ProfileName
-        }
-
+        $profToRemove = if ($ProfileName) { $ProfileName } else { Get-CurrentProfile }
         Write-Verbose "Removing $profToRemove profile"
-        $profiles = Get-Profiles
 
         if ($profToRemove -in $profiles.Keys) {
 
@@ -72,19 +78,14 @@ function Remove-IBConfig
             return
         }
 
-        # save changes to disk
-
         # if this is the last entry, just delete the config file
         $configFile = Get-ConfigFile
-        if ($profiles.Count -lt 1) {
-            if (Test-Path $configFile -PathType Leaf) {
-                Remove-Item $configFile -Force
-                Import-IBConfig
-            }
-        } else {
-            Export-IBConfig
+        if ($profiles.Count -eq 0 -and (Test-Path $configFile -PathType Leaf)) {
+            Remove-Item $configFile -Force
         }
 
+        # persist the changes
+        Export-IBConfig
     }
 
 
