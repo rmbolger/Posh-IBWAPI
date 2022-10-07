@@ -11,15 +11,16 @@ function Export-IBConfig
     # file as in 3.x.
 
     if ($vaultCfg = Get-VaultConfig) {
-        $vaultProfiles = Get-VaultProfiles -VaultConfig $vaultCfg
+        if ($vaultProfiles = Get-VaultProfiles -VaultConfig $vaultCfg) {
 
-        # delete any vault profiles that no longer exist in memory
-        foreach ($profName in @($vaultProfiles.Keys)) {
-            if ($profName -notin $profiles.Keys) {
-                $secretName = $vaultCfg.Template -f $profName
-                Write-Debug "Removing vault profile '$secretName'."
-                $vaultProfiles.Remove($profName)
-                Remove-Secret -Vault $vaultCfg.Name -Name $secretName
+            # delete any vault profiles that no longer exist in memory
+            foreach ($profName in @($vaultProfiles.Keys)) {
+                if ($profName -notin $profiles.Keys) {
+                    $secretName = $vaultCfg.Template -f $profName
+                    Write-Debug "Removing vault profile '$secretName'."
+                    $vaultProfiles.Remove($profName)
+                    Remove-Secret -Vault $vaultCfg.Name -Name $secretName
+                }
             }
         }
     }
@@ -114,6 +115,7 @@ function Export-IBConfig
     if ($profiles.Count -gt 0) {
         # Make sure the config folder exists
         $configFolder = Get-ConfigFolder
+
         New-Item $configFolder -Type Directory -ErrorAction Ignore
 
         # Save it to disk
