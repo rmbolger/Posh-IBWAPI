@@ -47,6 +47,32 @@ Describe "Import-IBConfig" {
                 }
             }
         }
+
+        $fakeVaultConfig = @{
+            Name = 'vault1'
+            Template = 'poshibwapi-{0}'
+        }
+        $fakeVaultProfile1 = @{
+            WAPIHost = 'gm1'
+            WAPIVersion = '1.0'
+            Credential = @{
+                Username = 'admin1'
+                Password = 'password1'
+            }
+            SkipCertificateCheck = $false
+            Current = $true
+        }
+        $fakeVaultProfile2 = @{
+            WAPIHost = 'gm2'
+            WAPIVersion = '2.0'
+            Credential = @{
+                Username = 'admin2'
+                Password = 'password2'
+            }
+            SkipCertificateCheck = $true
+            Current = $false
+        }
+
     }
 
     Context "No existing config" {
@@ -56,7 +82,26 @@ Describe "Import-IBConfig" {
             Mock Get-ConfigFile -ModuleName Posh-IBWAPI { $fakeConfigFile }
         }
 
-        It "Initializes everything" {
+        It "Initializes everything (local)" {
+            InModuleScope Posh-IBWAPI {
+
+                Import-IBConfig
+
+                $script:CurrentProfile | Should -Be ''
+
+                $script:Profiles       | Should -BeOfType System.Collections.Hashtable
+                $script:Profiles.Keys  | Should -HaveCount 0
+                $script:Sessions       | Should -BeOfType System.Collections.Hashtable
+                $script:Sessions.Keys  | Should -HaveCount 0
+                $script:Schemas        | Should -BeOfType System.Collections.Hashtable
+                $script:Schemas.Keys   | Should -HaveCount 0
+            }
+        }
+
+        It "Initializes everything (vault)" {
+            Mock -ModuleName Posh-IBWAPI Get-VaultConfig { $fakeVaultConfig }
+            Mock -ModuleName Posh-IBWAPI Get-VaultProfiles { }
+
             InModuleScope Posh-IBWAPI {
 
                 Import-IBConfig
@@ -85,7 +130,7 @@ Describe "Import-IBConfig" {
             '{"partial":"' | Out-File $fakeConfigFile -Encoding utf8
         }
 
-        It "Warns on invalid config" {
+        It "Warns on invalid config (local)" {
             InModuleScope Posh-IBWAPI {
 
                 { Import-IBConfig } | Should -Not -Throw
@@ -102,6 +147,7 @@ Describe "Import-IBConfig" {
                 $script:Schemas.Keys   | Should -HaveCount 0
             }
         }
+
     }
 
     Context "Valid Current Config" {
@@ -116,7 +162,7 @@ Describe "Import-IBConfig" {
             $fakeConfig | ConvertTo-Json -Depth 10 | Out-File $fakeConfigFile -Encoding utf8
         }
 
-        It "Converts automatically" {
+        It "Converts automatically (local)" {
             InModuleScope Posh-IBWAPI {
                 { Import-IBConfig } | Should -Not -Throw
 
@@ -141,6 +187,40 @@ Describe "Import-IBConfig" {
                 $prof2.SkipCertificateCheck | Should -BeTrue
             }
         }
+
+        It "Converts automatically (vault)" {
+
+            Mock -ModuleName Posh-IBWAPI Get-VaultConfig { $fakeVaultConfig }
+            Mock -ModuleName Posh-IBWAPI Get-VaultProfiles { return @{
+                prof1 = $fakeVaultProfile1
+                prof2 = $fakeVaultProfile2
+            } }
+
+            InModuleScope Posh-IBWAPI {
+                { Import-IBConfig } | Should -Not -Throw
+
+                $script:CurrentProfile | Should -Be 'prof1'
+
+                $script:Profiles.Keys   | Should -HaveCount 2
+                $script:Profiles['prof1'] | Should -Not -BeNullOrEmpty
+                $script:Profiles['prof2'] | Should -Not -BeNullOrEmpty
+
+                $prof1 = $script:Profiles['prof1']
+                $prof1.WAPIHost | Should -Be 'gm1'
+                $prof1.WAPIVersion | Should -Be '1.0'
+                $prof1.Credential.Username | Should -Be 'admin1'
+                $prof1.Credential.GetNetworkCredential().Password | Should -Be 'password1'
+                $prof1.SkipCertificateCheck | Should -BeFalse
+
+                $prof2 = $script:Profiles['prof2']
+                $prof2.WAPIHost | Should -Be 'gm2'
+                $prof2.WAPIVersion | Should -Be '2.0'
+                $prof2.Credential.Username | Should -Be 'admin2'
+                $prof2.Credential.GetNetworkCredential().Password | Should -Be 'password2'
+                $prof2.SkipCertificateCheck | Should -BeTrue
+            }
+        }
+
     }
 
     Context "Environment Variable Profile" {
