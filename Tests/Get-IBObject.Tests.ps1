@@ -47,7 +47,7 @@ Describe "Get-IBObject" {
         ) {
             Get-IBObject @splat | Out-Null
             Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
-                $Uri.OriginalString -notlike '*_return_fields*'
+                $Query -notlike '*_return_fields*'
             }
         }
 
@@ -70,7 +70,7 @@ Describe "Get-IBObject" {
             }
 
             Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
-                $Uri.OriginalString -like "*$check*"
+                $Query -like "*$check*"
             }
         }
 
@@ -86,7 +86,7 @@ Describe "Get-IBObject" {
 
             Should -Invoke Get-IBSchema -ModuleName Posh-IBWAPI
             Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
-                $Uri.OriginalString -like "*_return_fields=d,e,f*"
+                $Query -like "*_return_fields=d,e,f*"
             }
         }
     }
@@ -110,7 +110,7 @@ Describe "Get-IBObject" {
             Get-IBObject @splat | Out-Null
 
             Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
-                $Uri.OriginalString -like "*$($splat.Filter -join '&')*"
+                $Query -like "*$($splat.Filter -join '&')*"
             }
         }
     }
@@ -139,33 +139,33 @@ Describe "Get-IBObject" {
 
             # default 1000
             Get-IBObject fake | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=1000' }
 
             # explicit PageSize
             Get-IBObject fake -PageSize 100 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=100' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=100' }
 
             # PageSize = MaxResults + 1 (up to 1000) when less than default/explicit page size
             Get-IBObject fake -MaxResults 100 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=101' }
             Get-IBObject fake -MaxResults -100 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=101' }
             Get-IBObject fake -MaxResults 999 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=1000' }
             Get-IBObject fake -MaxResults -999 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=1000' }
             Get-IBObject fake -MaxResults 999999 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=1000' }
             Get-IBObject fake -MaxResults -999999 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=1000' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=1000' }
             Get-IBObject fake -MaxResults 100 -PageSize 50 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=50' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=50' }
             Get-IBObject fake -MaxResults -100 -PageSize 50 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=50' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=50' }
             Get-IBObject fake -MaxResults 100 -PageSize 200 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=101' }
             Get-IBObject fake -MaxResults -100 -PageSize 200 | Out-Null
-            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like '*_max_results=101' }
+            Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like '*_max_results=101' }
         }
 
 
@@ -180,7 +180,7 @@ Describe "Get-IBObject" {
 
             Get-IBObject fake | Out-Null
             Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
-                $Uri.OriginalString -notlike '*_paging=1*'
+                $Query -notlike '*_paging=1*'
             }
         }
 
@@ -189,24 +189,24 @@ Describe "Get-IBObject" {
 
             Get-IBObject fake -NoPaging | Out-Null
             Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
-                $Uri.OriginalString -notlike '*_paging=1*'
+                $Query -notlike '*_paging=1*'
             }
         }
 
         It "Retrieves all pages" {
-            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like "*_paging=1*" } -MockWith {
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like "*_paging=1*" } -MockWith {
                 [pscustomobject]@{
                     result = @( [pscustomobject]@{'_ref' = 'fake/12345:Infoblox'} )
                     next_page_id = '2'
                 }
             }
-            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like "*_page_id=2*" } -MockWith {
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like "*_page_id=2*" } -MockWith {
                 [pscustomobject]@{
                     result = @( [pscustomobject]@{'_ref' = 'fake/23456:Infoblox'} )
                     next_page_id = '3'
                 }
             }
-            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Uri.OriginalString -like "*_page_id=3*" } -MockWith {
+            Mock Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter { $Query -like "*_page_id=3*" } -MockWith {
                 [pscustomobject]@{
                     result = @( [pscustomobject]@{'_ref' = 'fake/34567:Infoblox'} )
                 }
@@ -294,7 +294,7 @@ Describe "Get-IBObject" {
 
             Get-IBObject fake -ProxySearch | Out-Null
             Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
-                $Uri.OriginalString -like '*_proxy_search=GM*'
+                $Query -like '*_proxy_search=GM*'
             }
         }
 

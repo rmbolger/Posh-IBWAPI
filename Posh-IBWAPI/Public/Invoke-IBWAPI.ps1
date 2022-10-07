@@ -1,9 +1,17 @@
 function Invoke-IBWAPI
 {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding(SupportsShouldProcess,DefaultParameterSetName='Uri')]
     param(
-        [Parameter(Mandatory=$true,Position=0)]
+        [Parameter(ParameterSetName='Uri',Mandatory=$true,Position=0)]
         [Uri]$Uri,
+        [Parameter(ParameterSetName='HostVersion',Mandatory=$true,Position=0)]
+        [Alias('host')]
+        [string]$WAPIHost,
+        [Parameter(ParameterSetName='HostVersion',Mandatory=$true,Position=1)]
+        [Alias('version')]
+        [string]$WAPIVersion,
+        [Parameter(ParameterSetName='HostVersion',Mandatory=$true,Position=2)]
+        [string]$Query,
         [Microsoft.PowerShell.Commands.WebRequestMethod]$Method=([Microsoft.PowerShell.Commands.WebRequestMethod]::Get),
         [PSCredential]$Credential,
         [Object]$Body,
@@ -28,6 +36,12 @@ function Invoke-IBWAPI
     # a period of time after the initial call even if validation is turned
     # back on. This issue only affects the Desktop edition.
     ###########################################################################
+
+    # Built the URI if they passed individual Host+Version
+    if ('HostVersion' -eq $PSCmdlet.ParameterSetName) {
+        $apiBase = $script:APIBaseTemplate -f $WAPIHost,$WAPIVersion
+        $Uri = '{0}{1}' -f $apiBase,$Query
+    }
 
     # Build a hashtable of parameters that we will later send to Invoke-RestMethod via splatting
     $opts = @{
@@ -222,6 +236,15 @@ function Invoke-IBWAPI
 
     .PARAMETER Uri
         The full Uri of the WAPI endpoint. (e.g. https://gridmaster.example.com/wapi/v2.2/network)
+
+    .PARAMETER WAPIHost
+        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
+
+    .PARAMETER WAPIVersion
+        The version of the Infoblox WAPI to make calls against (e.g. '2.2').
+
+    .PARAMETER Query
+        The object type or reference being queried along with any URI querystring parameters. (e.g. 'network' or 'network?comment=Production')
 
     .PARAMETER Method
         The HTTP method to use in the request. Default is GET.

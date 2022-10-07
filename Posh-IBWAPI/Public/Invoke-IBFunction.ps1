@@ -26,17 +26,14 @@ function Invoke-IBFunction
 
         # grab the variables we'll be using for our REST calls
         try { $opts = Initialize-CallVars @PSBoundParameters } catch { $PsCmdlet.ThrowTerminatingError($_) }
-        $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
-        $opts.Remove('WAPIHost') | Out-Null
-        $opts.Remove('WAPIVersion') | Out-Null
 
     }
 
     Process {
 
         $queryParams = @{
-            Method = 'Post'
-            Uri = '{0}{1}?_function={2}' -f $APIBase,$ObjectRef,$FunctionName
+            Query = '{0}?_function={1}' -f $ObjectRef,$FunctionName
+            Method = 'POST'
         }
         if ($FunctionArgs) {
             $queryParams.Body = $FunctionArgs

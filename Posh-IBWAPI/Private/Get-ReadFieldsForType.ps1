@@ -23,7 +23,7 @@ function Get-ReadFieldsForType {
     }
 
     Write-Verbose "Querying schema for $ObjectType fields on version $WAPIVersion"
-    $schema = Get-IBSchema $ObjectType -Raw -WAPIVersion $WAPIVersion
+    $schema = Get-IBSchema $ObjectType -Raw @opts
 
     # add the readable fields to the cache and return them
     $readFields = $schema.fields |

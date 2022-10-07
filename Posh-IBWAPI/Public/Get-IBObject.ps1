@@ -48,11 +48,6 @@ function Get-IBObject
     Begin {
         # grab the variables we'll be using for our REST and sub calls
         try { $opts = Initialize-CallVars @PSBoundParameters } catch { $PsCmdlet.ThrowTerminatingError($_) }
-        $subOpts = [hashtable]::new($opts)
-        $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
-        $WAPIVersion = $opts.WAPIVersion
-        $opts.Remove('WAPIHost') | Out-Null
-        $opts.Remove('WAPIVersion') | Out-Null
 
         $queryargs = [Collections.Generic.List[string]]::new()
 
@@ -114,7 +109,7 @@ function Get-IBObject
         # Make sure we can do schema queries if ReturnAllFields was specified
         if ($ReturnAllFields) {
             # make a basic schema query if a cache for this host doesn't already exist
-            if (-not $script:Schemas[$subOpts.WAPIHost]) {
+            if (-not $script:Schemas[$opts.WAPIHost]) {
                 try { $null = Get-IBSchema @opts }
                 catch { $PSCmdlet.ThrowTerminatingError($_) }
             }
@@ -144,8 +139,8 @@ function Get-IBObject
 
             if ($NoPaging) {
                 $UsePaging = $false
-            } elseif ([Version]$WAPIVersion -lt [Version]'1.5') {
-                Write-Verbose "Paging not supported for WAPIVersion $WAPIVersion"
+            } elseif ([Version]$opts.WAPIVersion -lt [Version]'1.5') {
+                Write-Verbose "Paging not supported for WAPIVersion $($opts.WAPIVersion)"
                 $UsePaging = $false
             }
         } else {
@@ -166,7 +161,7 @@ function Get-IBObject
             $oType = $queryObj
             if ($ObjectRef) { $oType = $oType.Substring(0,$oType.IndexOf("/")) }
 
-            $readFields = Get-ReadFieldsForType -ObjectType $oType @subOpts
+            $readFields = Get-ReadFieldsForType -ObjectType $oType @opts
 
             if ($BatchMode) {
                 $deferredObjects[-1].args = @{
@@ -184,8 +179,8 @@ function Get-IBObject
 
         # if we're not paging, just return the single call
         if (-not $UsePaging) {
-            $uri = "$APIBase$($queryObj)?$($queryargs -join '&')"
-            return (Invoke-IBWAPI -Uri $uri @opts)
+            $query = '{0}?{1}' -f $queryObj,($queryargs -join '&')
+            return (Invoke-IBWAPI -Query $query @opts)
         }
 
         # By default, the WAPI will return an error if the result count exceeds 1000
@@ -220,9 +215,9 @@ function Get-IBObject
                 $querystring = "?_page_id=$($response.next_page_id)"
             }
 
-            $uri = "$APIBase$($queryObj)$($querystring)"
+            $query = '{0}{1}' -f $queryObj,$querystring
 
-            $response = Invoke-IBWAPI -Uri $uri @opts
+            $response = Invoke-IBWAPI -Query $query @opts
             if ('result' -notin $response.PSObject.Properties.Name) {
                 # A normal response from WAPI will contain a 'result' object even
                 # if that object is empty because it couldn't find anything.
@@ -277,8 +272,7 @@ function Get-IBObject
             }
         }
 
-        $uri = '{0}request' -f $APIBase
-        Invoke-IBWAPI -Method Post -Uri $uri -Body $body @opts
+        Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
     }
 
 

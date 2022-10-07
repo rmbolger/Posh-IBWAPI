@@ -25,11 +25,8 @@ function Get-IBSchema {
 
     # grab the variables we'll be using for our REST calls
     try { $opts = Initialize-CallVars @PSBoundParameters } catch { $PsCmdlet.ThrowTerminatingError($_) }
-    $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
     $WAPIHost = $opts.WAPIHost
     $WAPIVersion = $opts.WAPIVersion
-    $opts.Remove('WAPIHost') | Out-Null
-    $opts.Remove('WAPIVersion') | Out-Null
 
     # add a schema cache for this host if it doesn't exist
     if (-not $script:Schemas.$WAPIHost) {
@@ -39,7 +36,7 @@ function Get-IBSchema {
 
     # make sure we can actually query schema stuff for this WAPIHost
     if (-not $sCache.HighestVersion) {
-        $sCache.HighestVersion = (HighestVer $WAPIHost $opts.Credential -SkipCertificateCheck:$opts.SkipCertificateCheck)
+        $sCache.HighestVersion = (HighestVer @opts)
         Write-Debug "Set highest version: $($sCache.HighestVersion)"
     }
     if ([Version]$sCache.HighestVersion -lt [Version]'1.7.5') {
@@ -51,7 +48,7 @@ function Get-IBSchema {
 
     # cache some base schema stuff that we'll potentially need later
     if (-not $sCache.SupportedVersions -or -not $sCache[$WAPIVersion]) {
-        $schema = Invoke-IBWAPI -Uri "$($APIBase)?_schema" @opts
+        $schema = Invoke-IBWAPI -Query '?_schema' @opts
 
         # set supported versions
         $sCache.SupportedVersions = $schema.supported_versions | Sort-Object @{E={[Version]$_}}
@@ -131,12 +128,12 @@ function Get-IBSchema {
     # We want to give people as much information as possible. So instead of conditionally
     # using the additional schema options if the requested WAPI version supports it, we want
     # to always do it as long as the latest *supported* WAPI version supports them.
-    $uri = "$APIBase$($ObjectType)?_schema=1"
+    $query = '{0}?_schema=1' -f $ObjectType
     if ([Version]$sCache.HighestVersion -ge [Version]'2.6') {
-        $uri += "&_schema_version=2&_schema_searchable=1&_get_doc=1"
+        $query += "&_schema_version=2&_schema_searchable=1&_get_doc=1"
     }
 
-    $schema = Invoke-IBWAPI -Uri $uri @opts
+    $schema = Invoke-IBWAPI -Query $query @opts
 
     # check for the switches that will prevent additional output
     if ($Raw -or $LaunchHTML) {

@@ -32,9 +32,6 @@ function Set-IBObject
     Begin {
         # grab the variables we'll be using for our REST calls
         try { $opts = Initialize-CallVars @PSBoundParameters } catch { $PsCmdlet.ThrowTerminatingError($_) }
-        $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
-        $opts.Remove('WAPIHost') | Out-Null
-        $opts.Remove('WAPIVersion') | Out-Null
 
         $querystring = [String]::Empty
 
@@ -84,9 +81,9 @@ function Set-IBObject
             $TemplateObject = $IBObject
         }
 
-        $uri = '{0}{1}{2}' -f $APIBase,$ObjectRef,$querystring
-        if ($PsCmdlet.ShouldProcess($uri, 'PUT')) {
-            Invoke-IBWAPI -Method Put -Uri $uri -Body $TemplateObject @opts
+        $query = '{0}{1}' -f $ObjectRef,$querystring
+        if ($PsCmdlet.ShouldProcess($opts.WAPIHost, 'PUT')) {
+            Invoke-IBWAPI -Query $query -Method 'PUT' -Body $TemplateObject @opts
         }
     }
 
@@ -139,9 +136,8 @@ function Set-IBObject
             return
         }
 
-        $uri = '{0}request' -f $APIBase
-        if ($PSCmdlet.ShouldProcess($uri, 'POST')) {
-            Invoke-IBWAPI -Method Post -Uri $uri -Body $body @opts
+        if ($PSCmdlet.ShouldProcess($opts.WAPIHost, 'POST')) {
+            Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
         }
 
     }
