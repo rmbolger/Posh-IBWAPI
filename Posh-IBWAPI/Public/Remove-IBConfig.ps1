@@ -87,41 +87,4 @@ function Remove-IBConfig
         # persist the changes
         Export-IBConfig
     }
-
-
-
-    <#
-    .SYNOPSIS
-        Remove a WAPI connection profile.
-
-    .DESCRIPTION
-        When called with no parameters, the currently active connection profile will be removed.
-
-        When called with -ProfileName, the specified profile will be removed.
-
-        When called with -AllProfiles, all profiles will be removed.
-
-    .PARAMETER ProfileName
-        The name of the profile to remove.
-
-    .PARAMETER AllProfiles
-        If set, all profiles will be removed.
-
-    .EXAMPLE
-        Remove-IBConfig
-
-        Remove the currently active connection profile.
-
-    .EXAMPLE
-        Remove-IBConfig -AllHosts
-
-        Remove all connection profiles.
-
-    .LINK
-        Project: https://github.com/rmbolger/Posh-IBWAPI
-
-    .LINK
-        Set-IBConfig
-
-    #>
 }
