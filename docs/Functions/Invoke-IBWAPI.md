@@ -264,5 +264,3 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 [New-IBObject](New-IBObject.md)
 
 [Get-IBObject](Get-IBObject.md)
-
-[Invoke-RestMethod](Invoke-RestMethod.md)

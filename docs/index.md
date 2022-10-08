@@ -1,3 +1,5 @@
+title: Home
+
 # Posh-IBWAPI
 
 A PowerShell module to help with Infoblox automation via WAPI requests and functions. It is not intended to wrap every object into a set of custom cmdlets or strong types. Instead, it aims to hide the some of the tedious complexity in calling the Infoblox REST API via PowerShell.
@@ -6,9 +8,9 @@ A PowerShell module to help with Infoblox automation via WAPI requests and funct
 
 - Automatic paging for large GET result sets *(Requires WAPI version 1.5+)*
 - Automatic session handling
-- `Receive-IBFile` and `Send-IBFile` wrappers for upload/download WAPI functions. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Using-IBFile-Functions/)
+- `Receive-IBFile` and `Send-IBFile` wrappers for upload/download WAPI functions. [(Guide)](Guides/Using-IBFile-Functions.md)
 - Optionally return all fields for an object without needing to specify each one individually *(Requires WAPI version 1.7.5+)*
-- Use `Get-IBSchema` for Get-Help style querying of the WAPI object model *(Requires WAPI version 1.7.5+)*. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Using-Get-IBSchema/)
+- Use `Get-IBSchema` for Get-Help style querying of the WAPI object model *(Requires WAPI version 1.7.5+)*. [(Guide)](Guides/Using-Get-IBSchema.md)
 - Error details in the body of HTTP 400 responses are exposed instead of being swallowed by Invoke-RestMethod.
 - Pipeline support so you can do things like pass the results from `Get-IBObject` directly to `Remove-IBObject`.
 - Optionally batch pipelined requests to increase performance.
@@ -16,7 +18,7 @@ A PowerShell module to help with Infoblox automation via WAPI requests and funct
 - Save connection profiles so you don't have to pass multiple common parameters with every call.
 - Multiple connection profiles supported for multi-grid environments or if you need to save different credentials for different purposes.
 - [SecretManagement](https://devblogs.microsoft.com/powershell/secretmanagement-and-secretstore-are-generally-available/) support for connection profiles.
-- Cloud friendly stateless mode supported via environment variables. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Stateless-Mode/)
+- Cloud friendly stateless mode supported via environment variables. [(Guide)](Guides/Stateless-Mode.md)
 - Cross-platform [Powershell](https://github.com/PowerShell/PowerShell) support
 
 ## Installation (Stable)
@@ -128,7 +130,7 @@ $toDelete = Get-IBObject 'record:host' -Filters 'comment=decommission'
 $toDelete | Remove-IBObject
 ```
 
-For more examples, check the [Definitive REST Examples](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Definitive-REST-Examples/) guide.
+For more examples, check the [Definitive REST Examples](Guides/Definitive-REST-Examples.md) guide.
 
 ## Requirements and Platform Support
 
@@ -138,4 +140,4 @@ For more examples, check the [Definitive REST Examples](https://docs.dvolve.net/
 
 # Changelog
 
-See [CHANGELOG.md](/CHANGELOG.md)
+See [CHANGELOG.md](https://github.com/rmbolger/Posh-IBWAPI/blob/main/CHANGELOG.md)
