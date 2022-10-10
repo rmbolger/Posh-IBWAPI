@@ -1,7 +1,7 @@
-Be in the main branch or whatever branch contains the source docs folder:
+Change to the docs.dvolve.net repo root and then:
 
-    mike deploy --prefix docs --branch "docsite" --push v4 latest
+    mike deploy --prefix Posh-IBWAPI --branch main --push --config-file ../Posh-IBWAPI/mkdocs.yml v4 latest
 
 `--push` is optional. If you want to self-host the versioned docs, leave it out and run:
 
-    mike serve -b "docsite"
+    mike serve -b "main"
