@@ -52,9 +52,9 @@ function Get-IBObject
         $queryargs = [Collections.Generic.List[string]]::new()
 
         # Filter must be one of:
-        #     [string]    like 'name=foo'
-        #     [string[]]  like 'name=foo','view=bar'
-        #     [hashtable] like @{ 'name~'='foo' }
+        #     [string]      like 'name=foo'
+        #     [string[]]    like 'name=foo','view=bar'
+        #     [IDictionary] like @{ 'name~'='foo' }
         # Because filters end up in the URL querystring, they should be properly URL
         # encoded to avoid WAPI misinterpreting what is being asked for. But historically,
         # string based filters are assumed to have been properly URL encoded in advance
@@ -64,7 +64,7 @@ function Get-IBObject
         #     name~=foo\d+
         # The properly URL encoded version of this should be:
         #     name%7E=foo%5Cd%2B
-        # The hashtable option was added in 4.0 so that users no longer have to pre-encode
+        # The IDictionary option was added in 4.0 so that users no longer have to pre-encode
         # their filters. We can blindly encode the key and value pairs individually before
         # joining them with a non-encoded "=".
         if ($Filter) {
@@ -76,7 +76,7 @@ function Get-IBObject
                 # add as-is
                 $queryargs.AddRange([string[]]$Filter)
             }
-            elseif ($Filter -is [hashtable]) {
+            elseif ($Filter -is [Collections.IDictionary]) {
                 # URL encode the pairs and join with '=' before adding
                 $Filter.GetEnumerator().foreach{
                     $queryargs.Add(
