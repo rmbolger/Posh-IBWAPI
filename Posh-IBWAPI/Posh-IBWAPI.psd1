@@ -1,7 +1,7 @@
 @{
 
 RootModule = 'Posh-IBWAPI.psm1'
-ModuleVersion = '3.2.2'
+ModuleVersion = '4.0.0'
 GUID = '1483924a-a8bd-446f-ba0a-25443bcec77e'
 Author = 'Ryan Bolger'
 Copyright = '(c) 2017-2022 Ryan Bolger. All rights reserved.'
@@ -53,10 +53,9 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-## 3.2.2 (2022-03-17)
+## 4.0.0 (2022-10-11)
 
-* Added ObjectType argument completer for Get-IBObject, New-IBObject, and Get-IBSchema. Currently requires having already run Get-IBSchema to cache the potential values.
-* Fixed issue propagating SkipCertificateCheck switch in api calls during `Send-IBFile` and `Receive-IBFile`
+TBD
 '@
 
     } # End of PSData hashtable
