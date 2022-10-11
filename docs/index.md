@@ -17,7 +17,7 @@ A PowerShell module to help with Infoblox automation via WAPI requests and funct
 - Optionally ignore certificate validation errors.
 - Save connection profiles so you don't have to pass multiple common parameters with every call.
 - Multiple connection profiles supported for multi-grid environments or if you need to save different credentials for different purposes.
-- [SecretManagement](https://devblogs.microsoft.com/powershell/secretmanagement-and-secretstore-are-generally-available/) support for connection profiles.
+- [SecretManagement](https://devblogs.microsoft.com/powershell/secretmanagement-and-secretstore-are-generally-available/) support for connection profiles. [(Guide)](Guides/Using-SecretManagement.md)
 - Cloud friendly stateless mode supported via environment variables. [(Guide)](Guides/Stateless-Mode.md)
 - Cross-platform [Powershell](https://github.com/PowerShell/PowerShell) support
 
