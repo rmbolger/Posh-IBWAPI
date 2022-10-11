@@ -30,7 +30,7 @@ The `{0}` is replaced with the profile name passed to `Set-IBConfig`.
 You may optionally create an environment variable called `IBWAPI_VAULT_SECRET_TEMPLATE` to override the default template. The new value should include `{0}` somewhere in the string, but will be appended to the end if it does not exist.
 
 !!! warning
-    Be aware that some vaults have restrictions on the characters allowed in a secret name. In particular, Azure KeyVault is very restrictive and only allows letters, numbers, and the `-` character.
+    Be aware that some vaults have restrictions on the characters allowed in a secret name. In particular, Azure KeyVault is very restrictive and only allows letters, numbers, and the hyphen `-` character.
 
 ## Using a Vault
 
