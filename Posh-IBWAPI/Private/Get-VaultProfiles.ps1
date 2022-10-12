@@ -2,7 +2,7 @@ function Get-VaultProfiles {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
-        [hashtable]$VaultConfig
+        [Collections.IDictionary]$VaultConfig
     )
 
     $vaultCfg = $VaultConfig

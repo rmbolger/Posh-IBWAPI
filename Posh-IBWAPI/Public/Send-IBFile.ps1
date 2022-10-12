@@ -18,7 +18,7 @@ function Send-IBFile {
         [string]$Path,
         [Parameter(Position=2)]
         [Alias('args')]
-        [hashtable]$FunctionArgs = @{},
+        [Collections.IDictionary]$FunctionArgs = @{},
         [Parameter(Position=3)]
         [Alias('_ref','ref','ObjectType','type')]
         [string]$ObjectRef = 'fileop',

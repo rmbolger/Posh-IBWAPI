@@ -2493,9 +2493,9 @@ New-IBObject 'record:host' $myhost -ReturnField 'comment','configure_for_dns' -R
           <maml:description>
             <maml:para>A hashtable with the required parameters for the function. NOTE: 'token' parameters are handled automatically and can be ignored.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">Hashtable</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">IDictionary</command:parameterValue>
           <dev:type>
-            <maml:name>Hashtable</maml:name>
+            <maml:name>IDictionary</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -2602,9 +2602,9 @@ New-IBObject 'record:host' $myhost -ReturnField 'comment','configure_for_dns' -R
         <maml:description>
           <maml:para>A hashtable with the required parameters for the function. NOTE: 'token' parameters are handled automatically and can be ignored.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">Hashtable</command:parameterValue>
+        <command:parameterValue required="true" variableLength="false">IDictionary</command:parameterValue>
         <dev:type>
-          <maml:name>Hashtable</maml:name>
+          <maml:name>IDictionary</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -3227,9 +3227,9 @@ $hostsToDelete | Remove-IBObject</dev:code>
           <maml:description>
             <maml:para>A hashtable with the required parameters for the function. NOTE: 'token' parameters are handled automatically and can be ignored.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">Hashtable</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">IDictionary</command:parameterValue>
           <dev:type>
-            <maml:name>Hashtable</maml:name>
+            <maml:name>IDictionary</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>@{}</dev:defaultValue>
@@ -3324,9 +3324,9 @@ $hostsToDelete | Remove-IBObject</dev:code>
         <maml:description>
           <maml:para>A hashtable with the required parameters for the function. NOTE: 'token' parameters are handled automatically and can be ignored.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">Hashtable</command:parameterValue>
+        <command:parameterValue required="true" variableLength="false">IDictionary</command:parameterValue>
         <dev:type>
-          <maml:name>Hashtable</maml:name>
+          <maml:name>IDictionary</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>@{}</dev:defaultValue>

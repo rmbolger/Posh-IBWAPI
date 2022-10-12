@@ -14,7 +14,7 @@ Upload a file to Infoblox using one of the fileop upload functions.
 ## Syntax
 
 ```powershell
-Send-IBFile [-FunctionName] <String> [-Path] <String> [-FunctionArgs <Hashtable>] [-ObjectRef <String>]
+Send-IBFile [-FunctionName] <String> [-Path] <String> [-FunctionArgs <IDictionary>] [-ObjectRef <String>]
  [-OverrideTransferHost] [-ProfileName <String>] [-WAPIHost <String>] [-WAPIVersion <String>]
  [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
 ```
@@ -54,7 +54,7 @@ Accept wildcard characters: False
 A hashtable with the required parameters for the function. NOTE: 'token' parameters are handled automatically and can be ignored.
 
 ```yaml
-Type: Hashtable
+Type: IDictionary
 Parameter Sets: (All)
 Aliases: args
 
