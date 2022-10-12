@@ -202,8 +202,8 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="all">
-          <maml:name>ReturnAllFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="all, ReturnAllFields">
+          <maml:name>ReturnAll</maml:name>
           <maml:description>
             <maml:para>If specified, all readable fields will be returned for the object. This switch relies on Get-IBSchema and as such requires WAPI 1.7.5+. Because of the additional web requests necessary to make this work, it is also not recommended for performance critical code.</maml:para>
           </maml:description>
@@ -357,8 +357,8 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="all">
-          <maml:name>ReturnAllFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="all, ReturnAllFields">
+          <maml:name>ReturnAll</maml:name>
           <maml:description>
             <maml:para>If specified, all readable fields will be returned for the object. This switch relies on Get-IBSchema and as such requires WAPI 1.7.5+. Because of the additional web requests necessary to make this work, it is also not recommended for performance critical code.</maml:para>
           </maml:description>
@@ -499,8 +499,8 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="all">
-          <maml:name>ReturnAllFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="all, ReturnAllFields">
+          <maml:name>ReturnAll</maml:name>
           <maml:description>
             <maml:para>If specified, all readable fields will be returned for the object. This switch relies on Get-IBSchema and as such requires WAPI 1.7.5+. Because of the additional web requests necessary to make this work, it is also not recommended for performance critical code.</maml:para>
           </maml:description>
@@ -703,8 +703,8 @@
         </dev:type>
         <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="all">
-        <maml:name>ReturnAllFields</maml:name>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="all, ReturnAllFields">
+        <maml:name>ReturnAll</maml:name>
         <maml:description>
           <maml:para>If specified, all readable fields will be returned for the object. This switch relies on Get-IBSchema and as such requires WAPI 1.7.5+. Because of the additional web requests necessary to make this work, it is also not recommended for performance critical code.</maml:para>
         </maml:description>

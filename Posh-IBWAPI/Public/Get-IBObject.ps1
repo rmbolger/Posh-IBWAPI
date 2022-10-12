@@ -28,8 +28,8 @@ function Get-IBObject
         [string[]]$ReturnFields,
         [Alias('base')]
         [switch]$ReturnBaseFields,
-        [Alias('all')]
-        [switch]$ReturnAllFields,
+        [Alias('all','ReturnAllFields')]
+        [switch]$ReturnAll,
 
         [Parameter(ParameterSetName='ByRef')]
         [switch]$BatchMode,
@@ -97,12 +97,12 @@ function Get-IBObject
             }
         }
 
-        # Process the return field options if there are any and if ReturnAllFields
-        # was not specified. ReturnAllFields requires a schema query based on the
+        # Process the return field options if there are any and if ReturnAll
+        # was not specified. ReturnAll requires a schema query based on the
         # object type to get the field names. So we'll postpone that work until the
         # Process {} section in case they passed multiple different object types
         # via _ref.
-        if (-not $ReturnAllFields -and $ReturnFields.Count -gt 0) {
+        if (-not $ReturnAll -and $ReturnFields.Count -gt 0) {
             if ($ReturnBaseFields) {
                 $queryargs.Add("_return_fields%2B=$($ReturnFields -join ',')")
             }
@@ -111,8 +111,8 @@ function Get-IBObject
             }
         }
 
-        # Make sure we can do schema queries if ReturnAllFields was specified
-        if ($ReturnAllFields) {
+        # Make sure we can do schema queries if ReturnAll was specified
+        if ($ReturnAll) {
             # make a basic schema query if a cache for this host doesn't already exist
             if (-not $script:Schemas[$opts.WAPIHost]) {
                 try { $null = Get-IBSchema @opts }
@@ -159,8 +159,8 @@ function Get-IBObject
             }
         }
 
-        # deal with -ReturnAllFields now
-        if ($ReturnAllFields) {
+        # deal with -ReturnAll now
+        if ($ReturnAll) {
             # Returning all fields requires doing a schema query against the object
             # type so we can compile the list of fields to request.
             $oType = $queryObj

@@ -16,7 +16,7 @@ Retrieve objects from the Infoblox database.
 ### ByType (Default)
 ```powershell
 Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-MaxResults <Int32>] [-PageSize <Int32>]
- [-ReturnFields <String[]>] [-ReturnBaseFields] [-ReturnAllFields] [-ProxySearch] [-WAPIHost <String>]
+ [-ReturnFields <String[]>] [-ReturnBaseFields] [-ReturnAll] [-ProxySearch] [-WAPIHost <String>]
  [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>]
  [<CommonParameters>]
 ```
@@ -24,14 +24,14 @@ Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-MaxResults <Int32>] [-P
 ### ByTypeNoPaging
 ```powershell
 Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-NoPaging] [-ReturnFields <String[]>]
- [-ReturnBaseFields] [-ReturnAllFields] [-ProxySearch] [-WAPIHost <String>] [-WAPIVersion <String>]
+ [-ReturnBaseFields] [-ReturnAll] [-ProxySearch] [-WAPIHost <String>] [-WAPIVersion <String>]
  [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>] [<CommonParameters>]
 ```
 
 ### ByRef
 ```powershell
-Get-IBObject [-ObjectRef] <String> [-ReturnFields <String[]>] [-ReturnBaseFields] [-ReturnAllFields]
- [-BatchMode] [-BatchGroupSize <Int32>] [-ProxySearch] [-WAPIHost <String>] [-WAPIVersion <String>]
+Get-IBObject [-ObjectRef] <String> [-ReturnFields <String[]>] [-ReturnBaseFields] [-ReturnAll] [-BatchMode]
+ [-BatchGroupSize <Int32>] [-ProxySearch] [-WAPIHost <String>] [-WAPIVersion <String>]
  [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>] [<CommonParameters>]
 ```
 
@@ -244,13 +244,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReturnAllFields
+### -ReturnAll
 If specified, all readable fields will be returned for the object. This switch relies on Get-IBSchema and as such requires WAPI 1.7.5+. Because of the additional web requests necessary to make this work, it is also not recommended for performance critical code.
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: all
+Aliases: all, ReturnAllFields
 
 Required: False
 Position: Named

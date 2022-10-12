@@ -18,7 +18,7 @@
   * For example, `-Filter @{'name~'='myrec'}` is the same as `-Filter 'name~=myrec'`.
   * Filters passed by dictionary will be automatically URL encoded instead of the caller needing to URL encode the filters in advance. This most useful when using regular expressions with a lot of special characters.
   * String based filters will continue to be passed as-is in the HTTP GET request like they were prior to 4.0.
-* The module will keep a cache of "readable fields" when `Get-IBObject` is used with `-ReadAllFields` so that subsequent calls for all fields from the same object type won't need to make additional schema queries.
+* The module will keep a cache of "readable fields" when `Get-IBObject` is used with `-ReturnAll` so that subsequent calls for all fields from the same object type won't need to make additional schema queries.
 * `Invoke-IBWAPI` will now automatically handle UTF-8 encoding JSON bodies when `-ContentType` is not specified. When `-ContentType` is specified, the body parameter will be sent as-is.
 * `Invoke-IBWAPI` has an additional parameter set which takes a `-WAPIHost`, `-WAPIVersion`, and `-Query` parameter instead of the normal `-Uri` parameter.
 * Tweaked Verbose and Debug logging throughout the module. JSON request bodies are now included in the Verbose output for functions that send them.
@@ -31,6 +31,7 @@
   * If your scripts currently depend on functions throwing terminating errors, you can re-enable that behavior by passing the `-ErrorAction Stop` parameter or setting the `$ErrorActionPreference = 'Stop'` variable which is normally set to `Continue`.
 * The minimum PowerShell version requirements have been increased to 5.1 for legacy Windows PowerShell and 7.0 for cross-platform PowerShell. Partial functionality may still work on older versions, but they are no longer being tested against.
 * The `-Filters` parameter on `Get-IBObject` has been renamed to `-Filter` to better adhere to PowerShell standards but will continue to have a `-Filters` alias until at least the next major version.
+* The `-ReturnAllFields` parameter on `Get-IBObject` has been renamed to `-ReturnAll` but will continue to have a `-ReturnAllFields` alias until at least the next major version.
 * Automatic migration from 1.x connection profiles is no longer supported.
 
 ## 3.2.2 (2022-03-17)
