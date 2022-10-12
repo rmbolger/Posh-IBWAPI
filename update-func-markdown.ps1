@@ -4,7 +4,7 @@
 param()
 
 # Update our Markdown function files
-$files = Update-MarkdownHelp .\docs\Functions\
+$files = Update-MarkdownHelp .\docs\Functions\ -AlphabeticParamsOrder
 
 # Un-capitalize the section names and add 'powershell' tag to syntax code blocks
 $files | ForEach-Object {

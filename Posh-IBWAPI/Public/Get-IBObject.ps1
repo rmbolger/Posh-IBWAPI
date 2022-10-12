@@ -10,8 +10,6 @@ function Get-IBObject
         [Parameter(ParameterSetName='ByRef',Mandatory=$True,Position=0,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
         [Alias('_ref','ref')]
         [string]$ObjectRef,
-        [Parameter(ParameterSetName='ByRef')]
-        [switch]$BatchMode,
 
         [Parameter(ParameterSetName='ByType')]
         [Parameter(ParameterSetName='ByTypeNoPaging')]
@@ -32,6 +30,13 @@ function Get-IBObject
         [switch]$ReturnBaseFields,
         [Alias('all')]
         [switch]$ReturnAllFields,
+
+        [Parameter(ParameterSetName='ByRef')]
+        [switch]$BatchMode,
+        [Parameter(ParameterSetName='ByRef')]
+        [ValidateRange(1,2147483647)]
+        [int]$BatchGroupSize = 1000,
+
         [switch]$ProxySearch,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
@@ -249,7 +254,7 @@ function Get-IBObject
 
     End {
         if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
-        Write-Verbose "BatchMode deferred objects: $($deferredObjects.Count)"
+        Write-Verbose "BatchMode deferred objects: $($deferredObjects.Count), group size $($BatchGroupSize)"
 
         # build the 'args' value for each object
         $retArgs = @{}
@@ -263,15 +268,21 @@ function Get-IBObject
             $retArgs.'_return_fields+' = ''
         }
 
-        # build the json for all the objects
-        $body = $deferredObjects | ForEach-Object {
-            @{
-                method = 'GET'
-                object = $_.object
-                args = if ($_.args) { $_.args } else { $retArgs }
+        # make calls based on the group size
+        for ($i=0; $i -lt $deferredObjects.Count; $i += $BatchGroupSize) {
+            $groupEnd = [Math]::Min($deferredObjects.Count, ($i+$BatchGroupSize-1))
+
+            # build the json for this group's objects
+            $body = $deferredObjects[$i..$groupEnd] | ForEach-Object {
+                @{
+                    method = 'GET'
+                    object = $_.object
+                    args = if ($_.args) { $_.args } else { $retArgs }
+                }
             }
+
+            Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
         }
 
-        Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
     }
 }

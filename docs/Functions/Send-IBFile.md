@@ -35,33 +35,18 @@ Upload a trusted CA certificate to the grid.
 
 ## Parameters
 
-### -FunctionName
-The name of the fileop upload function to call.
+### -Credential
+Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
 
 ```yaml
-Type: String
+Type: PSCredential
 Parameter Sets: (All)
-Aliases: name
+Aliases:
 
-Required: True
-Position: 1
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Path
-The path to the file that will be uploaded for this call.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: PSPath
-
-Required: True
-Position: 2
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
@@ -76,6 +61,21 @@ Aliases: args
 Required: False
 Position: Named
 Default value: @{}
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -FunctionName
+The name of the fileop upload function to call.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: name
+
+Required: True
+Position: 1
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -97,6 +97,51 @@ Accept wildcard characters: False
 
 ### -OverrideTransferHost
 If set, the hostname in the transfer URL returned by WAPI will be overridden to match the original WAPIHost if they don't already match. The SkipCertificateCheck switch will also be updated to match the passed in value instead of always being set to true for the call.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+The path to the file that will be uploaded for this call.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: PSPath
+
+Required: True
+Position: 2
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -ProfileName
+The name of a specific config profile to use instead of the currently active one.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipCertificateCheck
+If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
 
 ```yaml
 Type: SwitchParameter
@@ -133,51 +178,6 @@ The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parame
 Type: String
 Parameter Sets: (All)
 Aliases: version
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Credential
-Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
-
-```yaml
-Type: PSCredential
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SkipCertificateCheck
-If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ProfileName
-The name of a specific config profile to use instead of the currently active one.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
 
 Required: False
 Position: Named

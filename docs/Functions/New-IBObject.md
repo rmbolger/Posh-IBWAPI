@@ -15,8 +15,9 @@ Create an object in Infoblox.
 
 ```powershell
 New-IBObject [-ObjectType] <String> [-IBObject] <PSObject> [[-ReturnFields] <String[]>] [-ReturnBaseFields]
- [-BatchMode] [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>]
- [-SkipCertificateCheck] [[-ProfileName] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-BatchMode] [-BatchGroupSize <Int32>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>]
+ [[-Credential] <PSCredential>] [-SkipCertificateCheck] [[-ProfileName] <String>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## Description
@@ -73,16 +74,46 @@ Create an extensible attribute of STRING type with name of 'TestAttribute' enabl
 
 ## Parameters
 
-### -ObjectType
-Object type string. (e.g. network, record:host, range)
+### -BatchGroupSize
+The number of objects that should be sent in each group when -BatchMode is specified. The default is 1000.
 
 ```yaml
-Type: String
+Type: Int32
 Parameter Sets: (All)
-Aliases: type
+Aliases:
 
-Required: True
-Position: 1
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -BatchMode
+If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance but if any of the individual calls fail, the whole group is cancelled.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Credential
+Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
+
+```yaml
+Type: PSCredential
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 6
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -103,16 +134,31 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -ReturnFields
-The set of fields that should be returned in addition to the object reference.
+### -ObjectType
+Object type string. (e.g. network, record:host, range)
 
 ```yaml
-Type: String[]
+Type: String
 Parameter Sets: (All)
-Aliases: fields
+Aliases: type
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProfileName
+The name of a specific config profile to use instead of the currently active one.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
 
 Required: False
-Position: 3
+Position: 7
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -133,8 +179,23 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -BatchMode
-If specified, objects passed via pipeline will be batched together into groups and sent as a single WAPI call per group instead of a WAPI call per object. This can increase performance but if any of the individual calls fail, the whole group is cancelled.
+### -ReturnFields
+The set of fields that should be returned in addition to the object reference.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases: fields
+
+Required: False
+Position: 3
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipCertificateCheck
+If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
 
 ```yaml
 Type: SwitchParameter
@@ -179,46 +240,16 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Credential
-Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
-
-```yaml
-Type: PSCredential
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 6
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SkipCertificateCheck
-If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: cf
 
 Required: False
 Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ProfileName
-The name of a specific config profile to use instead of the currently active one.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 7
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -231,21 +262,6 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: wi
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
 
 Required: False
 Position: Named

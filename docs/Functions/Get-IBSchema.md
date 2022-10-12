@@ -68,38 +68,23 @@ Get the network schema object and only include fields that are searchable and sk
 
 ## Parameters
 
-### -ObjectType
-Object type string. (e.g. network, record:host, range). Partial names and wildcards are supported. If the ObjectType parameter would match multiple objects, the list of matching objects will be returned.
+### -Credential
+Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
 
 ```yaml
-Type: String
+Type: PSCredential
 Parameter Sets: (All)
-Aliases: type
+Aliases:
 
 Required: False
-Position: 1
+Position: 7
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Raw
-If set, the schema object will be returned as-is rather than pretty printing the output. All additional display parameters are ignored except -LaunchHTML.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -LaunchHTML
-If set, Powershell will attempt to launch a browser to the object's full HTML documentation page on the grid master. All additional display parameters are ignored except -Raw.
+### -Detailed
+If set, detailed output is displayed for field and function information. Otherwise, a simplified view is displayed.
 
 ```yaml
 Type: SwitchParameter
@@ -128,9 +113,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Operations
-A list of supported operation codes: r (read), w (write/create), u (update/set), s (search), d (delete). Only the Fields supporting at least one of these operations will be included in the output.
-If not specified, all Fields will be included.
+### -Functions
+A list of Function names to include in the output. Wildcards are supported. This parameter is ignored if -NoFunctions is specified. If neither is specified, all Functions will be included.
 
 ```yaml
 Type: String[]
@@ -138,8 +122,23 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 3
+Position: 4
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LaunchHTML
+If set, Powershell will attempt to launch a browser to the object's full HTML documentation page on the grid master. All additional display parameters are ignored except -Raw.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -159,21 +158,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Functions
-A list of Function names to include in the output. Wildcards are supported. This parameter is ignored if -NoFunctions is specified. If neither is specified, all Functions will be included.
-
-```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 4
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -NoFunctions
 If set, the object's functions will not be included in the output.
 
@@ -189,8 +173,69 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Detailed
-If set, detailed output is displayed for field and function information. Otherwise, a simplified view is displayed.
+### -ObjectType
+Object type string. (e.g. network, record:host, range). Partial names and wildcards are supported. If the ObjectType parameter would match multiple objects, the list of matching objects will be returned.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: type
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Operations
+A list of supported operation codes: r (read), w (write/create), u (update/set), s (search), d (delete). Only the Fields supporting at least one of these operations will be included in the output.
+If not specified, all Fields will be included.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 3
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProfileName
+The name of a specific config profile to use instead of the currently active one.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 8
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Raw
+If set, the schema object will be returned as-is rather than pretty printing the output. All additional display parameters are ignored except -LaunchHTML.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipCertificateCheck
+If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
 
 ```yaml
 Type: SwitchParameter
@@ -230,51 +275,6 @@ Aliases: version
 
 Required: False
 Position: 6
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Credential
-Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
-
-```yaml
-Type: PSCredential
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 7
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SkipCertificateCheck
-If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ProfileName
-The name of a specific config profile to use instead of the currently active one.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 8
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

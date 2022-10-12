@@ -53,51 +53,6 @@ Update the current profile to WAPI version 2.5
 
 ## Parameters
 
-### -ProfileName
-The name of the profile to create or modify.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: name
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WAPIHost
-The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: host
-
-Required: False
-Position: 2
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WAPIVersion
-The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: version
-
-Required: False
-Position: 3
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Credential
 Username and password for the Infoblox appliance.
 
@@ -109,21 +64,6 @@ Aliases:
 Required: False
 Position: 4
 Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SkipCertificateCheck
-If set, SSL/TLS certificate validation will be disabled for this profile.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -154,6 +94,66 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProfileName
+The name of the profile to create or modify.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: name
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipCertificateCheck
+If set, SSL/TLS certificate validation will be disabled for this profile.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WAPIHost
+The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: host
+
+Required: False
+Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WAPIVersion
+The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: version
+
+Required: False
+Position: 3
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

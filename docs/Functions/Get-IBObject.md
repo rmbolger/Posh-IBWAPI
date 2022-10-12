@@ -30,9 +30,9 @@ Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-NoPaging] [-ReturnField
 
 ### ByRef
 ```powershell
-Get-IBObject [-ObjectRef] <String> [-BatchMode] [-ReturnFields <String[]>] [-ReturnBaseFields]
- [-ReturnAllFields] [-ProxySearch] [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>]
- [-SkipCertificateCheck] [-ProfileName <String>] [<CommonParameters>]
+Get-IBObject [-ObjectRef] <String> [-ReturnFields <String[]>] [-ReturnBaseFields] [-ReturnAllFields]
+ [-BatchMode] [-BatchGroupSize <Int32>] [-ProxySearch] [-WAPIHost <String>] [-WAPIVersion <String>]
+ [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>] [<CommonParameters>]
 ```
 
 ## Description
@@ -77,33 +77,18 @@ Get all networks that have a parent container of 192.168.1.0/20
 
 ## Parameters
 
-### -ObjectType
-Object type string. (e.g. network, record:host, range)
+### -BatchGroupSize
+The number of objects that should be sent in each group when -BatchMode is specified. The default is 1000.
 
 ```yaml
-Type: String
-Parameter Sets: ByType, ByTypeNoPaging
-Aliases: type
-
-Required: True
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ObjectRef
-Object reference string. This is usually found in the "_ref" field of returned objects.
-
-```yaml
-Type: String
+Type: Int32
 Parameter Sets: ByRef
-Aliases: _ref, ref
+Aliases:
 
-Required: True
-Position: 1
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
+Required: False
+Position: Named
+Default value: 1000
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -118,6 +103,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Credential
+Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
+
+```yaml
+Type: PSCredential
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -154,21 +154,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -PageSize
-The number of results to retrieve per request when auto-paging large result sets. Defaults to 1000. Set this lower if you have very large results that are causing errors with ConvertTo-Json.
-
-```yaml
-Type: Int32
-Parameter Sets: ByType
-Aliases:
-
-Required: False
-Position: Named
-Default value: 1000
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -NoPaging
 If specified, automatic paging will not be used. This is occasionally necessary for some object type queries that return a single object reference such as dhcp:statistics.
 
@@ -184,13 +169,58 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReturnFields
-The set of fields that should be returned in addition to the object reference.
+### -ObjectRef
+Object reference string. This is usually found in the "_ref" field of returned objects.
 
 ```yaml
-Type: String[]
+Type: String
+Parameter Sets: ByRef
+Aliases: _ref, ref
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -ObjectType
+Object type string. (e.g. network, record:host, range)
+
+```yaml
+Type: String
+Parameter Sets: ByType, ByTypeNoPaging
+Aliases: type
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PageSize
+The number of results to retrieve per request when auto-paging large result sets. Defaults to 1000. Set this lower if you have very large results that are causing errors with ConvertTo-Json.
+
+```yaml
+Type: Int32
+Parameter Sets: ByType
+Aliases:
+
+Required: False
+Position: Named
+Default value: 1000
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProfileName
+The name of a specific config profile to use instead of the currently active one.
+
+```yaml
+Type: String
 Parameter Sets: (All)
-Aliases: fields
+Aliases:
 
 Required: False
 Position: Named
@@ -199,13 +229,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReturnBaseFields
-If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields. If -ReturnFields is not used, this defaults to $true.
+### -ProxySearch
+If specified, the request is redirected to Grid manager for processing.
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: base
+Aliases:
 
 Required: False
 Position: Named
@@ -229,8 +259,38 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ProxySearch
-If specified, the request is redirected to Grid manager for processing.
+### -ReturnBaseFields
+If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields. If -ReturnFields is not used, this defaults to $true.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: base
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReturnFields
+The set of fields that should be returned in addition to the object reference.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases: fields
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipCertificateCheck
+If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
 
 ```yaml
 Type: SwitchParameter
@@ -267,51 +327,6 @@ The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parame
 Type: String
 Parameter Sets: (All)
 Aliases: version
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Credential
-Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
-
-```yaml
-Type: PSCredential
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SkipCertificateCheck
-If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ProfileName
-The name of a specific config profile to use instead of the currently active one.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
 
 Required: False
 Position: Named

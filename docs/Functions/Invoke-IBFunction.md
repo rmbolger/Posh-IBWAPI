@@ -37,18 +37,33 @@ Restart grid services if necessary.
 
 ## Parameters
 
-### -ObjectRef
-Object reference string. This is usually found in the "_ref" field of returned objects.
+### -Credential
+Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
 
 ```yaml
-Type: String
+Type: PSCredential
 Parameter Sets: (All)
-Aliases: _ref, ref
+Aliases:
 
-Required: True
-Position: 1
+Required: False
+Position: 6
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -FunctionArgs
+An object with the required parameters for the function.
+
+```yaml
+Type: PSObject
+Parameter Sets: (All)
+Aliases: args
+
+Required: False
+Position: 3
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -67,17 +82,47 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -FunctionArgs
-An object with the required parameters for the function.
+### -ObjectRef
+Object reference string. This is usually found in the "_ref" field of returned objects.
 
 ```yaml
-Type: PSObject
+Type: String
 Parameter Sets: (All)
-Aliases: args
+Aliases: _ref, ref
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -ProfileName
+The name of a specific config profile to use instead of the currently active one.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
 
 Required: False
-Position: 3
+Position: 7
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipCertificateCheck
+If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -112,46 +157,16 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Credential
-Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
-
-```yaml
-Type: PSCredential
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 6
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SkipCertificateCheck
-If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: cf
 
 Required: False
 Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ProfileName
-The name of a specific config profile to use instead of the currently active one.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 7
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -164,21 +179,6 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: wi
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
 
 Required: False
 Position: Named

@@ -49,21 +49,6 @@ Remove all connection profiles.
 
 ## Parameters
 
-### -ProfileName
-The name of the profile to remove.
-
-```yaml
-Type: String
-Parameter Sets: Specific
-Aliases: name
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
 ### -AllProfiles
 If set, all profiles will be removed.
 
@@ -76,6 +61,21 @@ Required: True
 Position: Named
 Default value: False
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProfileName
+The name of the profile to remove.
+
+```yaml
+Type: String
+Parameter Sets: Specific
+Aliases: name
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 

@@ -2,7 +2,9 @@
 
 ### New Features
 
-* `Get/New/Set/Remove-IBObject` all now have a `-BatchMode` parameter which can increase performance when used with pipeline input by grouping the requests into fewer WAPI calls instead of making a separate call for each input object.
+* `Get/New/Set/Remove-IBObject` all now have a `-BatchMode` switch and `-BatchGroupSize` integer parameter. Using these can increase performance when used with pipeline input by grouping the objects into fewer WAPI calls using the WAPI `request` object instead of making a separate call for each input.
+  * WAPI seems to treat these batch requests as a single transaction. So if one of the requests in a group fails, the rest are cancelled/reverted.
+  * The default batch group size is 1000 which corresponds to the maximum page size when doing Get queries. But there is no Infoblox documented maximum, so the size can theoretically be increased to the Int32 maximum of 2147483647.
 * The module now supports running stateless by using an environment variable based connection profile. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Stateless-Mode/)
 * Connection profiles can now be stored using PowerShell SecretManagement instead of a local config file. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Using-SecretManagement/)
 * Documentation Revamp
@@ -14,7 +16,7 @@
 
 * The `-Filter` parameter on `Get-IBObject` now supports using an IDictionary (such as a hashtable) to specify filters rather than just a string array.
   * For example, `-Filter @{'name~'='myrec'}` is the same as `-Filter 'name~=myrec'`.
-  * Filters passed by dictionary will be automatically URL encoded instead of the caller needing to URL encode the filters in advance. This is usually only necessary when using regular expressions.
+  * Filters passed by dictionary will be automatically URL encoded instead of the caller needing to URL encode the filters in advance. This most useful when using regular expressions with a lot of special characters.
   * String based filters will continue to be passed as-is in the HTTP GET request like they were prior to 4.0.
 * The module will keep a cache of "readable fields" when `Get-IBObject` is used with `-ReadAllFields` so that subsequent calls for all fields from the same object type won't need to make additional schema queries.
 * `Invoke-IBWAPI` will now automatically handle UTF-8 encoding JSON bodies when `-ContentType` is not specified. When `-ContentType` is specified, the body parameter will be sent as-is.

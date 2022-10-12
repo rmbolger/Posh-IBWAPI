@@ -12,6 +12,8 @@ function New-IBObject
         [Alias('base')]
         [switch]$ReturnBaseFields,
         [switch]$BatchMode,
+        [ValidateRange(1,2147483647)]
+        [int]$BatchGroupSize = 1000,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -71,7 +73,7 @@ function New-IBObject
 
     End {
         if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
-        Write-Verbose "BatchMode deferred objects: $($deferredObjects.Count)"
+        Write-Verbose "BatchMode deferred objects: $($deferredObjects.Count), group size $($BatchGroupSize)"
 
         # build the 'args' value for each object
         $retArgs = @{}
@@ -85,18 +87,23 @@ function New-IBObject
             $retArgs.'_return_fields+' = ''
         }
 
-        # build the json for all the objects
-        $body = $deferredObjects | ForEach-Object {
-            @{
-                method = 'POST'
-                object = $ObjectType
-                data = $_
-                args = $retArgs
-            }
-        }
+        # make calls based on the group size
+        for ($i=0; $i -lt $deferredObjects.Count; $i += $BatchGroupSize) {
+            $groupEnd = [Math]::Min($deferredObjects.Count, ($i+$BatchGroupSize-1))
 
-        if ($PSCmdlet.ShouldProcess($opts.WAPIHost, 'POST')) {
-            Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
+            # build the json for this group's objects
+            $body = $deferredObjects[$i..$groupEnd] | ForEach-Object {
+                @{
+                    method = 'POST'
+                    object = $ObjectType
+                    data = $_
+                    args = $retArgs
+                }
+            }
+
+            if ($PSCmdlet.ShouldProcess($opts.WAPIHost, 'POST')) {
+                Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
+            }
         }
 
     }

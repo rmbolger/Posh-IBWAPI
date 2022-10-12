@@ -51,21 +51,6 @@ Get all connection profiles.
 
 ## Parameters
 
-### -ProfileName
-The name of the connection profile to return.
-
-```yaml
-Type: String
-Parameter Sets: Specific
-Aliases:
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -List
 If set, list all connection profiles currently stored.
 
@@ -77,6 +62,21 @@ Aliases:
 Required: True
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProfileName
+The name of the connection profile to return.
+
+```yaml
+Type: String
+Parameter Sets: Specific
+Aliases:
+
+Required: False
+Position: 1
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
