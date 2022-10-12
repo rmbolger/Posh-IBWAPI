@@ -9,8 +9,8 @@ function New-IBObject
         [PSObject]$IBObject,
         [Alias('fields')]
         [string[]]$ReturnFields,
-        [Alias('base')]
-        [switch]$ReturnBaseFields,
+        [Alias('base','ReturnBaseFields')]
+        [switch]$ReturnBase,
         [switch]$BatchMode,
         [ValidateRange(1,2147483647)]
         [int]$BatchGroupSize = 1000,
@@ -35,14 +35,14 @@ function New-IBObject
 
         # process the return fields
         if ($ReturnFields.Count -gt 0) {
-            if ($ReturnBaseFields) {
+            if ($ReturnBase) {
                 $querystring = "?_return_fields%2B=$($ReturnFields -join ',')"
             }
             else {
                 $querystring = "?_return_fields=$($ReturnFields -join ',')"
             }
         }
-        elseif ($ReturnBaseFields) {
+        elseif ($ReturnBase) {
             $querystring = "?_return_fields%2B"
         }
 
@@ -78,7 +78,7 @@ function New-IBObject
         # build the 'args' value for each object
         $retArgs = @{}
         if ($ReturnFields.Count -gt 0) {
-            if ($ReturnBaseFields) {
+            if ($ReturnBase) {
                 $retArgs.'_return_fields+' = $ReturnFields -join ','
             } else {
                 $retArgs.'_return_fields'  = $ReturnFields -join ','

@@ -53,7 +53,7 @@ $testhost = Get-IBObject -type record:host -Filter @{'name:'='test_host.test.com
 ```
 
 !!! note
-    You can use `-ReturnAll` to return all available data for a given object type. This flag requires WAPI version 1.7.5+ because it involves extra queries to the schema under the hood. Thus, it is also less performant than a normal query because of the extra roundtrips to the server. If you know the fields you want, it is better to use `-ReturnFields 'field1','field2','fieldX'`. Using `-ReturnFields` will prevent the base fields from being returned unless you explicitly include them or also use `-ReturnBaseFields`.
+    You can use `-ReturnAll` to return all available data for a given object type. This flag requires WAPI version 1.7.5+ because it involves extra queries to the schema under the hood. Thus, it is also less performant than a normal query because of the extra roundtrips to the server. If you know the fields you want, it is better to use `-ReturnFields 'field1','field2','fieldX'`. Using `-ReturnFields` will prevent the base fields from being returned unless you explicitly include them or also use `-ReturnBase`.
 
 There are two different ways to modify the host you just queried. They involve slightly different ways of calling `Set-IBObject`. The easiest, particularly if you're making the same change to multiple objects, is usually to just pipe the variable to `Set-IBObject` and provide a template for the changes with `-TemplateObject`. This works because `Set-IBObject` knows how to pull the `_ref` field out of the pipelined object and use it for `-ObjectRef`:
 

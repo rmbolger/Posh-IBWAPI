@@ -801,7 +801,7 @@
       </command:example>
       <command:example>
         <maml:title>------------ Example 2: Get A records with filters ------------</maml:title>
-        <dev:code>Get-IBObject 'record:a' -Filter @{'name~'='example\.com'} -MaxResults 100 -ReturnFields 'comment' -ReturnBaseFields</dev:code>
+        <dev:code>Get-IBObject 'record:a' -Filter @{'name~'='example\.com'} -MaxResults 100 -ReturnFields 'comment' -ReturnBase</dev:code>
         <dev:remarks>
           <maml:para>Get the first 100 A records in the example.com DNS zone and return the comment field in addition to the basic fields.</maml:para>
           <maml:para></maml:para>
@@ -2385,7 +2385,7 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           <maml:name>PSCustomObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The object reference string of the created item or a custom object if -ReturnFields or -ReturnBaseFields was used.</maml:para>
+          <maml:para>The object reference string of the created item or a custom object if -ReturnFields or -ReturnBase was used.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -2406,7 +2406,7 @@ New-IBObject -ObjectType 'network' -IBObject $mynetwork</dev:code>
         <maml:title>--------------- Example 2 New host with next IP ---------------</maml:title>
         <dev:code>$myhost = @{name='myhost';comment='my host';configure_for_dns=$false}
 $myhost.ipv4addrs = @(@{ipv4addr='func:nextavailableip:10.10.12.0/24'})
-New-IBObject 'record:host' $myhost -ReturnFields 'comment','configure_for_dns' -ReturnBaseFields</dev:code>
+New-IBObject 'record:host' $myhost -ReturnFields 'comment','configure_for_dns' -ReturnBase</dev:code>
         <dev:remarks>
           <maml:para>Create a new host record using an embedded function to get the next available IP in the specified network. Returns the basic host fields plus the comment and configure_for_dns fields.</maml:para>
           <maml:para></maml:para>
@@ -4173,7 +4173,7 @@ $hostsToDelete | Remove-IBObject</dev:code>
           <maml:name>PSCustomObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The object reference string of the modified item or a custom object if -ReturnFields or -ReturnBaseFields was used.</maml:para>
+          <maml:para>The object reference string of the modified item or a custom object if -ReturnFields or -ReturnBase was used.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>

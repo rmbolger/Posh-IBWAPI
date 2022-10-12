@@ -32,6 +32,7 @@
 * The minimum PowerShell version requirements have been increased to 5.1 for legacy Windows PowerShell and 7.0 for cross-platform PowerShell. Partial functionality may still work on older versions, but they are no longer being tested against.
 * The `-Filters` parameter on `Get-IBObject` has been renamed to `-Filter` to better adhere to PowerShell standards but will continue to have a `-Filters` alias until at least the next major version.
 * The `-ReturnAllFields` parameter on `Get-IBObject` has been renamed to `-ReturnAll` but will continue to have a `-ReturnAllFields` alias until at least the next major version.
+* The `-ReturnBaseFields` paraemter on `Get/Set/New-IBObject` has been renamed to `-ReturnBase` but will continue to have a `-ReturnBaseFields` alias until at least the next major version.
 * Automatic migration from 1.x connection profiles is no longer supported.
 
 ## 3.2.2 (2022-03-17)

@@ -15,14 +15,14 @@ Modify an object in Infoblox.
 
 ### ObjectOnly
 ```powershell
-Set-IBObject -IBObject <PSObject> [-ReturnFields <String[]>] [-ReturnBaseFields] [-BatchMode]
+Set-IBObject -IBObject <PSObject> [-ReturnFields <String[]>] [-ReturnBase] [-BatchMode]
  [-BatchGroupSize <Int32>] [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>]
  [-SkipCertificateCheck] [-ProfileName <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### RefAndTemplate
 ```powershell
-Set-IBObject -ObjectRef <String> -TemplateObject <PSObject> [-ReturnFields <String[]>] [-ReturnBaseFields]
+Set-IBObject -ObjectRef <String> -TemplateObject <PSObject> [-ReturnFields <String[]>] [-ReturnBase]
  [-BatchMode] [-BatchGroupSize <Int32>] [-WAPIHost <String>] [-WAPIVersion <String>]
  [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>] [-WhatIf] [-Confirm]
  [<CommonParameters>]
@@ -154,13 +154,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReturnBaseFields
+### -ReturnBase
 If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: base
+Aliases: base, ReturnBaseFields
 
 Required: False
 Position: Named
@@ -281,7 +281,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## Outputs
 
 ### PSCustomObject
-The object reference string of the modified item or a custom object if -ReturnFields or -ReturnBaseFields was used.
+The object reference string of the modified item or a custom object if -ReturnFields or -ReturnBase was used.
 
 ## Related Links
 

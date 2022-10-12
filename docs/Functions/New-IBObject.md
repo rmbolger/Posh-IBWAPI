@@ -14,7 +14,7 @@ Create an object in Infoblox.
 ## Syntax
 
 ```powershell
-New-IBObject [-ObjectType] <String> [-IBObject] <PSObject> [[-ReturnFields] <String[]>] [-ReturnBaseFields]
+New-IBObject [-ObjectType] <String> [-IBObject] <PSObject> [[-ReturnFields] <String[]>] [-ReturnBase]
  [-BatchMode] [-BatchGroupSize <Int32>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>]
  [[-Credential] <PSCredential>] [-SkipCertificateCheck] [[-ProfileName] <String>] [-WhatIf] [-Confirm]
  [<CommonParameters>]
@@ -40,7 +40,7 @@ Create a basic new network with a comment.
 ```powershell
 $myhost = @{name='myhost';comment='my host';configure_for_dns=$false}
 $myhost.ipv4addrs = @(@{ipv4addr='func:nextavailableip:10.10.12.0/24'})
-New-IBObject 'record:host' $myhost -ReturnFields 'comment','configure_for_dns' -ReturnBaseFields
+New-IBObject 'record:host' $myhost -ReturnFields 'comment','configure_for_dns' -ReturnBase
 ```
 
 Create a new host record using an embedded function to get the next available IP in the specified network.
@@ -164,13 +164,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReturnBaseFields
+### -ReturnBase
 If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: base
+Aliases: base, ReturnBaseFields
 
 Required: False
 Position: Named
@@ -276,7 +276,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## Outputs
 
 ### PSCustomObject
-The object reference string of the created item or a custom object if -ReturnFields or -ReturnBaseFields was used.
+The object reference string of the created item or a custom object if -ReturnFields or -ReturnBase was used.
 
 ## Related Links
 

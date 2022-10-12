@@ -26,8 +26,8 @@ function Get-IBObject
 
         [Alias('fields')]
         [string[]]$ReturnFields,
-        [Alias('base')]
-        [switch]$ReturnBaseFields,
+        [Alias('base','ReturnBaseFields')]
+        [switch]$ReturnBase,
         [Alias('all','ReturnAllFields')]
         [switch]$ReturnAll,
 
@@ -103,7 +103,7 @@ function Get-IBObject
         # Process {} section in case they passed multiple different object types
         # via _ref.
         if (-not $ReturnAll -and $ReturnFields.Count -gt 0) {
-            if ($ReturnBaseFields) {
+            if ($ReturnBase) {
                 $queryargs.Add("_return_fields%2B=$($ReturnFields -join ',')")
             }
             else {
@@ -259,7 +259,7 @@ function Get-IBObject
         # build the 'args' value for each object
         $retArgs = @{}
         if ($ReturnFields.Count -gt 0) {
-            if ($ReturnBaseFields) {
+            if ($ReturnBase) {
                 $retArgs.'_return_fields+' = $ReturnFields -join ','
             } else {
                 $retArgs.'_return_fields'  = $ReturnFields -join ','
