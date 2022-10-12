@@ -3473,7 +3473,7 @@ $hostsToDelete | Remove-IBObject</dev:code>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="name">
           <maml:name>ProfileName</maml:name>
           <maml:description>
-            <maml:para>The name of the profile to create or modify.</maml:para>
+            <maml:para>The name of the profile to create or modify. (Must not be 'ENV' which is used in stateless mode)</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -3521,7 +3521,7 @@ $hostsToDelete | Remove-IBObject</dev:code>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="5" aliases="none">
           <maml:name>NewName</maml:name>
           <maml:description>
-            <maml:para>A new name that this config profile should be renamed to.</maml:para>
+            <maml:para>A new name that this config profile should be renamed to. (Must not be 'ENV' which is used in stateless mode)</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -3570,7 +3570,7 @@ $hostsToDelete | Remove-IBObject</dev:code>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="5" aliases="none">
         <maml:name>NewName</maml:name>
         <maml:description>
-          <maml:para>A new name that this config profile should be renamed to.</maml:para>
+          <maml:para>A new name that this config profile should be renamed to. (Must not be 'ENV' which is used in stateless mode)</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -3594,7 +3594,7 @@ $hostsToDelete | Remove-IBObject</dev:code>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="name">
         <maml:name>ProfileName</maml:name>
         <maml:description>
-          <maml:para>The name of the profile to create or modify.</maml:para>
+          <maml:para>The name of the profile to create or modify. (Must not be 'ENV' which is used in stateless mode)</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>

@@ -28,6 +28,14 @@ function Set-IBConfig
         return
     }
 
+    # Don't allow folks to use 'ENV' as a profile name
+    if ('ENV' -eq $ProfileName -or 'ENV' -eq $NewName) {
+        $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+            "'ENV' is a reserved profile name. Please choose something else.",
+            $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
+        ))
+    }
+
     $profiles = Get-Profiles
 
     if ($ProfileName) {

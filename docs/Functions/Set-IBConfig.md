@@ -69,7 +69,7 @@ Accept wildcard characters: False
 ```
 
 ### -NewName
-A new name that this config profile should be renamed to.
+A new name that this config profile should be renamed to. (Must not be 'ENV' which is used in stateless mode)
 
 ```yaml
 Type: String
@@ -99,7 +99,7 @@ Accept wildcard characters: False
 ```
 
 ### -ProfileName
-The name of the profile to create or modify.
+The name of the profile to create or modify. (Must not be 'ENV' which is used in stateless mode)
 
 ```yaml
 Type: String
