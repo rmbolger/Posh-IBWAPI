@@ -2,23 +2,23 @@ function Get-IBObject
 {
     [CmdletBinding(DefaultParameterSetName='ByType')]
     param(
-        [Parameter(ParameterSetName='ByType',Mandatory=$True,Position=0)]
-        [Parameter(ParameterSetName='ByTypeNoPaging',Mandatory=$True,Position=0)]
+        [Parameter(ParameterSetName='ByType',Mandatory,Position=0)]
+        [Parameter(ParameterSetName='ByTypeNoPaging',Mandatory,Position=0)]
         [Alias('type')]
         [string]$ObjectType,
 
-        [Parameter(ParameterSetName='ByRef',Mandatory=$True,Position=0,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
+        [Parameter(ParameterSetName='ByRef',Mandatory,Position=0,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [Alias('_ref','ref')]
         [string]$ObjectRef,
 
-        [Parameter(ParameterSetName='ByType')]
-        [Parameter(ParameterSetName='ByTypeNoPaging')]
+        [Parameter(ParameterSetName='ByType',Position=1)]
+        [Parameter(ParameterSetName='ByTypeNoPaging',Position=1)]
         [Alias('Filters')]
         [object]$Filter,
 
-        [Parameter(ParameterSetName='ByType')]
+        [Parameter(ParameterSetName='ByType',Position=2)]
         [int]$MaxResults=[int]::MaxValue,
-        [Parameter(ParameterSetName='ByType')]
+        [Parameter(ParameterSetName='ByType',Position=3)]
         [ValidateRange(1,1000)]
         [int]$PageSize=1000,
         [Parameter(ParameterSetName='ByTypeNoPaging')]
@@ -38,6 +38,9 @@ function Get-IBObject
         [int]$BatchGroupSize = 1000,
 
         [switch]$ProxySearch,
+
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -45,9 +48,7 @@ function Get-IBObject
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
-        [string]$ProfileName
+        [switch]$SkipCertificateCheck
     )
 
     Begin {

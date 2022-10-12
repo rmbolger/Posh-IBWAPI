@@ -15,8 +15,8 @@ Upload a file to Infoblox using one of the fileop upload functions.
 
 ```powershell
 Send-IBFile [-FunctionName] <String> [-Path] <String> [-FunctionArgs <Hashtable>] [-ObjectRef <String>]
- [-OverrideTransferHost] [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>]
- [-SkipCertificateCheck] [-ProfileName <String>] [<CommonParameters>]
+ [-OverrideTransferHost] [-ProfileName <String>] [-WAPIHost <String>] [-WAPIVersion <String>]
+ [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
 ```
 
 ## Description

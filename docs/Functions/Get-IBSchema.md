@@ -15,8 +15,8 @@ Query the schema of an object or the base appliance.
 
 ```powershell
 Get-IBSchema [[-ObjectType] <String>] [-Raw] [-LaunchHTML] [[-Fields] <String[]>] [[-Operations] <String[]>]
- [-NoFields] [[-Functions] <String[]>] [-NoFunctions] [-Detailed] [[-WAPIHost] <String>]
- [[-WAPIVersion] <String>] [[-Credential] <PSCredential>] [-SkipCertificateCheck] [[-ProfileName] <String>]
+ [-NoFields] [[-Functions] <String[]>] [-NoFunctions] [-Detailed] [[-ProfileName] <String>]
+ [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>] [-SkipCertificateCheck]
  [<CommonParameters>]
 ```
 

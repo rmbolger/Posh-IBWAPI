@@ -2,9 +2,9 @@ function HighestVer
 {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory)]
         [string]$WAPIHost,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory)]
         [pscredential]$Credential,
         [switch]$SkipCertificateCheck,
         [Parameter(ValueFromRemainingArguments=$true)]

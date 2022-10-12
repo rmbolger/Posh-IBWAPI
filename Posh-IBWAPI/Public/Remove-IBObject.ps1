@@ -2,14 +2,18 @@ function Remove-IBObject
 {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
+        [Parameter(Mandatory,Position=0,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [Alias('_ref','ref')]
         [string]$ObjectRef,
+        [Parameter(Position=1)]
         [Alias('args')]
         [string[]]$DeleteArgs,
         [switch]$BatchMode,
         [ValidateRange(1,2147483647)]
         [int]$BatchGroupSize = 1000,
+
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -17,9 +21,7 @@ function Remove-IBObject
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
-        [string]$ProfileName
+        [switch]$SkipCertificateCheck
     )
 
     Begin {

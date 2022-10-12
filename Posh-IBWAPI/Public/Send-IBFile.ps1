@@ -1,11 +1,10 @@
 function Send-IBFile {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true,Position=0)]
+        [Parameter(Mandatory,Position=0)]
         [Alias('name')]
         [string]$FunctionName,
-        [Parameter(Mandatory=$true,Position=1,
-            ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory,Position=1,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [Alias("PSPath")]
         [ValidateScript({
             if(-not ($_ | Test-Path) ) {
@@ -17,12 +16,16 @@ function Send-IBFile {
             return $true
         })]
         [string]$Path,
+        [Parameter(Position=2)]
         [Alias('args')]
         [hashtable]$FunctionArgs = @{},
+        [Parameter(Position=3)]
         [Alias('_ref','ref','ObjectType','type')]
         [string]$ObjectRef = 'fileop',
         [switch]$OverrideTransferHost,
 
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -30,9 +33,7 @@ function Send-IBFile {
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
-        [string]$ProfileName
+        [switch]$SkipCertificateCheck
     )
 
     Begin {

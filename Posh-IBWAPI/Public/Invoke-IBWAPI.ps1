@@ -2,15 +2,15 @@ function Invoke-IBWAPI
 {
     [CmdletBinding(SupportsShouldProcess,DefaultParameterSetName='Uri')]
     param(
-        [Parameter(ParameterSetName='Uri',Mandatory=$true,Position=0)]
+        [Parameter(ParameterSetName='Uri',Mandatory,Position=0)]
         [Uri]$Uri,
-        [Parameter(ParameterSetName='HostVersion',Mandatory=$true,Position=0)]
+        [Parameter(ParameterSetName='HostVersion',Mandatory,Position=0)]
         [Alias('host')]
         [string]$WAPIHost,
-        [Parameter(ParameterSetName='HostVersion',Mandatory=$true,Position=1)]
+        [Parameter(ParameterSetName='HostVersion',Mandatory,Position=1)]
         [Alias('version')]
         [string]$WAPIVersion,
-        [Parameter(ParameterSetName='HostVersion',Mandatory=$true,Position=2)]
+        [Parameter(ParameterSetName='HostVersion',Mandatory,Position=2)]
         [string]$Query,
         [Microsoft.PowerShell.Commands.WebRequestMethod]$Method=([Microsoft.PowerShell.Commands.WebRequestMethod]::Get),
         [PSCredential]$Credential,

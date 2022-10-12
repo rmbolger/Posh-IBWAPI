@@ -2,14 +2,14 @@ function Set-IBObject
 {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(ParameterSetName='ObjectOnly',Mandatory=$True,ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName='ObjectOnly',Mandatory,Position=0,ValueFromPipeline)]
         [PSObject]$IBObject,
 
-        [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
+        [Parameter(ParameterSetName='RefAndTemplate',Mandatory,Position=0,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [Alias('_ref','ref')]
         [string]$ObjectRef,
 
-        [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True)]
+        [Parameter(ParameterSetName='RefAndTemplate',Mandatory,Position=1)]
         [PSObject]$TemplateObject,
 
         [Alias('fields','ReturnFields')]
@@ -19,6 +19,9 @@ function Set-IBObject
         [switch]$BatchMode,
         [ValidateRange(1,2147483647)]
         [int]$BatchGroupSize = 1000,
+
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -26,9 +29,7 @@ function Set-IBObject
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
-        [string]$ProfileName
+        [switch]$SkipCertificateCheck
     )
 
     Begin {

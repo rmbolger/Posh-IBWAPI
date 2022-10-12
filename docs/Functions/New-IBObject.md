@@ -15,8 +15,8 @@ Create an object in Infoblox.
 
 ```powershell
 New-IBObject [-ObjectType] <String> [-IBObject] <PSObject> [-ReturnField <String[]>] [-ReturnBase] [-BatchMode]
- [-BatchGroupSize <Int32>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>]
- [-SkipCertificateCheck] [[-ProfileName] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-BatchGroupSize <Int32>] [[-ProfileName] <String>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>]
+ [[-Credential] <PSCredential>] [-SkipCertificateCheck] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## Description

@@ -1,7 +1,7 @@
 function Format-Columns {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+        [Parameter(Mandatory,ValueFromPipeline)]
         [PsObject[]]$InputObject,
         [Object]$Property,
         [int]$Column,

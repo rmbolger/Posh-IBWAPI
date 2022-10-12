@@ -15,8 +15,8 @@ Delete an object from Infoblox.
 
 ```powershell
 Remove-IBObject [-ObjectRef] <String> [[-DeleteArgs] <String[]>] [-BatchMode] [-BatchGroupSize <Int32>]
- [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>] [-SkipCertificateCheck]
- [[-ProfileName] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [[-ProfileName] <String>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>]
+ [-SkipCertificateCheck] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## Description

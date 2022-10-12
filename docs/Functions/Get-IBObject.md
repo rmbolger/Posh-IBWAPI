@@ -16,23 +16,23 @@ Retrieve objects from the Infoblox database.
 ### ByType (Default)
 ```powershell
 Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-MaxResults <Int32>] [-PageSize <Int32>]
- [-ReturnField <String[]>] [-ReturnBase] [-ReturnAll] [-ProxySearch] [-WAPIHost <String>]
- [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>]
+ [-ReturnField <String[]>] [-ReturnBase] [-ReturnAll] [-ProxySearch] [-ProfileName <String>]
+ [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck]
  [<CommonParameters>]
 ```
 
 ### ByTypeNoPaging
 ```powershell
 Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-NoPaging] [-ReturnField <String[]>] [-ReturnBase]
- [-ReturnAll] [-ProxySearch] [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>]
- [-SkipCertificateCheck] [-ProfileName <String>] [<CommonParameters>]
+ [-ReturnAll] [-ProxySearch] [-ProfileName <String>] [-WAPIHost <String>] [-WAPIVersion <String>]
+ [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
 ```
 
 ### ByRef
 ```powershell
 Get-IBObject [-ObjectRef] <String> [-ReturnField <String[]>] [-ReturnBase] [-ReturnAll] [-BatchMode]
- [-BatchGroupSize <Int32>] [-ProxySearch] [-WAPIHost <String>] [-WAPIVersion <String>]
- [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>] [<CommonParameters>]
+ [-BatchGroupSize <Int32>] [-ProxySearch] [-ProfileName <String>] [-WAPIHost <String>] [-WAPIVersion <String>]
+ [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
 ```
 
 ## Description

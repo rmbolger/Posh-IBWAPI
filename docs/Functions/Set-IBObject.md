@@ -16,16 +16,15 @@ Modify an object in Infoblox.
 ### ObjectOnly
 ```powershell
 Set-IBObject -IBObject <PSObject> [-ReturnField <String[]>] [-ReturnBase] [-BatchMode]
- [-BatchGroupSize <Int32>] [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>]
- [-SkipCertificateCheck] [-ProfileName <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-BatchGroupSize <Int32>] [-ProfileName <String>] [-WAPIHost <String>] [-WAPIVersion <String>]
+ [-Credential <PSCredential>] [-SkipCertificateCheck] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### RefAndTemplate
 ```powershell
 Set-IBObject -ObjectRef <String> -TemplateObject <PSObject> [-ReturnField <String[]>] [-ReturnBase]
- [-BatchMode] [-BatchGroupSize <Int32>] [-WAPIHost <String>] [-WAPIVersion <String>]
- [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+ [-BatchMode] [-BatchGroupSize <Int32>] [-ProfileName <String>] [-WAPIHost <String>] [-WAPIVersion <String>]
+ [-Credential <PSCredential>] [-SkipCertificateCheck] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## Description

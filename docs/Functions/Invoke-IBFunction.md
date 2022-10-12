@@ -15,8 +15,8 @@ Call a WAPI function
 
 ```powershell
 Invoke-IBFunction [-ObjectRef] <String> [-FunctionName] <String> [[-FunctionArgs] <PSObject>]
- [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>] [-SkipCertificateCheck]
- [[-ProfileName] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [[-ProfileName] <String>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>]
+ [-SkipCertificateCheck] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## Description

@@ -1,17 +1,21 @@
 function Receive-IBFile {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$True)]
+        [Parameter(Mandatory,Position=0)]
         [Alias('name')]
         [string]$FunctionName,
-        [Parameter(Mandatory=$True)]
+        [Parameter(Mandatory,Position=1)]
         [string]$OutFile,
+        [Parameter(Position=2)]
         [Alias('args')]
         [hashtable]$FunctionArgs,
+        [Parameter(Position=3)]
         [Alias('_ref','ref','ObjectType','type')]
         [string]$ObjectRef = 'fileop',
         [switch]$OverrideTransferHost,
 
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -19,9 +23,7 @@ function Receive-IBFile {
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
-        [string]$ProfileName
+        [switch]$SkipCertificateCheck
     )
 
     Begin {

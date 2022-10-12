@@ -2,10 +2,10 @@ function New-IBObject
 {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(Mandatory=$True)]
+        [Parameter(Mandatory,Position=0)]
         [Alias('type')]
         [string]$ObjectType,
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True)]
+        [Parameter(Mandatory,Position=1,ValueFromPipeline)]
         [PSObject]$IBObject,
         [Alias('fields','ReturnFields')]
         [string[]]$ReturnField,
@@ -14,6 +14,9 @@ function New-IBObject
         [switch]$BatchMode,
         [ValidateRange(1,2147483647)]
         [int]$BatchGroupSize = 1000,
+
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -21,9 +24,7 @@ function New-IBObject
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
-        [string]$ProfileName
+        [switch]$SkipCertificateCheck
     )
 
     Begin {

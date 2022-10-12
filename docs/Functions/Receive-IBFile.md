@@ -15,8 +15,8 @@ Download a file from a fileop function
 
 ```powershell
 Receive-IBFile [-FunctionName] <String> [-OutFile] <String> [[-FunctionArgs] <Hashtable>]
- [[-ObjectRef] <String>] [-OverrideTransferHost] [[-WAPIHost] <String>] [[-WAPIVersion] <String>]
- [[-Credential] <PSCredential>] [-SkipCertificateCheck] [[-ProfileName] <String>] [<CommonParameters>]
+ [[-ObjectRef] <String>] [-OverrideTransferHost] [[-ProfileName] <String>] [[-WAPIHost] <String>]
+ [[-WAPIVersion] <String>] [[-Credential] <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
 ```
 
 ## Description

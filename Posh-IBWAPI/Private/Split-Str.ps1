@@ -1,7 +1,7 @@
 function Split-Str {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
+        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [string[]]$Text,
         [int]$MaxWidth=$Host.UI.RawUI.BufferSize.Width,
         [int]$Indent,
