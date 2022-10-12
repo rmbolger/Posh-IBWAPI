@@ -58,7 +58,7 @@ Retrieve a set of objects using `Get-IBObject`. The only required parameter is `
 
 ```powershell
 Get-IBObject 'record:host'
-Get-IBObject 'record:host' -Filters 'name~=example.com' -MaxResults 10 -ReturnFields 'extattrs'
+Get-IBObject 'record:host' -Filter @{'name~'='example\.com'} -MaxResults 10 -ReturnFields 'extattrs'
 ```
 
 If you're just exploring the WAPI object model, it can be helpful to convert the resulting objects back to JSON for readability.
@@ -96,7 +96,7 @@ To modify an existing object, the easiest way is usually to get a copy of it, mo
 
 ```powershell
 # Get a copy of the host
-$myhost = Get-IBObject 'record:host' -Filters 'name=web1.example.com'
+$myhost = Get-IBObject 'record:host' -Filter 'name=web1.example.com'
 
 # remove the read-only 'host' field from the nested 'record:host_ipv4addr' object
 $myhost.ipv4addrs[0].PSObject.Properties.Remove('host')
@@ -112,7 +112,7 @@ If you need to make the same change to a set of objects, you can also pass the s
 
 ```powershell
 # Get all hosts in the Los Angeles site
-$laHosts = Get-IBObject 'record:host' -Filters '*Site=Los Angeles'
+$laHosts = Get-IBObject 'record:host' -Filter @{'*Site'='Los Angeles'}
 
 # Move them to the New York site
 $laHosts | Set-IBObject -Template @{extattrs=@{Site=@{value='New York'}}}
@@ -122,7 +122,7 @@ Deleting one or more objects is as simple as passing one or more object referenc
 
 ```powershell
 # Get hosts being decommissioned
-$toDelete = Get-IBObject 'record:host' -Filters 'comment=decommission'
+$toDelete = Get-IBObject 'record:host' -Filter 'comment=decommission'
 
 # Delete them
 $toDelete | Remove-IBObject

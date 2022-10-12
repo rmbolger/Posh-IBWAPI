@@ -801,7 +801,7 @@
       </command:example>
       <command:example>
         <maml:title>------------ Example 2: Get A records with filters ------------</maml:title>
-        <dev:code>Get-IBObject 'record:a' -Filter 'name~=.*\.example.com' -MaxResults 100 -ReturnFields 'comment' -ReturnBaseFields</dev:code>
+        <dev:code>Get-IBObject 'record:a' -Filter @{'name~'='example\.com'} -MaxResults 100 -ReturnFields 'comment' -ReturnBaseFields</dev:code>
         <dev:remarks>
           <maml:para>Get the first 100 A records in the example.com DNS zone and return the comment field in addition to the basic fields.</maml:para>
           <maml:para></maml:para>

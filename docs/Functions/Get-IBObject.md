@@ -54,7 +54,7 @@ Get the basic fields for a specific Host record.
 ### Example 2: Get A records with filters
 
 ```powershell
-Get-IBObject 'record:a' -Filter 'name~=.*\.example.com' -MaxResults 100 -ReturnFields 'comment' -ReturnBaseFields
+Get-IBObject 'record:a' -Filter @{'name~'='example\.com'} -MaxResults 100 -ReturnFields 'comment' -ReturnBaseFields
 ```
 
 Get the first 100 A records in the example.com DNS zone and return the comment field in addition to the basic fields.

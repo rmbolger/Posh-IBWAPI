@@ -34,7 +34,7 @@ If you want to modify an object, you have to use a `Get-IBObject` to read it fir
 
 ```powershell
 # Get a specific host by name (case-insensitive)
-$testhost = Get-IBObject -type record:host -filters 'name:=test_host.test.com'
+$testhost = Get-IBObject -type record:host -Filter @{'name:'='test_host.test.com'}
 
 # $testhost looks like the following when converted to JSON
 {
@@ -88,29 +88,29 @@ $testhost | Set-IBObject
 
 ```powershell
 # case-sensitive exact match using '='
-Get-IBObject -type record:host -filters 'name=my.fqdn.org'
+Get-IBObject -type record:host -Filter 'name=my.fqdn.org'
 
 # case-insensitive exact match using ':=' (Requires WAPI 1.4+)
-Get-IBObject -type record:host -filters 'name:=my.fqdn.org'
+Get-IBObject -type record:host -Filter @{'name:'='my.fqdn.org'}
 
 # case-sensitive Regex partial match using '~='
-Get-IBObject -type record:host -filters 'name~=my'
+Get-IBObject -type record:host -Filter @{'name~'='my'}
 
 # case-insensitive Regex partial match using ':~=' (Requires WAPI 1.4+)
-Get-IBObject -type record:host -filters 'name:~=my'
+Get-IBObject -type record:host -Filter @{'name:~'='my'}
 ```
 
 ## Search for FixedAddress by MAC
 
 ```powershell
 # return base fields + mac
-Get-IBObject -type fixedaddress -filters 'mac=aa:bb:cc:11:22:33' -fields 'mac' -base
+Get-IBObject -type fixedaddress -Filter 'mac=aa:bb:cc:11:22:33' -fields 'mac' -base
 ```
 
 ## Search for objects associated with a specific IP address
 
 ```powershell
-$ipObj = Get-IBObject -type ipv4address -filters 'status=USED','ip_address=1.1.1.1'
+$ipObj = Get-IBObject -type ipv4address -Filter 'status=USED','ip_address=1.1.1.1'
 
 # the object references are stored in the 'objects' field, but we can
 # also query for additional information
@@ -141,7 +141,7 @@ $newhost | New-IBObject -type record:host
 
 ```powershell
 # search for the host we want to delete
-$delHost = Get-IBObject -type record:host -filters 'name=wapi.test.org'
+$delHost = Get-IBObject -type record:host -Filter 'name=wapi.test.org'
 
 # delete it
 $delHost | Remove-IBObject
@@ -238,7 +238,7 @@ New-IBObject -type fixedaddress -IBObject @{ipv4addr='1.1.1.21';mac='00:00:00:00
 ## Search for a subnet
 
 ```powershell
-$subnet = Get-IBObject -type network -filters 'network=1.1.1.0/24'
+$subnet = Get-IBObject -type network -Filter 'network=1.1.1.0/24'
 ```
 
 ## Get Next Available address from a subnet
@@ -264,20 +264,20 @@ $subnet | Invoke-IBFunction -name 'next_available_ip' -args @{num=5} | Select -e
 ## Get all the addresses (and records) in a subnet
 
 ```powershell
-Get-IBObject -type ipv4address -filters 'network=1.1.1.0/24'
+Get-IBObject -type ipv4address -Filter 'network=1.1.1.0/24'
 ```
 
 ## Get all the IP addresses in a given range
 
 ```powershell
-Get-IBObject -type ipv4address -filters 'ip_address>=1.1.1.1','ip_address<=1.1.1.10'
+Get-IBObject -type ipv4address -Filter 'ip_address>=1.1.1.1','ip_address<=1.1.1.10'
 ```
 
 ## Search for HOSTS by Extensible Attribute
 
 ```powershell
 # when filtering on EA, prepend '*' to the front of the EA name
-Get-IBObject -type record:host -filters '*Floor=3rd' -fields 'extattrs'
+Get-IBObject -type record:host -Filter '*Floor=3rd' -fields 'extattrs'
 ```
 
 ## Add extensible Attributes to an object
@@ -288,7 +288,7 @@ $myhost | Set-IBObject -template @{extattrs=@{Site=@{value='East'}}}
 
 # combine with the previous example to change all hosts on the
 # 3rd Floor to the 5th Floor
-Get-IBObject -type record:host -filters '*Floor=3rd' | 
+Get-IBObject -type record:host -Filter '*Floor=3rd' | 
   Set-IBObject -template @{extattrs=@{Floor=@{value='5th'}}}
 ```
 
@@ -296,7 +296,7 @@ Get-IBObject -type record:host -filters '*Floor=3rd' |
 
 ```powershell
 # get the existing definition
-$listdef = Get-IBObject -type extensibleattributedef -Filters 'name=MyList' -Fields 'list_values'
+$listdef = Get-IBObject -type extensibleattributedef -Filter 'name=MyList' -Fields 'list_values'
 
 # add a new item to the list
 $listdef.list_values += @{value='NewValue'}
@@ -319,7 +319,7 @@ $newhost | New-IBObject -type record:host
 ## Get all the aliases on a host
 
 ```powershell
-Get-IBObject -type record:host -filters 'name=wapialiased.test.org' -fields 'aliases' -base
+Get-IBObject -type record:host -Filter 'name=wapialiased.test.org' -fields 'aliases' -base
 ```
 
 ## Remove or modify aliases from a host
@@ -345,7 +345,7 @@ New-IBObject -type record:cname -IBObject $cname
 
 ```powershell
 # get a reference to the existing object
-$myCname = Get-IBObject -type record:cname -filters 'name=cname.test.org'
+$myCname = Get-IBObject -type record:cname -Filter 'name=cname.test.org'
 
 # delete it
 $myCname | Remove-IBObject
@@ -355,7 +355,7 @@ $myCname | Remove-IBObject
 
 ```powershell
 # get a reference to the existing object
-$myCname = Get-IBObject -type record:cname -filters 'name=cname.test.org'
+$myCname = Get-IBObject -type record:cname -Filter 'name=cname.test.org'
 
 # set a new canonical
 $myCname | Set-IBObject -template @{canonical='wapi-new.test.org'}
@@ -417,7 +417,7 @@ Set-IBObject -ref 'network/ZG5zLm5l...' -template $zoneAssoc
 Get-IBObject -ref 'network/ZG5zLm5l...' -fields 'zone_associations' -base
 
 # or not
-Get-IBObject -type network -filters 'network=45.0.46.0/24' -fields 'zone_associations' -base
+Get-IBObject -type network -Filter 'network=45.0.46.0/24' -fields 'zone_associations' -base
 ```
 
 ## Add a zone, of type forward
