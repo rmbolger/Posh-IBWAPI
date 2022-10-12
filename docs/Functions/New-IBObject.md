@@ -14,10 +14,9 @@ Create an object in Infoblox.
 ## Syntax
 
 ```powershell
-New-IBObject [-ObjectType] <String> [-IBObject] <PSObject> [[-ReturnFields] <String[]>] [-ReturnBase]
- [-BatchMode] [-BatchGroupSize <Int32>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>]
- [[-Credential] <PSCredential>] [-SkipCertificateCheck] [[-ProfileName] <String>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+New-IBObject [-ObjectType] <String> [-IBObject] <PSObject> [-ReturnField <String[]>] [-ReturnBase] [-BatchMode]
+ [-BatchGroupSize <Int32>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>]
+ [-SkipCertificateCheck] [[-ProfileName] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## Description
@@ -40,7 +39,7 @@ Create a basic new network with a comment.
 ```powershell
 $myhost = @{name='myhost';comment='my host';configure_for_dns=$false}
 $myhost.ipv4addrs = @(@{ipv4addr='func:nextavailableip:10.10.12.0/24'})
-New-IBObject 'record:host' $myhost -ReturnFields 'comment','configure_for_dns' -ReturnBase
+New-IBObject 'record:host' $myhost -ReturnField 'comment','configure_for_dns' -ReturnBase
 ```
 
 Create a new host record using an embedded function to get the next available IP in the specified network.
@@ -165,7 +164,7 @@ Accept wildcard characters: False
 ```
 
 ### -ReturnBase
-If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.
+If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField.
 
 ```yaml
 Type: SwitchParameter
@@ -179,16 +178,16 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReturnFields
+### -ReturnField
 The set of fields that should be returned in addition to the object reference.
 
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: fields
+Aliases: fields, ReturnFields
 
 Required: False
-Position: 3
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -276,7 +275,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## Outputs
 
 ### PSCustomObject
-The object reference string of the created item or a custom object if -ReturnFields or -ReturnBase was used.
+The object reference string of the created item or a custom object if -ReturnField or -ReturnBase was used.
 
 ## Related Links
 

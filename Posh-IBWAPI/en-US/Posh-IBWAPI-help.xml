@@ -213,10 +213,10 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base">
-          <maml:name>ReturnBaseFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base, ReturnBaseFields">
+          <maml:name>ReturnBase</maml:name>
           <maml:description>
-            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields. If -ReturnFields is not used, this defaults to $true.</maml:para>
+            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField. If -ReturnField is not used, this defaults to $true.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -224,8 +224,8 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields">
-          <maml:name>ReturnFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields, ReturnFields">
+          <maml:name>ReturnField</maml:name>
           <maml:description>
             <maml:para>The set of fields that should be returned in addition to the object reference.</maml:para>
           </maml:description>
@@ -368,10 +368,10 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base">
-          <maml:name>ReturnBaseFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base, ReturnBaseFields">
+          <maml:name>ReturnBase</maml:name>
           <maml:description>
-            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields. If -ReturnFields is not used, this defaults to $true.</maml:para>
+            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField. If -ReturnField is not used, this defaults to $true.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -379,8 +379,8 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields">
-          <maml:name>ReturnFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields, ReturnFields">
+          <maml:name>ReturnField</maml:name>
           <maml:description>
             <maml:para>The set of fields that should be returned in addition to the object reference.</maml:para>
           </maml:description>
@@ -510,10 +510,10 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base">
-          <maml:name>ReturnBaseFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base, ReturnBaseFields">
+          <maml:name>ReturnBase</maml:name>
           <maml:description>
-            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields. If -ReturnFields is not used, this defaults to $true.</maml:para>
+            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField. If -ReturnField is not used, this defaults to $true.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -521,8 +521,8 @@
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields">
-          <maml:name>ReturnFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields, ReturnFields">
+          <maml:name>ReturnField</maml:name>
           <maml:description>
             <maml:para>The set of fields that should be returned in addition to the object reference.</maml:para>
           </maml:description>
@@ -715,10 +715,10 @@
         </dev:type>
         <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base">
-        <maml:name>ReturnBaseFields</maml:name>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base, ReturnBaseFields">
+        <maml:name>ReturnBase</maml:name>
         <maml:description>
-          <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields. If -ReturnFields is not used, this defaults to $true.</maml:para>
+          <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField. If -ReturnField is not used, this defaults to $true.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -727,8 +727,8 @@
         </dev:type>
         <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields">
-        <maml:name>ReturnFields</maml:name>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields, ReturnFields">
+        <maml:name>ReturnField</maml:name>
         <maml:description>
           <maml:para>The set of fields that should be returned in addition to the object reference.</maml:para>
         </maml:description>
@@ -801,7 +801,7 @@
       </command:example>
       <command:example>
         <maml:title>------------ Example 2: Get A records with filters ------------</maml:title>
-        <dev:code>Get-IBObject 'record:a' -Filter @{'name~'='example\.com'} -MaxResults 100 -ReturnFields 'comment' -ReturnBase</dev:code>
+        <dev:code>Get-IBObject 'record:a' -Filter @{'name~'='example\.com'} -MaxResults 100 -ReturnField 'comment' -ReturnBase</dev:code>
         <dev:remarks>
           <maml:para>Get the first 100 A records in the example.com DNS zone and return the comment field in addition to the basic fields.</maml:para>
           <maml:para></maml:para>
@@ -2091,8 +2091,8 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="fields">
-          <maml:name>ReturnFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="fields, ReturnFields">
+          <maml:name>ReturnField</maml:name>
           <maml:description>
             <maml:para>The set of fields that should be returned in addition to the object reference.</maml:para>
           </maml:description>
@@ -2174,10 +2174,10 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base">
-          <maml:name>ReturnBaseFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base, ReturnBaseFields">
+          <maml:name>ReturnBase</maml:name>
           <maml:description>
-            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.</maml:para>
+            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -2293,10 +2293,10 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base">
-        <maml:name>ReturnBaseFields</maml:name>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base, ReturnBaseFields">
+        <maml:name>ReturnBase</maml:name>
         <maml:description>
-          <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.</maml:para>
+          <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -2305,8 +2305,8 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
         </dev:type>
         <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="fields">
-        <maml:name>ReturnFields</maml:name>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="fields, ReturnFields">
+        <maml:name>ReturnField</maml:name>
         <maml:description>
           <maml:para>The set of fields that should be returned in addition to the object reference.</maml:para>
         </maml:description>
@@ -2385,7 +2385,7 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           <maml:name>PSCustomObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The object reference string of the created item or a custom object if -ReturnFields or -ReturnBase was used.</maml:para>
+          <maml:para>The object reference string of the created item or a custom object if -ReturnField or -ReturnBase was used.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -2406,7 +2406,7 @@ New-IBObject -ObjectType 'network' -IBObject $mynetwork</dev:code>
         <maml:title>--------------- Example 2 New host with next IP ---------------</maml:title>
         <dev:code>$myhost = @{name='myhost';comment='my host';configure_for_dns=$false}
 $myhost.ipv4addrs = @(@{ipv4addr='func:nextavailableip:10.10.12.0/24'})
-New-IBObject 'record:host' $myhost -ReturnFields 'comment','configure_for_dns' -ReturnBase</dev:code>
+New-IBObject 'record:host' $myhost -ReturnField 'comment','configure_for_dns' -ReturnBase</dev:code>
         <dev:remarks>
           <maml:para>Create a new host record using an embedded function to get the next available IP in the specified network. Returns the basic host fields plus the comment and configure_for_dns fields.</maml:para>
           <maml:para></maml:para>
@@ -3760,10 +3760,10 @@ $hostsToDelete | Remove-IBObject</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base">
-          <maml:name>ReturnBaseFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base, ReturnBaseFields">
+          <maml:name>ReturnBase</maml:name>
           <maml:description>
-            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.</maml:para>
+            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -3771,8 +3771,8 @@ $hostsToDelete | Remove-IBObject</dev:code>
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields">
-          <maml:name>ReturnFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields, ReturnFields">
+          <maml:name>ReturnField</maml:name>
           <maml:description>
             <maml:para>The set of fields that should be returned in addition to the object reference.</maml:para>
           </maml:description>
@@ -3902,10 +3902,10 @@ $hostsToDelete | Remove-IBObject</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base">
-          <maml:name>ReturnBaseFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base, ReturnBaseFields">
+          <maml:name>ReturnBase</maml:name>
           <maml:description>
-            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.</maml:para>
+            <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -3913,8 +3913,8 @@ $hostsToDelete | Remove-IBObject</dev:code>
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields">
-          <maml:name>ReturnFields</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields, ReturnFields">
+          <maml:name>ReturnField</maml:name>
           <maml:description>
             <maml:para>The set of fields that should be returned in addition to the object reference.</maml:para>
           </maml:description>
@@ -4069,10 +4069,10 @@ $hostsToDelete | Remove-IBObject</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base">
-        <maml:name>ReturnBaseFields</maml:name>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base, ReturnBaseFields">
+        <maml:name>ReturnBase</maml:name>
         <maml:description>
-          <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.</maml:para>
+          <maml:para>If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -4081,8 +4081,8 @@ $hostsToDelete | Remove-IBObject</dev:code>
         </dev:type>
         <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields">
-        <maml:name>ReturnFields</maml:name>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="fields, ReturnFields">
+        <maml:name>ReturnField</maml:name>
         <maml:description>
           <maml:para>The set of fields that should be returned in addition to the object reference.</maml:para>
         </maml:description>
@@ -4173,7 +4173,7 @@ $hostsToDelete | Remove-IBObject</dev:code>
           <maml:name>PSCustomObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The object reference string of the modified item or a custom object if -ReturnFields or -ReturnBase was used.</maml:para>
+          <maml:para>The object reference string of the modified item or a custom object if -ReturnField or -ReturnBase was used.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -4183,7 +4183,7 @@ $hostsToDelete | Remove-IBObject</dev:code>
     <command:examples>
       <command:example>
         <maml:title>---------------- Example 1: Update host record ----------------</maml:title>
-        <dev:code>$myhost = Get-IBObject -ObjectType 'record:host' -Filter 'name=myhost' -ReturnFields 'comment'
+        <dev:code>$myhost = Get-IBObject -ObjectType 'record:host' -Filter 'name=myhost' -ReturnField 'comment'
 $myhost.comment = 'new comment'
 Set-IBObject -ObjectRef $myhost._ref -IBObject $myhost</dev:code>
         <dev:remarks>

@@ -52,21 +52,21 @@ Describe "Get-IBObject" {
         }
 
         It "Asks for return fields when specified" -TestCases @(
-            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnFields='a' } }
-            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnFields='a','b','c' } }
-            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnFields='a'; ReturnBase=$true } }
-            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnFields='a','b','c'; ReturnBase=$true } }
-            @{ splat=@{ ObjectType='fake'; ReturnFields='a' } }
-            @{ splat=@{ ObjectType='fake'; ReturnFields='a','b','c' } }
-            @{ splat=@{ ObjectType='fake'; ReturnFields='a'; ReturnBase=$true } }
-            @{ splat=@{ ObjectType='fake'; ReturnFields='a','b','c'; ReturnBase=$true } }
+            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnField='a' } }
+            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnField='a','b','c' } }
+            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnField='a'; ReturnBase=$true } }
+            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnField='a','b','c'; ReturnBase=$true } }
+            @{ splat=@{ ObjectType='fake'; ReturnField='a' } }
+            @{ splat=@{ ObjectType='fake'; ReturnField='a','b','c' } }
+            @{ splat=@{ ObjectType='fake'; ReturnField='a'; ReturnBase=$true } }
+            @{ splat=@{ ObjectType='fake'; ReturnField='a','b','c'; ReturnBase=$true } }
         ) {
             Get-IBObject @splat | Out-Null
 
             if ($splat.ReturnBase -eq $true) {
-                $check += "_return_fields%2B=$($splat.ReturnFields -join ',')"
+                $check += "_return_fields%2B=$($splat.ReturnField -join ',')"
             } else {
-                $check += "_return_fields=$($splat.ReturnFields -join ',')"
+                $check += "_return_fields=$($splat.ReturnField -join ',')"
             }
 
             Should -Invoke Invoke-IBWAPI -ModuleName Posh-IBWAPI -ParameterFilter {
@@ -76,11 +76,11 @@ Describe "Get-IBObject" {
 
         It "Asks for all fields when specified" -TestCases @(
             @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnAll=$true } }
-            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnFields='a','b','c'; ReturnAll=$true } }
-            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnFields='a','b','c'; ReturnBase=$true; ReturnAll=$true } }
+            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnField='a','b','c'; ReturnAll=$true } }
+            @{ splat=@{ ObjectRef='fake/12345:Infoblox'; ReturnField='a','b','c'; ReturnBase=$true; ReturnAll=$true } }
             @{ splat=@{ ObjectType='fake'; ReturnAll=$true } }
-            @{ splat=@{ ObjectType='fake'; ReturnFields='a','b','c'; ReturnAll=$true } }
-            @{ splat=@{ ObjectType='fake'; ReturnFields='a','b','c'; ReturnBase=$true; ReturnAll=$true } }
+            @{ splat=@{ ObjectType='fake'; ReturnField='a','b','c'; ReturnAll=$true } }
+            @{ splat=@{ ObjectType='fake'; ReturnField='a','b','c'; ReturnBase=$true; ReturnAll=$true } }
         ) {
             Get-IBObject @splat | Out-Null
 

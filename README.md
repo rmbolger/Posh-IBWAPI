@@ -58,7 +58,7 @@ Retrieve a set of objects using `Get-IBObject`. The only required parameter is `
 
 ```powershell
 Get-IBObject 'record:host'
-Get-IBObject 'record:host' -Filter @{'name~'='example\.com'} -MaxResults 10 -ReturnFields 'extattrs'
+Get-IBObject 'record:host' -Filter @{'name~'='example\.com'} -MaxResults 10 -ReturnField 'extattrs'
 ```
 
 If you're just exploring the WAPI object model, it can be helpful to convert the resulting objects back to JSON for readability.

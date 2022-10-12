@@ -16,21 +16,21 @@ Retrieve objects from the Infoblox database.
 ### ByType (Default)
 ```powershell
 Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-MaxResults <Int32>] [-PageSize <Int32>]
- [-ReturnFields <String[]>] [-ReturnBase] [-ReturnAll] [-ProxySearch] [-WAPIHost <String>]
+ [-ReturnField <String[]>] [-ReturnBase] [-ReturnAll] [-ProxySearch] [-WAPIHost <String>]
  [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>]
  [<CommonParameters>]
 ```
 
 ### ByTypeNoPaging
 ```powershell
-Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-NoPaging] [-ReturnFields <String[]>] [-ReturnBase]
+Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-NoPaging] [-ReturnField <String[]>] [-ReturnBase]
  [-ReturnAll] [-ProxySearch] [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>]
  [-SkipCertificateCheck] [-ProfileName <String>] [<CommonParameters>]
 ```
 
 ### ByRef
 ```powershell
-Get-IBObject [-ObjectRef] <String> [-ReturnFields <String[]>] [-ReturnBase] [-ReturnAll] [-BatchMode]
+Get-IBObject [-ObjectRef] <String> [-ReturnField <String[]>] [-ReturnBase] [-ReturnAll] [-BatchMode]
  [-BatchGroupSize <Int32>] [-ProxySearch] [-WAPIHost <String>] [-WAPIVersion <String>]
  [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>] [<CommonParameters>]
 ```
@@ -54,7 +54,7 @@ Get the basic fields for a specific Host record.
 ### Example 2: Get A records with filters
 
 ```powershell
-Get-IBObject 'record:a' -Filter @{'name~'='example\.com'} -MaxResults 100 -ReturnFields 'comment' -ReturnBase
+Get-IBObject 'record:a' -Filter @{'name~'='example\.com'} -MaxResults 100 -ReturnField 'comment' -ReturnBase
 ```
 
 Get the first 100 A records in the example.com DNS zone and return the comment field in addition to the basic fields.
@@ -260,7 +260,7 @@ Accept wildcard characters: False
 ```
 
 ### -ReturnBase
-If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields. If -ReturnFields is not used, this defaults to $true.
+If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField. If -ReturnField is not used, this defaults to $true.
 
 ```yaml
 Type: SwitchParameter
@@ -274,13 +274,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReturnFields
+### -ReturnField
 The set of fields that should be returned in addition to the object reference.
 
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: fields
+Aliases: fields, ReturnFields
 
 Required: False
 Position: Named

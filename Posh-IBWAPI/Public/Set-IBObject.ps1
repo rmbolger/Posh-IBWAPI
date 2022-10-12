@@ -12,8 +12,8 @@ function Set-IBObject
         [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True)]
         [PSObject]$TemplateObject,
 
-        [Alias('fields')]
-        [string[]]$ReturnFields,
+        [Alias('fields','ReturnFields')]
+        [string[]]$ReturnField,
         [Alias('base','ReturnBaseFields')]
         [switch]$ReturnBase,
         [switch]$BatchMode,
@@ -38,12 +38,12 @@ function Set-IBObject
         $querystring = [String]::Empty
 
         # process the return fields
-        if ($ReturnFields.Count -gt 0) {
+        if ($ReturnField.Count -gt 0) {
             if ($ReturnBase) {
-                $querystring = "?_return_fields%2B=$($ReturnFields -join ',')"
+                $querystring = "?_return_fields%2B=$($ReturnField -join ',')"
             }
             else {
-                $querystring = "?_return_fields=$($ReturnFields -join ',')"
+                $querystring = "?_return_fields=$($ReturnField -join ',')"
             }
         }
         elseif ($ReturnBase) {
@@ -95,11 +95,11 @@ function Set-IBObject
 
         # build the 'args' value for each object
         $retArgs = @{}
-        if ($ReturnFields.Count -gt 0) {
+        if ($ReturnField.Count -gt 0) {
             if ($ReturnBase) {
-                $retArgs.'_return_fields+' = $ReturnFields -join ','
+                $retArgs.'_return_fields+' = $ReturnField -join ','
             } else {
-                $retArgs.'_return_fields'  = $ReturnFields -join ','
+                $retArgs.'_return_fields'  = $ReturnField -join ','
             }
         } else {
             $retArgs.'_return_fields+' = ''

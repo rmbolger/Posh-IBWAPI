@@ -24,8 +24,8 @@ function Get-IBObject
         [Parameter(ParameterSetName='ByTypeNoPaging')]
         [switch]$NoPaging,
 
-        [Alias('fields')]
-        [string[]]$ReturnFields,
+        [Alias('fields','ReturnFields')]
+        [string[]]$ReturnField,
         [Alias('base','ReturnBaseFields')]
         [switch]$ReturnBase,
         [Alias('all','ReturnAllFields')]
@@ -102,12 +102,12 @@ function Get-IBObject
         # object type to get the field names. So we'll postpone that work until the
         # Process {} section in case they passed multiple different object types
         # via _ref.
-        if (-not $ReturnAll -and $ReturnFields.Count -gt 0) {
+        if (-not $ReturnAll -and $ReturnField.Count -gt 0) {
             if ($ReturnBase) {
-                $queryargs.Add("_return_fields%2B=$($ReturnFields -join ',')")
+                $queryargs.Add("_return_fields%2B=$($ReturnField -join ',')")
             }
             else {
-                $queryargs.Add("_return_fields=$($ReturnFields -join ',')")
+                $queryargs.Add("_return_fields=$($ReturnField -join ',')")
             }
         }
 
@@ -258,11 +258,11 @@ function Get-IBObject
 
         # build the 'args' value for each object
         $retArgs = @{}
-        if ($ReturnFields.Count -gt 0) {
+        if ($ReturnField.Count -gt 0) {
             if ($ReturnBase) {
-                $retArgs.'_return_fields+' = $ReturnFields -join ','
+                $retArgs.'_return_fields+' = $ReturnField -join ','
             } else {
-                $retArgs.'_return_fields'  = $ReturnFields -join ','
+                $retArgs.'_return_fields'  = $ReturnField -join ','
             }
         } else {
             $retArgs.'_return_fields+' = ''

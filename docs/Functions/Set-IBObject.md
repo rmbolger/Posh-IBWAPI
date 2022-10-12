@@ -15,14 +15,14 @@ Modify an object in Infoblox.
 
 ### ObjectOnly
 ```powershell
-Set-IBObject -IBObject <PSObject> [-ReturnFields <String[]>] [-ReturnBase] [-BatchMode]
+Set-IBObject -IBObject <PSObject> [-ReturnField <String[]>] [-ReturnBase] [-BatchMode]
  [-BatchGroupSize <Int32>] [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>]
  [-SkipCertificateCheck] [-ProfileName <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### RefAndTemplate
 ```powershell
-Set-IBObject -ObjectRef <String> -TemplateObject <PSObject> [-ReturnFields <String[]>] [-ReturnBase]
+Set-IBObject -ObjectRef <String> -TemplateObject <PSObject> [-ReturnField <String[]>] [-ReturnBase]
  [-BatchMode] [-BatchGroupSize <Int32>] [-WAPIHost <String>] [-WAPIVersion <String>]
  [-Credential <PSCredential>] [-SkipCertificateCheck] [-ProfileName <String>] [-WhatIf] [-Confirm]
  [<CommonParameters>]
@@ -37,7 +37,7 @@ Modify an object by specifying its object reference and a PSObject with the fiel
 ### Example 1: Update host record
 
 ```powershell
-$myhost = Get-IBObject -ObjectType 'record:host' -Filter 'name=myhost' -ReturnFields 'comment'
+$myhost = Get-IBObject -ObjectType 'record:host' -Filter 'name=myhost' -ReturnField 'comment'
 $myhost.comment = 'new comment'
 Set-IBObject -ObjectRef $myhost._ref -IBObject $myhost
 ```
@@ -155,7 +155,7 @@ Accept wildcard characters: False
 ```
 
 ### -ReturnBase
-If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.
+If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnField.
 
 ```yaml
 Type: SwitchParameter
@@ -169,13 +169,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReturnFields
+### -ReturnField
 The set of fields that should be returned in addition to the object reference.
 
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: fields
+Aliases: fields, ReturnFields
 
 Required: False
 Position: Named
@@ -281,7 +281,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## Outputs
 
 ### PSCustomObject
-The object reference string of the modified item or a custom object if -ReturnFields or -ReturnBase was used.
+The object reference string of the modified item or a custom object if -ReturnField or -ReturnBase was used.
 
 ## Related Links
 
