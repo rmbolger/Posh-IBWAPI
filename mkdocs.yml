@@ -17,7 +17,6 @@ copyright: "Copyright &copy; 2022 Ryan Bolger"
 theme:
   # https://squidfunk.github.io/mkdocs-material/
   name: material
-  custom_dir: docs/.overrides
 
   # Don't include MkDocs' JavaScript
   include_search_page: false

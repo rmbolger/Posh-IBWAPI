@@ -4,4 +4,6 @@ Change to the docs.dvolve.net repo root and then:
 
 `--push` is optional. If you want to self-host the versioned docs, leave it out and run:
 
-    mike serve -b "main"
+    mike serve -b "main" --config-file ../Posh-IBWAPI/mkdocs.yml
+
+Add `-a IP:PORT` to bind to specific ip and port instead of localhost:8000
