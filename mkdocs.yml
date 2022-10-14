@@ -30,6 +30,7 @@ theme:
     - navigation.expand
 
   icon:
+    logo: simple/powershell
     repo: fontawesome/brands/github
 
   palette:
