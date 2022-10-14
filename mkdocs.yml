@@ -2,7 +2,7 @@
 site_name: Posh-IBWAPI
 site_url: https://docs.dvolve.net/Posh-IBWAPI
 site_author: "Ryan Bolger"
-site_description: "Documentation for the Posh-IBWAPI PowerShell module"
+site_description: "Documentation for the Posh-IBWAPI PowerShell module for Infoblox"
 site_dir: ..\Posh-IBWAPI.docs\docs
 
 # Repository
