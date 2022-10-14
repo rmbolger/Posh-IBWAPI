@@ -133,7 +133,7 @@ $toDelete = Get-IBObject 'record:host' -Filter 'comment=decommission'
 $toDelete | Remove-IBObject
 ```
 
-For more examples, check the [Definitive REST Examples](Guides/Definitive-REST-Examples.md) guide.
+For more examples, check the [Definitive REST Examples](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Definitive-REST-Examples/) guide.
 
 ## Requirements and Platform Support
 
