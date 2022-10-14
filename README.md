@@ -136,6 +136,6 @@ For more examples, check the [Definitive REST Examples](https://docs.dvolve.net/
 * Supports [Powershell](https://github.com/PowerShell/PowerShell) 7.0 or later (Core edition) on all supported OS platforms.
 * Supports any NIOS/WAPI version, but only regularly tested against Infoblox supported versions.
 
-# Changelog
+## Changelog
 
 See [CHANGELOG.md](/CHANGELOG.md)
