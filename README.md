@@ -17,7 +17,7 @@ A PowerShell module to help with Infoblox automation via WAPI requests and funct
 - Multiple connection profiles supported for multi-grid environments or if you need to save different credentials for different purposes.
 - [SecretManagement](https://devblogs.microsoft.com/powershell/secretmanagement-and-secretstore-are-generally-available/) support for connection profiles. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Using-SecretManagement/)
 - Cloud friendly stateless mode supported via environment variables. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Stateless-Mode/)
-- Cross-platform [Powershell](https://github.com/PowerShell/PowerShell) support
+- Cross-platform [PowerShell](https://github.com/PowerShell/PowerShell) support
 
 ## Installation (Stable)
 
@@ -133,7 +133,7 @@ For more examples, check the [Definitive REST Examples](https://docs.dvolve.net/
 ## Requirements and Platform Support
 
 * Supports Windows PowerShell 5.1 (Desktop edition) with .NET Framework 4.5.2 or later
-* Supports [Powershell](https://github.com/PowerShell/PowerShell) 7.0 or later (Core edition) on all supported OS platforms.
+* Supports [PowerShell](https://github.com/PowerShell/PowerShell) 7.0 or later (Core edition) on all supported OS platforms.
 * Supports any NIOS/WAPI version, but only regularly tested against Infoblox supported versions.
 
 ## Changelog

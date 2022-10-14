@@ -1,6 +1,6 @@
 # Frequently Asked Questions (FAQ)
 
-## Does Posh-IBWAPI work cross platform on Powershell (Core)?
+## Does Posh-IBWAPI work cross platform on PowerShell (Core)?
 
 YES! The current minimum supported version of PowerShell (Core) is 7.0. Things may still work on 6.x, but I'm not actively testing against it anymore. All OS platforms supported by PowerShell are supported by the module.
 

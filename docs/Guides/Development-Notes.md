@@ -29,4 +29,4 @@ There may be a way to shorten the cache duration by changing the value of [Servi
 
 For the time being, we're going to leave `MaxServicePointIdleTime` alone as it's likely an extreme edge case that someone would need to disable cert validation for a single call and then turn it back on for the same WAPI endpoint in quick succession. Most of the people who care about this feature are running Infoblox with the default self-signed certificate and will just choose to always have certificate validation disabled.
 
-UPDATE: The version of Invoke-RestMethod included in Powershell Core 6.0 includes a -SkipCertificateCheck parameter which should resolve this issue at least for Core edition users. Hopefully Microsoft will back port those changes into Desktop edition eventually.
+UPDATE: The version of Invoke-RestMethod included in PowerShell Core 6.0 includes a -SkipCertificateCheck parameter which should resolve this issue at least for Core edition users. Hopefully Microsoft will back port those changes into Desktop edition eventually.

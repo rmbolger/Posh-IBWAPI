@@ -129,7 +129,7 @@ Accept wildcard characters: False
 ```
 
 ### -LaunchHTML
-If set, Powershell will attempt to launch a browser to the object's full HTML documentation page on the grid master. All additional display parameters are ignored except -Raw.
+If set, PowerShell will attempt to launch a browser to the object's full HTML documentation page on the grid master. All additional display parameters are ignored except -Raw.
 
 ```yaml
 Type: SwitchParameter

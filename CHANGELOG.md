@@ -138,7 +138,7 @@
 * Switching to a new config set with `Set-IBWAPIConfig` no longer copies the settings from the old config if they weren't specified. This was never really documented and was causing confusion more than helping.
 
 ## 1.2.2 (2018-01-13)
-* [Powershell Core](https://github.com/PowerShell/PowerShell) support!
+* [PowerShell Core](https://github.com/PowerShell/PowerShell) support!
 
 ## 1.2.1 (2018-01-09)
 * Added Grid Master Candidate meta refresh detection. So if your grid master candidates are configured to redirect to the current grid master, the module will automatically re-try the query there and throw a warning, rather than failing with an error.
