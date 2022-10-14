@@ -1,26 +1,25 @@
-# Description
+# Posh-IBWAPI
 
-This PowerShell module makes it easier to automate Infoblox WAPI requests and functions. It is not intended to wrap every object into a set of custom cmdlets or strong types. Instead, it aims to hide some of the tedious complexity in calling the Infoblox REST API via PowerShell.
+A PowerShell module to help with Infoblox automation via WAPI requests and functions. It is not intended to wrap every object into a set of custom cmdlets or strong types. Instead, it aims to hide the some of the tedious complexity in calling the Infoblox REST API via PowerShell.
 
-# Notable Features
+## Features
 
 - Automatic paging for large GET result sets *(Requires WAPI version 1.5+)*
-- Optionally return all fields for an object without needing to specify each one individually *(Requires WAPI version 1.7.5+)*
 - Automatic session handling
-- `Receive-IBFile` and `Send-IBFile` wrappers for upload/download WAPI functions. *See [guide](https://github.com/rmbolger/Posh-IBWAPI/wiki/Guide-to-IBFile-Functions) for details.*
-- Use `Get-IBSchema` for `Get-Help` style querying of the WAPI object model *(Requires WAPI version 1.7.5+)*. *See [guide](https://github.com/rmbolger/Posh-IBWAPI/wiki/Guide-to-Get-IBSchema) for details.*
+- `Receive-IBFile` and `Send-IBFile` wrappers for upload/download WAPI functions. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Using-IBFile-Functions/)
+- Optionally return all fields for an object without needing to specify each one individually *(Requires WAPI version 1.7.5+)*
+- Use `Get-IBSchema` for Get-Help style querying of the WAPI object model *(Requires WAPI version 1.7.5+)*. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Using-Get-IBSchema/)
 - Error details in the body of HTTP 400 responses are exposed instead of being swallowed by Invoke-RestMethod.
-- Pipeline support so you can do things like pass the results from `Get-IBObject` directly to `Remove-IBObject`.
+- Optionally batch pipelined requests to increase performance.
 - Optionally ignore certificate validation errors.
-- Save common connection parameters with `Set-IBConfig` so you don't need to pass them to every function call. Works between sessions.
-- Multiple connection profiles supported for multi-grid or multi-host environments or if you need to save different credentials for different purposes.
-- Cross-platform [Powershell](https://github.com/PowerShell/PowerShell) support
+- Save connection profiles to use automatically with functions instead of supplying them to each call. Multiple profiles supported for multi-grid environments or differing credentials on the same grid.
+- [SecretManagement](https://devblogs.microsoft.com/powershell/secretmanagement-and-secretstore-are-generally-available/) support for connection profiles. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Using-SecretManagement/)
+- Cloud friendly stateless mode supported via environment variables. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Stateless-Mode/)
+- Cross-platform [PowerShell](https://github.com/PowerShell/PowerShell) support
 
-# Install
+## Installation (Stable)
 
-## Release/Stable
-
-The latest release version can found in the [PowerShell Gallery](https://www.powershellgallery.com/packages/Posh-IBWAPI/) or the [GitHub releases page](https://github.com/rmbolger/Posh-IBWAPI/releases). Installing from the gallery is easiest using `Install-Module` from the PowerShellGet module. See [Installing PowerShellGet](https://docs.microsoft.com/en-us/powershell/scripting/gallery/installing-psget) if you don't already have it installed.
+The latest release can found in the [PowerShell Gallery](https://www.powershellgallery.com/packages/Posh-IBWAPI/) or the [GitHub releases page](https://github.com/rmbolger/Posh-IBWAPI/releases). Installing is easiest from the gallery using `Install-Module`. *See [Installing PowerShellGet](https://docs.microsoft.com/en-us/powershell/scripting/gallery/installing-psget) if you run into problems with it.*
 
 ```powershell
 # install for all users (requires elevated privs)
@@ -32,33 +31,32 @@ Install-Module -Name Posh-IBWAPI -Scope CurrentUser
 
 *NOTE: If you use PowerShell 5.1 or earlier, `Install-Module` may throw an error depending on your Windows and .NET version due to a change PowerShell Gallery made to their TLS settings. For more info and a workaround, see the [official blog post](https://devblogs.microsoft.com/powershell/powershell-gallery-tls-support/).*
 
-## Development
+## Installation (Development)
 
-To install the latest *development* version from the git main branch, use the following command.
+[![Pester Tests badge](https://github.com/rmbolger/Posh-IBWAPI/workflows/Pester%20Tests/badge.svg)](https://github.com/rmbolger/Posh-IBWAPI/actions)
+
+Use the following PowerShell command to install the latest *development* version from the git `main` branch. This method assumes a default [`PSModulePath`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath) environment variable and installs to the CurrentUser scope.
 
 ```powershell
-# (optional) set less restrictive execution policy
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-
-# install latest dev version
 iex (irm https://raw.githubusercontent.com/rmbolger/Posh-IBWAPI/main/instdev.ps1)
 ```
 
+You can also download the source manually from GitHub and extract the `Posh-IBWAPI` folder to your desired module location.
 
-# Quick Start
+## Quick Start
 
-Every WAPI call needs a host, version, and credentials. Set them once for the session with `Set-IBConfig` and you won't need to add them to every call. If your grid is still using self-signed certs, you may also need to use the `SkipCertificateCheck` parameter. In addition to standard version numbers like `'2.2'`, the `-WAPIVersion` parameter also accepts `'latest'` and will query the grid master for the latest supported version.
+Every WAPI call needs a host, version, and credentials. Set them once using `Set-IBConfig` and you won't need to add them to every call. If your grid is still using self-signed certs, you may also need to use the `SkipCertificateCheck` parameter. In addition to standard version numbers like `'2.2'`, the `-WAPIVersion` parameter also accepts `'latest'` and will query the grid master for the latest supported version.
 
 ```powershell
-Set-IBConfig -ProfileName 'mygrid' -WAPIHost 'gridmaster.example.com' -WAPIVersion 'latest' `
-    -Credential (Get-Credential) -SkipCertificateCheck
+Set-IBConfig -ProfileName 'mygrid' -WAPIHost 'gridmaster.example.com' `
+    -WAPIVersion 'latest' -Credential (Get-Credential) -SkipCertificateCheck
 ```
 
 Retrieve a set of objects using `Get-IBObject`. The only required parameter is `ObjectType`. Everything else like filters and return fields are optional.
 
 ```powershell
 Get-IBObject 'record:host'
-Get-IBObject 'record:host' -Filters 'name~=example.com' -MaxResults 10 -ReturnFields 'extattrs'
+Get-IBObject 'record:host' -Filter @{'name~'='example\.com'} -MaxResults 10 -ReturnField 'extattrs'
 ```
 
 If you're just exploring the WAPI object model, it can be helpful to convert the resulting objects back to JSON for readability.
@@ -73,14 +71,19 @@ You may notice that all objects returned by Infoblox have a `_ref` field. That i
 Get-IBObject -ObjectRef 'record:host/asdfqwerasdfqwerasdfqwerasdfqwer'
 ```
 
-Create a new object with `New-IBObject`. All you need to provide is the object type and an object with the minimum required fields defined. Embedded WAPI functions work just fine here.
+Create a new object with `New-IBObject` by supplying the object type and an object with the minimum required fields defined. Embedded WAPI functions work just fine here.
 
 ```powershell
 # Build the record:host object we want to create.
 # NOTE: An error will be thrown if the example.com DNS zone doesn't
 # exist in Infoblox
-$newhost = @{name='web1.example.com';comment='web server'}
-$newhost.ipv4addrs = @( @{ipv4addr='10.10.10.1'} )
+$newhost = @{
+    name = 'web1.example.com'
+    ipv4addrs = @(
+        @{ ipv4addr = '10.10.10.1' }
+    )
+    comment = 'web server'
+}
 
 # Create the object
 New-IBObject -ObjectType 'record:host' -IBObject $newhost
@@ -88,7 +91,9 @@ New-IBObject -ObjectType 'record:host' -IBObject $newhost
 # Modify the object so we can make another and this time use an
 # embedded function to set the IP address.
 $newhost.name = 'web2.example.com'
-$newhost.ipv4addrs = @( @{ipv4addr='func:nextavailableip:10.10.10.0/24'} )
+$newhost.ipv4addrs = @(
+    @{ ipv4addr = 'func:nextavailableip:10.10.10.0/24'}
+)
 New-IBObject -ObjectType 'record:host' -IBObject $newhost
 ```
 
@@ -96,13 +101,13 @@ To modify an existing object, the easiest way is usually to get a copy of it, mo
 
 ```powershell
 # Get a copy of the host
-$myhost = Get-IBObject 'record:host' -Filters 'name=web1.example.com'
-
-# remove the read-only 'host' field from the nested 'record:host_ipv4addr' object
-$myhost.ipv4addrs[0].PSObject.Properties.Remove('host')
+$myhost = Get-IBObject 'record:host' -Filter 'name=web1.example.com'
 
 # Modify the first listed IP address
 $myhost.ipv4addrs[0].ipv4addr = '10.10.10.100'
+
+# remove the read-only 'host' field from the nested 'record:host_ipv4addr' object
+$myhost.ipv4addrs[0].PSObject.Properties.Remove('host')
 
 # Save the result
 $myhost | Set-IBObject
@@ -112,7 +117,7 @@ If you need to make the same change to a set of objects, you can also pass the s
 
 ```powershell
 # Get all hosts in the Los Angeles site
-$laHosts = Get-IBObject 'record:host' -Filters '*Site=Los Angeles'
+$laHosts = Get-IBObject 'record:host' -Filter @{'*Site'='Los Angeles'}
 
 # Move them to the New York site
 $laHosts | Set-IBObject -Template @{extattrs=@{Site=@{value='New York'}}}
@@ -122,21 +127,20 @@ Deleting one or more objects is as simple as passing one or more object referenc
 
 ```powershell
 # Get hosts being decommissioned
-$toDelete = Get-IBObject 'record:host' -Filters 'comment=decommission'
+$toDelete = Get-IBObject 'record:host' -Filter 'comment=decommission'
 
 # Delete them
 $toDelete | Remove-IBObject
 ```
 
-For more examples, check the wiki page [The definitive list of REST examples](https://github.com/rmbolger/Posh-IBWAPI/wiki/The-definitive-list-of-REST-examples).
+For more examples, check the [Definitive REST Examples](Guides/Definitive-REST-Examples.md) guide.
 
+## Requirements and Platform Support
 
-# Requirements and Platform Support
+* Supports Windows PowerShell 5.1 (Desktop edition) with .NET Framework 4.5.2 or later
+* Supports [PowerShell](https://github.com/PowerShell/PowerShell) 7.0 or later (Core edition) on all supported OS platforms.
+* Supports any NIOS/WAPI version, but only regularly tested against Infoblox supported versions.
 
-* Supports Windows PowerShell 3.0 or later (Desktop edition) **with .NET Framework 4.5** or later
-* Supports [Powershell](https://github.com/PowerShell/PowerShell) 6.0 or later (Core edition) on all supported OS platforms.
-* Tested against NIOS 7.3.x and 8.x.
-
-# Changelog
+## Changelog
 
 See [CHANGELOG.md](/CHANGELOG.md)

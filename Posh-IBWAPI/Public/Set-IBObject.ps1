@@ -2,20 +2,26 @@ function Set-IBObject
 {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(ParameterSetName='ObjectOnly',Mandatory=$True,ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName='ObjectOnly',Mandatory,Position=0,ValueFromPipeline)]
         [PSObject]$IBObject,
 
-        [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
+        [Parameter(ParameterSetName='RefAndTemplate',Mandatory,Position=0,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [Alias('_ref','ref')]
         [string]$ObjectRef,
 
-        [Parameter(ParameterSetName='RefAndTemplate',Mandatory=$True)]
+        [Parameter(ParameterSetName='RefAndTemplate',Mandatory,Position=1)]
         [PSObject]$TemplateObject,
 
-        [Alias('fields')]
-        [string[]]$ReturnFields,
-        [Alias('base')]
-        [switch]$ReturnBaseFields,
+        [Alias('fields','ReturnFields')]
+        [string[]]$ReturnField,
+        [Alias('base','ReturnBaseFields')]
+        [switch]$ReturnBase,
+        [switch]$BatchMode,
+        [ValidateRange(1,2147483647)]
+        [int]$BatchGroupSize = 1000,
+
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -23,128 +29,124 @@ function Set-IBObject
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
-        [string]$ProfileName
+        [switch]$SkipCertificateCheck
     )
 
     Begin {
         # grab the variables we'll be using for our REST calls
         try { $opts = Initialize-CallVars @PSBoundParameters } catch { $PsCmdlet.ThrowTerminatingError($_) }
-        $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
-        $opts.Remove('WAPIHost') | Out-Null
-        $opts.Remove('WAPIVersion') | Out-Null
 
         $querystring = [String]::Empty
 
         # process the return fields
-        if ($ReturnFields.Count -gt 0) {
-            if ($ReturnBaseFields) {
-                $querystring = "?_return_fields%2B=$($ReturnFields -join ',')"
+        if ($ReturnField.Count -gt 0) {
+            if ($ReturnBase) {
+                $querystring = "?_return_fields%2B=$($ReturnField -join ',')"
             }
             else {
-                $querystring = "?_return_fields=$($ReturnFields -join ',')"
+                $querystring = "?_return_fields=$($ReturnField -join ',')"
             }
         }
-        elseif ($ReturnBaseFields) {
+        elseif ($ReturnBase) {
             $querystring = "?_return_fields%2B"
         }
 
+        if ($BatchMode) {
+            # create a list to save the objects in
+            $deferredObjects = [Collections.Generic.List[PSObject]]::new()
+        }
     }
 
     Process {
 
-        switch ($PsCmdlet.ParameterSetName) {
-            "ObjectOnly" {
-                if (!$IBObject._ref) {
-                    throw "IBObject is missing '_ref' field."
-                }
-                # copy out the ObjectRef from the object
-                $ObjectRef = $IBObject._ref
-
-                # create the json body
-                $bodyJson = $IBObject | ConvertTo-Json -Compress -Depth 5
-                $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
-                Write-Verbose "JSON body:`n$($IBObject | ConvertTo-Json -Depth 5)"
+        if ($BatchMode) {
+            # add the appropriate object to the list for processing during End{}
+            if ('ObjectOnly' -eq $PsCmdlet.ParameterSetName) {
+                $deferredObjects.Add($IBObject)
+            } else {
+                $deferredObjects.Add($ObjectRef)
             }
-            "RefAndTemplate" {
-                # create the json body
-                $bodyJson = $TemplateObject | ConvertTo-Json -Compress -Depth 5
-                $bodyJson = [Text.Encoding]::UTF8.GetBytes($bodyJson)
-                Write-Verbose "JSON body:`n$($TemplateObject | ConvertTo-Json -Depth 5)"
-            }
+            return
         }
-        $uri = "$APIBase$($ObjectRef)$($querystring)"
-        if ($PsCmdlet.ShouldProcess($uri, 'PUT')) {
-            Invoke-IBWAPI -Method Put -Uri $uri -Body $bodyJson @opts
+
+        if ('ObjectOnly' -eq $PsCmdlet.ParameterSetName) {
+
+            # get the ObjectRef from the input object
+            if (-not $IBObject._ref) {
+                $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
+                    "IBObject is missing '_ref' field.", $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
+                ))
+                return
+            }
+            $ObjectRef = $IBObject._ref
+            $IBObject.PSObject.Properties.Remove('_ref')
+
+            $TemplateObject = $IBObject
+        }
+
+        $query = '{0}{1}' -f $ObjectRef,$querystring
+        if ($PsCmdlet.ShouldProcess($opts.WAPIHost, 'PUT')) {
+            Invoke-IBWAPI -Query $query -Method 'PUT' -Body $TemplateObject @opts
+        }
+    }
+
+    End {
+        if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
+        Write-Verbose "BatchMode deferred objects: $($deferredObjects.Count), group size $($BatchGroupSize)"
+
+        # build the 'args' value for each object
+        $retArgs = @{}
+        if ($ReturnField.Count -gt 0) {
+            if ($ReturnBase) {
+                $retArgs.'_return_fields+' = $ReturnField -join ','
+            } else {
+                $retArgs.'_return_fields'  = $ReturnField -join ','
+            }
+        } else {
+            $retArgs.'_return_fields+' = ''
+        }
+
+        # make calls based on the group size
+        for ($i=0; $i -lt $deferredObjects.Count; $i += $BatchGroupSize) {
+            $groupEnd = [Math]::Min($deferredObjects.Count, ($i+$BatchGroupSize-1))
+
+            # build the json for this group's objects
+            $body = $deferredObjects[$i..$groupEnd] | ForEach-Object {
+
+                if ('ObjectOnly' -eq $PsCmdlet.ParameterSetName) {
+
+                    # get the ObjectRef from the input object
+                    if (-not $_._ref) {
+                        $PSCmdlet.WriteError([Management.Automation.ErrorRecord]::new(
+                            "IBObject is missing '_ref' field.", $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
+                        ))
+                        return
+                    }
+                    $ObjectRef = $_._ref
+                    $_.PSObject.Properties.Remove('_ref')
+
+                    $TemplateObject = $_
+                } else {
+                    $ObjectRef = $_
+                }
+
+                @{
+                    method = 'PUT'
+                    object = $ObjectRef
+                    data = $TemplateObject
+                    args = $retArgs
+                }
+            }
+
+            if (-not $body) {
+                Write-Warning "No batched objects to update. WAPI call cancelled."
+                return
+            }
+
+            if ($PSCmdlet.ShouldProcess($opts.WAPIHost, 'POST')) {
+                Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
+            }
         }
 
     }
-
-
-
-
-    <#
-    .SYNOPSIS
-        Modify an object in Infoblox.
-
-    .DESCRIPTION
-        Modify an object by specifying its object reference and a PSObject with the fields to change.
-
-    .PARAMETER IBObject
-        An object with the fields to be modified. This must include a '_ref' with the object reference string to modify. All included fields will be modified even if they are empty.
-
-    .PARAMETER ObjectRef
-        Object reference string. This is usually found in the "_ref" field of returned objects.
-
-    .PARAMETER TemplateObject
-        An object with the fields to be modified. A '_ref' field in this object will be ignored. This is only usable with a separate -ObjectRef parameter.
-
-    .PARAMETER ReturnFields
-        The set of fields that should be returned in addition to the object reference.
-
-    .PARAMETER ReturnBaseFields
-        If specified, the standard fields for this object type will be returned in addition to the object reference and any additional fields specified by -ReturnFields.
-
-    .PARAMETER WAPIHost
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
-
-    .PARAMETER WAPIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2').
-
-    .PARAMETER Credential
-        Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
-
-    .PARAMETER SkipCertificateCheck
-        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
-
-    .OUTPUTS
-        The object reference string of the modified item or a custom object if -ReturnFields or -ReturnBaseFields was used.
-
-    .EXAMPLE
-        $myhost = Get-IBObject -ObjectType 'record:host' -Filters 'name=myhost' -ReturnFields 'comment'
-        PS C:\>$myhost.comment = 'new comment'
-        PS C:\>Set-IBObject -ObjectRef $myhost._ref -IBObject $myhost
-
-        Search for a host record called 'myhost', update the comment field, and save it.
-
-    .EXAMPLE
-        $toChange = Get-IBObject -type 'record:host' -Filters 'name~=oldname' -fields 'name'
-        PS C:\>$toChange | %{ $_.name = $_.name.Replace('oldname','newname'); $_ } | Set-IBObject
-
-        Find all hosts with 'oldname' in the name, change the references to 'newname', and send them through the pipeline to Set-IBObject for saving.
-
-    .EXAMPLE
-        $myhosts = Get-IBObject 'record:host' -Filters 'comment=web server'
-        PS C:\>$myhosts | Set-IBObject -TemplateObject @{comment='db server'}
-
-        Find all host records with comment 'web server' and change them to 'db server' with a manually created template
-
-    .LINK
-        Project: https://github.com/rmbolger/Posh-IBWAPI
-
-    .LINK
-        Get-IBObject
-
-    #>
 }

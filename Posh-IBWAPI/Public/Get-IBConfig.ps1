@@ -48,43 +48,4 @@ function Get-IBConfig
         }
 
     }
-
-
-
-
-    <#
-    .SYNOPSIS
-        Get one or more connection profiles.
-
-    .DESCRIPTION
-        When calling this function with no parameters, the currently active profile will be returned. These values will be used by related function calls to the Infoblox API unless they are overridden by the function's own parameters.
-
-        When called with -ProfileName, the profile matching that name will be returned. When called with -List, all profiles will be returned.
-
-    .PARAMETER ProfileName
-        The name of the connection profile to return.
-
-    .PARAMETER List
-        If set, list all connection profiles currently stored.
-
-    .EXAMPLE
-        Get-IBConfig
-
-        Get the current connection profile.
-
-    .EXAMPLE
-        Get-IBConfig -List
-
-        Get all connection profiles.
-
-    .LINK
-        Project: https://github.com/rmbolger/Posh-IBWAPI
-
-    .LINK
-        Set-IBConfig
-
-    .LINK
-        Get-IBObject
-
-    #>
 }

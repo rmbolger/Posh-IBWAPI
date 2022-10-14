@@ -1,24 +1,29 @@
-BeforeAll {
-    Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
-
-    # setup fake profile export location
-    $fakeConfigFolder = 'TestDrive:\config'
-    $fakeConfigFile   = 'TestDrive:\config\posh-ibwapi.json'
-
-    # setup a fake profile body to use
-    $fakePass = ConvertTo-SecureString 'password1' -AsPlainText -Force
-    $fakeProfile = @{
-        WAPIHost = 'gm1'
-        WAPIVersion = '1.0'
-        Credential = @{
-            Username = 'admin1'
-            Password = $fakePass | ConvertFrom-SecureString
-        }
-        SkipCertificateCheck = $false
-    }
-}
-
 Describe "Remove-IBConfig" {
+
+    BeforeAll {
+        $env:LOCALAPPDATA = 'TestDrive:\'
+        $env:HOME = 'TestDrive:\'
+        $env:IBWAPI_VAULT_NAME = $null
+        $env:IBWAPI_VAULT_PASS = $null
+        $env:IBWAPI_VAULT_SECRET_TEMPLATE = $null
+        Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
+
+        # setup fake profile export location
+        $fakeConfigFolder = 'TestDrive:\config'
+        $fakeConfigFile   = 'TestDrive:\config\posh-ibwapi.json'
+
+        # setup a fake profile body to use
+        $fakePass = ConvertTo-SecureString 'password1' -AsPlainText -Force
+        $fakeProfile = @{
+            WAPIHost = 'gm1'
+            WAPIVersion = '1.0'
+            Credential = @{
+                Username = 'admin1'
+                Password = $fakePass | ConvertFrom-SecureString
+            }
+            SkipCertificateCheck = $false
+        }
+    }
 
     Context "No existing config" {
 

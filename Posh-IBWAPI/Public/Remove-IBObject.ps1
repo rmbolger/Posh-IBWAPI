@@ -2,11 +2,18 @@ function Remove-IBObject
 {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
+        [Parameter(Mandatory,Position=0,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [Alias('_ref','ref')]
         [string]$ObjectRef,
+        [Parameter(Position=1)]
         [Alias('args')]
         [string[]]$DeleteArgs,
+        [switch]$BatchMode,
+        [ValidateRange(1,2147483647)]
+        [int]$BatchGroupSize = 1000,
+
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -14,82 +21,58 @@ function Remove-IBObject
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
-        [string]$ProfileName
+        [switch]$SkipCertificateCheck
     )
 
     Begin {
         # grab the variables we'll be using for our REST calls
         try { $opts = Initialize-CallVars @PSBoundParameters } catch { $PsCmdlet.ThrowTerminatingError($_) }
-        $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
-        $opts.Remove('WAPIHost') | Out-Null
-        $opts.Remove('WAPIVersion') | Out-Null
 
         $querystring = [String]::Empty
         if ($DeleteArgs) {
             $querystring = "?$($DeleteArgs -join '&')"
         }
-    }
 
-    Process {
-        $uri = "$APIBase$($ObjectRef)$querystring"
-        if ($PSCmdlet.ShouldProcess($uri, 'DELETE')) {
-            Invoke-IBWAPI -Method Delete -Uri $uri @opts
+        if ($BatchMode) {
+            # create a list to save the objects in
+            $deferredObjects = [Collections.Generic.List[string]]::new()
         }
     }
 
+    Process {
 
+        if ($BatchMode) {
+            # add the object to the list for processing during End{}
+            $deferredObjects.Add($ObjectRef)
+            return
+        }
 
+        $query = '{0}{1}' -f $ObjectRef,$querystring
+        if ($PSCmdlet.ShouldProcess($opts.WAPIHOST, 'DELETE')) {
+            Invoke-IBWAPI -Query $query -Method Delete @opts
+        }
+    }
 
-    <#
-    .SYNOPSIS
-        Delete an object from Infoblox.
+    End {
+        if (-not $BatchMode -or $deferredObjects.Count -eq 0) { return }
+        Write-Verbose "BatchMode deferred objects: $($deferredObjects.Count), group size $($BatchGroupSize)"
 
-    .DESCRIPTION
-        Specify an object reference to delete that object from the Infoblox database.
+        # make calls based on the group size
+        for ($i=0; $i -lt $deferredObjects.Count; $i += $BatchGroupSize) {
+            $groupEnd = [Math]::Min($deferredObjects.Count, ($i+$BatchGroupSize-1))
 
-    .PARAMETER ObjectRef
-        Object reference string. This is usually found in the "_ref" field of returned objects.
+            # build the json for this group's objects
+            $body = $deferredObjects[$i..$groupEnd] | ForEach-Object {
+                @{
+                    method = 'DELETE'
+                    object = $_
+                }
+            }
 
-    .PARAMETER DeleteArgs
-        Additional delete arguments for this object. For example, 'remove_associated_ptr=true' can be used with record:a. Requires WAPI 2.1+.
+            if ($PSCmdlet.ShouldProcess($opts.WAPIHost, 'POST')) {
+                Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
+            }
+        }
 
-    .PARAMETER WAPIHost
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
-
-    .PARAMETER WAPIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version.
-
-    .PARAMETER Credential
-        Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
-
-    .PARAMETER SkipCertificateCheck
-        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
-
-    .OUTPUTS
-        The object reference string of the deleted item.
-
-    .EXAMPLE
-        $myhost = Get-IBObject -ObjectType 'record:host' -Filters 'name=myhost'
-        PS C:\>Remove-IBObject -ObjectRef $myhost._ref
-
-        Search for a host record called 'myhost' and delete it.
-
-    .EXAMPLE
-        $hostsToDelete = Get-IBObject 'record:host' -Filters 'comment=decommissioned'
-        PS C:\>$hostsToDelete | Remove-IBObject
-
-        Search for hosts with their comment set to 'decommissioned' and delete them all.
-
-    .LINK
-        Project: https://github.com/rmbolger/Posh-IBWAPI
-
-    .LINK
-        New-IBObject
-
-    .LINK
-        Get-IBObject
-
-    #>
+    }
 }

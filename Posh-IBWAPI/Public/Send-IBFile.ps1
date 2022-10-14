@@ -1,11 +1,10 @@
 function Send-IBFile {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true,Position=0)]
+        [Parameter(Mandatory,Position=0)]
         [Alias('name')]
         [string]$FunctionName,
-        [Parameter(Mandatory=$true,Position=1,
-            ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory,Position=1,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [Alias("PSPath")]
         [ValidateScript({
             if(-not ($_ | Test-Path) ) {
@@ -17,12 +16,16 @@ function Send-IBFile {
             return $true
         })]
         [string]$Path,
+        [Parameter(Position=2)]
         [Alias('args')]
-        [hashtable]$FunctionArgs = @{},
+        [Collections.IDictionary]$FunctionArgs = @{},
+        [Parameter(Position=3)]
         [Alias('_ref','ref','ObjectType','type')]
         [string]$ObjectRef = 'fileop',
         [switch]$OverrideTransferHost,
 
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -30,9 +33,7 @@ function Send-IBFile {
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
-        [string]$ProfileName
+        [switch]$SkipCertificateCheck
     )
 
     Begin {
@@ -75,9 +76,9 @@ function Send-IBFile {
                 $urlHost = ([uri]$restOpts.Uri).Host
                 if ($opts.WAPIHost -ne $urlHost) {
                     $restOpts.Uri = $restOpts.Uri.Replace("https://$urlHost/", "https://$($opts.WAPIHost)/")
-                    Write-Verbose "Overrode URL host: $($opts.WAPIHost)"
+                    Write-Debug "Overrode URL host: $($opts.WAPIHost)"
                 } else {
-                    Write-Verbose "URL host already matches original. No need to override."
+                    Write-Debug "URL host already matches original. No need to override."
                 }
 
                 # and now match the state of SkipCertificateCheck
@@ -88,7 +89,7 @@ function Send-IBFile {
             Write-Debug "Uploading file"
             Invoke-IBWAPI @restOpts
         } catch {
-            throw
+            $PsCmdlet.ThrowTerminatingError($_)
         } finally {
             if ($null -ne $multipart) { $multipart.Dispose() }
         }
@@ -102,53 +103,4 @@ function Send-IBFile {
             -FunctionArgs $FunctionArgs @opts -EA Stop
 
     }
-
-
-
-    <#
-    .SYNOPSIS
-        Upload a file to Infoblox using one of the fileop upload functions.
-
-    .DESCRIPTION
-        This is a wrapper around the various fileop functions that allow data import into Infoblox.
-
-    .PARAMETER FunctionName
-        The name of the fileop upload function to call.
-
-    .PARAMETER Path
-        The path to the file that will be uploaded for this call.
-
-    .PARAMETER FunctionArgs
-        A hashtable with the required parameters for the function. NOTE: 'token' parameters are handled automatically and can be ignored.
-
-    .PARAMETER ObjectRef
-        Object reference string. This is usually found in the "_ref" field of returned objects.
-
-    .PARAMETER OverrideTransferHost
-        If set, the hostname in the transfer URL returned by WAPI will be overridden to match the original WAPIHost if they don't already match. The SkipCertificateCheck switch will also be updated to match the passed in value instead of always being set to true for the call.
-
-    .PARAMETER WAPIHost
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
-
-    .PARAMETER WAPIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parameter is required if not already set using Set-IBConfig.
-
-    .PARAMETER Credential
-        Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
-
-    .PARAMETER SkipCertificateCheck
-        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
-
-    .EXAMPLE
-        Send-IBFile uploadcertificate .\ca.pem -FunctionArgs @{certificate_usage='EAP_CA'}
-
-        Upload a trusted CA certificate to the grid.
-
-    .LINK
-        Project: https://github.com/rmbolger/Posh-IBWAPI
-
-    .LINK
-        Receive-IBFile
-
-    #>
 }

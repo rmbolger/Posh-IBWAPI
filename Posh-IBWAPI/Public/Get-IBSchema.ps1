@@ -11,6 +11,9 @@ function Get-IBSchema {
         [string[]]$Functions,
         [switch]$NoFunctions,
         [switch]$Detailed,
+
+        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
+        [string]$ProfileName,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [Alias('host')]
         [string]$WAPIHost,
@@ -18,45 +21,43 @@ function Get-IBSchema {
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck,
-        [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
-        [string]$ProfileName
+        [switch]$SkipCertificateCheck
     )
 
     # grab the variables we'll be using for our REST calls
     try { $opts = Initialize-CallVars @PSBoundParameters } catch { $PsCmdlet.ThrowTerminatingError($_) }
-    $APIBase = $script:APIBaseTemplate -f $opts.WAPIHost,$opts.WAPIVersion
     $WAPIHost = $opts.WAPIHost
     $WAPIVersion = $opts.WAPIVersion
-    $opts.Remove('WAPIHost') | Out-Null
-    $opts.Remove('WAPIVersion') | Out-Null
 
     # add a schema cache for this host if it doesn't exist
     if (-not $script:Schemas.$WAPIHost) {
-        $script:Schemas.$WAPIHost = @{}
+        $script:Schemas.$WAPIHost = @{ ReadFields = @{} }
     }
     $sCache = $script:Schemas.$WAPIHost
 
     # make sure we can actually query schema stuff for this WAPIHost
     if (-not $sCache.HighestVersion) {
-        $sCache.HighestVersion = (HighestVer $WAPIHost $opts.Credential -SkipCertificateCheck:$opts.SkipCertificateCheck)
-        Write-Verbose "Set highest version: $($sCache.HighestVersion)"
+        $sCache.HighestVersion = (HighestVer @opts)
+        Write-Debug "Set highest version: $($sCache.HighestVersion)"
     }
     if ([Version]$sCache.HighestVersion -lt [Version]'1.7.5') {
-        throw "NIOS WAPI $($sCache.HighestVersion) doesn't support schema queries"
+        $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+            "NIOS WAPI $($sCache.HighestVersion) doesn't support schema queries",
+            $null, [Management.Automation.ErrorCategory]::InvalidOperation, $null
+        ))
     }
 
     # cache some base schema stuff that we'll potentially need later
     if (-not $sCache.SupportedVersions -or -not $sCache[$WAPIVersion]) {
-        $schema = Invoke-IBWAPI -Uri "$($APIBase)?_schema" @opts
+        $schema = Invoke-IBWAPI -Query '?_schema' @opts
 
         # set supported versions
         $sCache.SupportedVersions = $schema.supported_versions | Sort-Object @{E={[Version]$_}}
-        Write-Verbose "Set supported versions: $($sCache.SupportedVersions -join ', ')"
+        Write-Debug "Set supported versions: $($sCache.SupportedVersions -join ', ')"
 
         # set supported objects for this version
         $sCache[$WAPIVersion] = $schema.supported_objects | Sort-Object
-        Write-Verbose "Set supported objects for $($WAPIVersion): $($sCache[$WAPIVersion] -join ', ')"
+        Write-Debug "Set supported objects for $($WAPIVersion): $($sCache[$WAPIVersion] -join ', ')"
     }
 
     # The 'request' object is a weird outlier that only accepts POST requests against it
@@ -69,25 +70,33 @@ function Get-IBSchema {
 
     if (![String]::IsNullOrWhiteSpace($ObjectType)) {
         # We want to support wildcard searches and partial matching on object types.
-        Write-Verbose "ObjectType: $ObjectType"
+        Write-Debug "ObjectType: $ObjectType"
         $objMatches = $sCache[$WAPIVersion] | ForEach-Object { if ($_ -like $ObjectType) { $_ } }
-        Write-Verbose "Matches: $($objMatches.Count)"
+        Write-Debug "Matches: $($objMatches.Count)"
         if ($objMatches.count -gt 1) {
             # multiple matches
             $message = "Multiple object matches found for $($ObjectType)"
-            if ($Raw) { throw $message }
+            if ($Raw) {
+                $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                    $message,$null, [Management.Automation.ErrorCategory]::LimitsExceeded, $null
+                ))
+            }
             Write-Output "$($message):"
             $objMatches | ForEach-Object { Write-Output $_ }
             return
         }
         elseif ($objMatches.count -eq 0 ) {
-            Write-Verbose "Retrying matches with implied wildcards"
+            Write-Debug "Retrying matches with implied wildcards"
             # retry matching with implied wildcards
             $objMatches = $sCache[$WAPIVersion] | ForEach-Object { if ($_ -like "*$ObjectType*") { $_ } }
             if ($objMatches.count -gt 1) {
                 # multiple matches
                 $message = "Multiple object matches found for $($ObjectType)"
-                if ($Raw) { throw $message }
+                if ($Raw) {
+                    $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                        $message,$null, [Management.Automation.ErrorCategory]::LimitsExceeded, $null
+                    ))
+                }
                 Write-Output "$($message):"
                 $objMatches | ForEach-Object { Write-Output $_ }
                 return
@@ -95,7 +104,11 @@ function Get-IBSchema {
             elseif ($objMatches.count -eq 0) {
                 # no matches, even with wildcards
                 $message = "No matches found for $($ObjectType)"
-                if ($Raw) { throw $message }
+                if ($Raw) {
+                    $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                        $message,$null, [Management.Automation.ErrorCategory]::ObjectNotFound, $null
+                    ))
+                }
                 else { Write-Warning $message }
                 return
             } else {
@@ -116,12 +129,12 @@ function Get-IBSchema {
     # We want to give people as much information as possible. So instead of conditionally
     # using the additional schema options if the requested WAPI version supports it, we want
     # to always do it as long as the latest *supported* WAPI version supports them.
-    $uri = "$APIBase$($ObjectType)?_schema=1"
+    $query = '{0}?_schema=1' -f $ObjectType
     if ([Version]$sCache.HighestVersion -ge [Version]'2.6') {
-        $uri += "&_schema_version=2&_schema_searchable=1&_get_doc=1"
+        $query += "&_schema_version=2&_schema_searchable=1&_get_doc=1"
     }
 
-    $schema = Invoke-IBWAPI -Uri $uri @opts
+    $schema = Invoke-IBWAPI -Query $query @opts
 
     # check for the switches that will prevent additional output
     if ($Raw -or $LaunchHTML) {
@@ -400,89 +413,4 @@ function Get-IBSchema {
 
         BlankLine
     }
-
-
-
-
-    <#
-    .SYNOPSIS
-        Query the schema of an object or the base appliance.
-
-    .DESCRIPTION
-        Without any parameters, this function will return the base appliance schema object which includes the list of supported WAPI versions and object types. Providing an -ObjectType will return the schema object for that type which includes a list of supported fields and functions.
-
-    .PARAMETER ObjectType
-        Object type string. (e.g. network, record:host, range). Partial names and wildcards are supported. If the ObjectType parameter would match multiple objects, the list of matching objects will be returned.
-
-    .PARAMETER Raw
-        If set, the schema object will be returned as-is rather than pretty printing the output.  All additional display parameters are ignored except -LaunchHTML.
-
-    .PARAMETER LaunchHTML
-        If set, Powershell will attempt to launch a browser to the object's full HTML documentation page on the grid master. All additional display parameters are ignored except -Raw.
-
-    .PARAMETER Fields
-        A list of Field names to include in the output. Wildcards are supported. This parameter is ignored if -NoFields is specified. If neither is specified, all Fields will be included.
-
-    .PARAMETER Operations
-        A list of supported operation codes: r (read), w (write/create), u (update/set), s (search), d (delete). Only the Fields supporting at least one of these operations will be included in the output. If not specified, all Fields will be included.
-
-    .PARAMETER NoFields
-        If set, the object's fields will not be included in the output.
-
-    .PARAMETER Functions
-        A list of Function names to include in the output. Wildcards are supported. This parameter is ignored if -NoFunctions is specified. If neither is specified, all Functions will be included.
-
-    .PARAMETER NoFunctions
-        If set, the object's functions will not be included in the output.
-
-    .PARAMETER Detailed
-        If set, detailed output is displayed for field and function information. Otherwise, a simplified view is displayed.
-
-    .PARAMETER WAPIHost
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master). This parameter is required if not already set using Set-IBConfig.
-
-    .PARAMETER WAPIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). This parameter is required if not already set using Set-IBConfig.
-
-    .PARAMETER Credential
-        Username and password for the Infoblox appliance. This parameter is required unless it was already set using Set-IBConfig.
-
-    .PARAMETER SkipCertificateCheck
-        If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.
-
-    .OUTPUTS
-        Zero or more objects found by the search or object reference. If an object reference is specified that doesn't exist, an error will be thrown.
-
-    .EXAMPLE
-        Get-IBSchema
-
-        Get the root schema object.
-
-    .EXAMPLE
-        Get-IBSchema record:host
-
-        Get the record:host schema object.
-
-    .EXAMPLE
-        Get-IBSchema record:host -Raw
-
-        Get the record:host schema object in raw object form.
-
-    .EXAMPLE
-        Get-IBSchema grid -Fields enable*,name
-
-        Get the grid schema object and only include the name field and fields that start with 'enable'.
-
-    .EXAMPLE
-        Get-IBSchema network -Operations s -NoFunctions
-
-        Get the network schema object and only include fields that are searchable and skip function definitions.
-
-    .LINK
-        Project: https://github.com/rmbolger/Posh-IBWAPI
-
-    .LINK
-        Get-IBObject
-
-    #>
 }

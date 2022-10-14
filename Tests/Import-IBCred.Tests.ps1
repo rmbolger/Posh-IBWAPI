@@ -1,10 +1,10 @@
-BeforeAll {
-    Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
-}
-
 Describe "Import-IBCred" {
 
     BeforeAll {
+        $env:LOCALAPPDATA = 'TestDrive:\'
+        $env:HOME = 'TestDrive:\'
+        Import-Module (Join-Path $PSScriptRoot '..\Posh-IBWAPI\Posh-IBWAPI.psd1')
+
         Mock Write-Warning -ModuleName Posh-IBWAPI {}
     }
 

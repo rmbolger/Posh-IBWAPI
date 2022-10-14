@@ -15,6 +15,52 @@ function Import-IBConfig
         $script:Schemas = @{}
     }
 
+    # Check for an environment variable based profile overriding anything else
+    if ($envProfile = Get-EnvProfile) {
+
+        Set-CurrentProfile 'ENV'
+        $profiles.ENV = $envProfile
+
+        Write-Verbose "Using env variable profile $($envProfile.Credential.Username) @ $($envProfile.WAPIHost) $($envProfile.WAPIVersion)"
+
+        # don't bother trying to load the local profiles
+        return
+    }
+
+    # Check for Vault based profile config
+    if ($vaultCfg = $script:VaultConfig = (Get-VaultConfig -Refresh)) {
+
+        $vaultProfiles = Get-VaultProfiles -VaultConfig $vaultCfg
+
+        foreach ($profName in $vaultProfiles.Keys) {
+
+            $profRaw = $vaultProfiles.$profName
+
+            # hydrate the PSCredential from the plaintext username/password
+            $secPass = $profRaw.Credential.Password | ConvertTo-SecureString -AsPlainText -Force
+            $profCred = [pscredential]::new($profRaw.Credential.Username, $secPass)
+
+            # hydrate the raw profile
+            $profiles.$profName = @{
+                WAPIHost    = $profRaw.WAPIHost
+                WAPIVersion = $profRaw.WAPIVersion
+                Credential  = $profCred
+                SkipCertificateCheck = $profRaw.SkipCertificateCheck
+            }
+
+            # set it as current if appropriate
+            if ($profRaw.Current) {
+                Set-CurrentProfile $profName
+            }
+        }
+
+        # no need to continue processing a local config
+        return
+    }
+
+    # If we've gotten this far, there's no ENV profile or working Vault config
+    # So just try to load the local config
+
     # return early if there's no file to load
     $configFile = Get-ConfigFile
     if (-not (Test-Path $configFile -PathType Leaf)) { return }
@@ -28,15 +74,10 @@ function Import-IBConfig
     }
 
     $propNames = @($json.PSObject.Properties.Name)
-    $backup1x = $false
 
     # grab the current profile
     if ('CurrentProfile' -in $propNames) {
         Set-CurrentProfile $json.CurrentProfile
-    } elseif ('CurrentHost' -in $propNames) {
-        # allow for legacy 1.x config import
-        Set-CurrentProfile $json.CurrentHost
-        $backup1x = $true
     }
 
     # load the rest of the profiles
@@ -55,30 +96,6 @@ function Import-IBConfig
                 $profiles.$_.SkipCertificateCheck = $true
             }
         }
-    } elseif ('Hosts' -in $propNames) {
-        # allow for legacy 1.x config import
-        $json.Hosts.PSObject.Properties.Name | ForEach-Object {
-            $profiles.$_ = @{
-                WAPIHost    = $json.Hosts.$_.WAPIHost
-                WAPIVersion = $json.Hosts.$_.WAPIVersion
-                Credential  = $null
-                SkipCertificateCheck = $false
-            }
-            if ('Credential' -in $json.Hosts.$_.PSObject.Properties.Name) {
-                $profiles.$_.Credential = (Import-IBCred $json.Hosts.$_.Credential $_)
-            }
-            if ($json.Hosts.$_.IgnoreCertificateValidation) {
-                $profiles.$_.SkipCertificateCheck = $true
-            }
-        }
-        $backup1x = $true
-    }
-
-    # backup the old 1.x config file and save the new version
-    if ($backup1x) {
-        Write-Verbose "Backing up imported v1 config file"
-        Copy-Item $configFile "$configFile.v1" -Force
-        Export-IBConfig
     }
 
 }

@@ -1,9 +1,9 @@
 function Get-IBSession {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory)]
         [uri]$Uri,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory)]
         [pscredential]$Credential
     )
 

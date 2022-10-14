@@ -1,7 +1,7 @@
 function Split-Str {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
+        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [string[]]$Text,
         [int]$MaxWidth=$Host.UI.RawUI.BufferSize.Width,
         [int]$Indent,
@@ -16,12 +16,12 @@ function Split-Str {
         if ($Indent) { $MaxWidth -= $Indent }
 
         foreach ($origString in $Text) {
-            Write-Debug "Top length $($origString.Length)"
+            #Write-Debug "Top length $($origString.Length)"
 
             # because we may be indenting, we need to care about embedded NewLine
             # characters and insert the indent for each one
             foreach ($line in $origString.Split([Environment]::NewLine)) {
-                Write-Debug "new outer line"
+                #Write-Debug "new outer line"
 
                 while ($line.Length -gt $MaxWidth) {
                     $newLine = ''
@@ -29,7 +29,7 @@ function Split-Str {
                     # copy a maxWidth+1 chunk
                     $chunk = $line.Substring(0,$MaxWidth+1)
                     $lastSpaceIndex = $chunk.LastIndexOf(' ')
-                    Write-Debug "chunk length $($chunk.length) and space index $lastSpaceIndex"
+                    #Write-Debug "chunk length $($chunk.length) and space index $lastSpaceIndex"
 
                     if ($lastSpaceIndex -le 0) {
                         # no natural spaces to split, so just split on max width
@@ -47,7 +47,7 @@ function Split-Str {
                     $line = $line.Substring($lastSpaceIndex + 1)
                 }
 
-                Write-Debug "last chunk length $($line.length)"
+                #Write-Debug "last chunk length $($line.length)"
                 # pad and indent if necessary and add the last piece to the output
                 if ($PadMax) { $line = $line.PadRight($MaxWidth) }
                 if ($Indent) { $line = "$(' ' * $Indent)$line" }

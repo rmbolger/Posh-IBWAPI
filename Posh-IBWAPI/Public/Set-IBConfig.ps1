@@ -21,6 +21,21 @@ function Set-IBConfig
     # This function allows callers to save connection parameters so they don't
     # need to supply them on every subsequent function call.
 
+    # Ignore these calls when running stateless with an environment variable
+    # based profile.
+    if ('ENV' -eq (Get-CurrentProfile)) {
+        Write-Warning "Set-IBConfig is not available when using an environment variable based profile."
+        return
+    }
+
+    # Don't allow folks to use 'ENV' as a profile name
+    if ('ENV' -eq $ProfileName -or 'ENV' -eq $NewName) {
+        $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+            "'ENV' is a reserved profile name. Please choose something else.",
+            $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
+        ))
+    }
+
     $profiles = Get-Profiles
 
     if ($ProfileName) {
@@ -41,7 +56,10 @@ function Set-IBConfig
             Write-Debug "Using current profile $ProfileName"
         } else {
             # can't do anything with no current profile
-            throw "ProfileName not specified and no active profile to modify."
+            $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                "ProfileName not specified and no active profile to modify.",
+                $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
+            ))
         }
     }
 
@@ -50,7 +68,10 @@ function Set-IBConfig
         Write-Debug "WAPIHost set to $($cfg.WAPIHost)"
     } elseif (-not $cfg.WAPIHost) {
         # we don't allow new profiles with no host
-        throw "New profiles must contain a WAPIHost."
+        $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+            "New profiles must contain a WAPIHost.",
+            $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
+        ))
     }
 
     if ($Credential) {
@@ -58,7 +79,10 @@ function Set-IBConfig
         Write-Debug "Credential set to $($cfg.Credential.Username)"
     } elseif (-not $cfg.Credential) {
         # we don't allow new profiles with no credential
-        throw "New profiles must contain a Credential."
+        $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+            "New profiles must contain a Credential.",
+            $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
+        ))
     }
 
     # SkipCertificateCheck defaults to false, but can also be explicitly set to false
@@ -82,7 +106,10 @@ function Set-IBConfig
         Write-Debug "WAPIVersion set to $($cfg.WAPIVersion)"
     } elseif (-not $cfg.WAPIVersion) {
         # we don't allow new profiles with no WAPIVersion
-        throw "New profiles must contain a WAPIVersion."
+        $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+            "New profiles must contain a WAPIVersion.",
+            $null, [Management.Automation.ErrorCategory]::InvalidArgument, $null
+        ))
     }
 
     # deal with profile renames and add/overwrite the new/old profile
@@ -96,64 +123,11 @@ function Set-IBConfig
     $profiles.$ProfileName = $cfg
 
     # switch to the profile unless otherwise specified
-    if (-not $NoSwitchProfile) {
+    if (-not $NoSwitchProfile -and $ProfileName -ne (Get-CurrentProfile)) {
+        Write-Verbose "Setting $ProfileName as the active profile"
         Set-CurrentProfile $ProfileName
     }
 
-    # save the changes to disk
+    # persist the changes
     Export-IBConfig
-
-
-    <#
-    .SYNOPSIS
-        Save connection parameters to a profile to avoid needing to supply them to future functions.
-
-    .DESCRIPTION
-        Rather than specifying the same common parameter values to most of the function calls in this module, you can pre-set them with this function instead. They will be used automatically by other functions that support them unless overridden by the function's own parameters.
-
-        Calling this function with a profile name will update that profile's values and switch the current profile to the specified one unless -NoSwitchProfile is used. When a profile name is not specified, the current profile's values will be updated with any specified changes.
-
-    .PARAMETER ProfileName
-        The name of the profile to create or modify.
-
-    .PARAMETER WAPIHost
-        The fully qualified DNS name or IP address of the Infoblox WAPI endpoint (usually the grid master).
-
-    .PARAMETER WAPIVersion
-        The version of the Infoblox WAPI to make calls against (e.g. '2.2'). You may optionally specify 'latest' and the function will attempt to query the WAPI for the latest supported version.
-
-    .PARAMETER Credential
-        Username and password for the Infoblox appliance.
-
-    .PARAMETER SkipCertificateCheck
-        If set, SSL/TLS certificate validation will be disabled for this profile.
-
-    .PARAMETER NoSwitchProfile
-        If set, the current profile will not switch to the specified -ProfileName if different.
-
-    .EXAMPLE
-        Set-IBConfig -ProfileName 'gm-admin'
-
-        Switch to the 'gm-admin' profile, but make no changes.
-
-    .EXAMPLE
-        Set-IBConfig -ProfileName 'gm-admin' -WAPIHost gm.example.com -WAPIVersion 2.2 -Credential (Get-Credential) -SkipCertificateCheck
-
-        Create or update the 'gm-admin' profile with all basic connection parameters for an Infoblox WAPI connection. This will also prompt for the credentials and skip certificate validation.
-
-    .EXAMPLE
-        Set-IBConfig -WAPIVersion 2.5
-
-        Update the current profile to WAPI version 2.5
-
-    .LINK
-        Project: https://github.com/rmbolger/Posh-IBWAPI
-
-    .LINK
-        Get-IBConfig
-
-    .LINK
-        Invoke-IBWAPI
-
-    #>
 }
