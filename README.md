@@ -10,11 +10,9 @@ A PowerShell module to help with Infoblox automation via WAPI requests and funct
 - Optionally return all fields for an object without needing to specify each one individually *(Requires WAPI version 1.7.5+)*
 - Use `Get-IBSchema` for Get-Help style querying of the WAPI object model *(Requires WAPI version 1.7.5+)*. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Using-Get-IBSchema/)
 - Error details in the body of HTTP 400 responses are exposed instead of being swallowed by Invoke-RestMethod.
-- Pipeline support so you can do things like pass the results from `Get-IBObject` directly to `Remove-IBObject`.
 - Optionally batch pipelined requests to increase performance.
 - Optionally ignore certificate validation errors.
-- Save connection profiles so you don't have to pass multiple common parameters with every call.
-- Multiple connection profiles supported for multi-grid environments or if you need to save different credentials for different purposes.
+- Save connection profiles to use automatically with functions instead of supplying them to each call. Multiple profiles supported for multi-grid environments or differing credentials on the same grid.
 - [SecretManagement](https://devblogs.microsoft.com/powershell/secretmanagement-and-secretstore-are-generally-available/) support for connection profiles. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Using-SecretManagement/)
 - Cloud friendly stateless mode supported via environment variables. [(Guide)](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Stateless-Mode/)
 - Cross-platform [PowerShell](https://github.com/PowerShell/PowerShell) support
@@ -47,11 +45,11 @@ You can also download the source manually from GitHub and extract the `Posh-IBWA
 
 ## Quick Start
 
-Every WAPI call needs a host, version, and credentials. Set them once for the session with `Set-IBConfig` and you won't need to add them to every call. If your grid is still using self-signed certs, you may also need to use the `SkipCertificateCheck` parameter. In addition to standard version numbers like `'2.2'`, the `-WAPIVersion` parameter also accepts `'latest'` and will query the grid master for the latest supported version.
+Every WAPI call needs a host, version, and credentials. Set them once using `Set-IBConfig` and you won't need to add them to every call. If your grid is still using self-signed certs, you may also need to use the `SkipCertificateCheck` parameter. In addition to standard version numbers like `'2.2'`, the `-WAPIVersion` parameter also accepts `'latest'` and will query the grid master for the latest supported version.
 
 ```powershell
-Set-IBConfig -ProfileName 'mygrid' -WAPIHost 'gridmaster.example.com' -WAPIVersion 'latest' `
-    -Credential (Get-Credential) -SkipCertificateCheck
+Set-IBConfig -ProfileName 'mygrid' -WAPIHost 'gridmaster.example.com' `
+    -WAPIVersion 'latest' -Credential (Get-Credential) -SkipCertificateCheck
 ```
 
 Retrieve a set of objects using `Get-IBObject`. The only required parameter is `ObjectType`. Everything else like filters and return fields are optional.
@@ -73,14 +71,19 @@ You may notice that all objects returned by Infoblox have a `_ref` field. That i
 Get-IBObject -ObjectRef 'record:host/asdfqwerasdfqwerasdfqwerasdfqwer'
 ```
 
-Create a new object with `New-IBObject`. All you need to provide is the object type and an object with the minimum required fields defined. Embedded WAPI functions work just fine here.
+Create a new object with `New-IBObject` by supplying the object type and an object with the minimum required fields defined. Embedded WAPI functions work just fine here.
 
 ```powershell
 # Build the record:host object we want to create.
 # NOTE: An error will be thrown if the example.com DNS zone doesn't
 # exist in Infoblox
-$newhost = @{name='web1.example.com';comment='web server'}
-$newhost.ipv4addrs = @( @{ipv4addr='10.10.10.1'} )
+$newhost = @{
+    name = 'web1.example.com'
+    ipv4addrs = @(
+        @{ ipv4addr = '10.10.10.1' }
+    )
+    comment = 'web server'
+}
 
 # Create the object
 New-IBObject -ObjectType 'record:host' -IBObject $newhost
@@ -88,7 +91,9 @@ New-IBObject -ObjectType 'record:host' -IBObject $newhost
 # Modify the object so we can make another and this time use an
 # embedded function to set the IP address.
 $newhost.name = 'web2.example.com'
-$newhost.ipv4addrs = @( @{ipv4addr='func:nextavailableip:10.10.10.0/24'} )
+$newhost.ipv4addrs = @(
+    @{ ipv4addr = 'func:nextavailableip:10.10.10.0/24'}
+)
 New-IBObject -ObjectType 'record:host' -IBObject $newhost
 ```
 
@@ -98,11 +103,11 @@ To modify an existing object, the easiest way is usually to get a copy of it, mo
 # Get a copy of the host
 $myhost = Get-IBObject 'record:host' -Filter 'name=web1.example.com'
 
-# remove the read-only 'host' field from the nested 'record:host_ipv4addr' object
-$myhost.ipv4addrs[0].PSObject.Properties.Remove('host')
-
 # Modify the first listed IP address
 $myhost.ipv4addrs[0].ipv4addr = '10.10.10.100'
+
+# remove the read-only 'host' field from the nested 'record:host_ipv4addr' object
+$myhost.ipv4addrs[0].PSObject.Properties.Remove('host')
 
 # Save the result
 $myhost | Set-IBObject
@@ -128,7 +133,7 @@ $toDelete = Get-IBObject 'record:host' -Filter 'comment=decommission'
 $toDelete | Remove-IBObject
 ```
 
-For more examples, check the [Definitive REST Examples](https://docs.dvolve.net/Posh-IBWAPI/v4/Guides/Definitive-REST-Examples/) guide.
+For more examples, check the [Definitive REST Examples](Guides/Definitive-REST-Examples.md) guide.
 
 ## Requirements and Platform Support
 
