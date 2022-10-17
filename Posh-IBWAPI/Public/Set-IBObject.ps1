@@ -86,7 +86,9 @@ function Set-IBObject
 
         $query = '{0}{1}' -f $ObjectRef,$querystring
         if ($PsCmdlet.ShouldProcess($opts.WAPIHost, 'PUT')) {
-            Invoke-IBWAPI -Query $query -Method 'PUT' -Body $TemplateObject @opts
+            try {
+                Invoke-IBWAPI -Query $query -Method 'PUT' -Body $TemplateObject @opts -EA Stop
+            } catch { $PsCmdlet.WriteError($_) }
         }
     }
 
@@ -144,7 +146,9 @@ function Set-IBObject
             }
 
             if ($PSCmdlet.ShouldProcess($opts.WAPIHost, 'POST')) {
-                Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
+                try {
+                    Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts -EA Stop
+                } catch { $PsCmdlet.WriteError($_) }
             }
         }
 

@@ -37,7 +37,9 @@ function Get-IBSchema {
 
     # make sure we can actually query schema stuff for this WAPIHost
     if (-not $sCache.HighestVersion) {
-        $sCache.HighestVersion = (HighestVer @opts)
+        try {
+            $sCache.HighestVersion = (HighestVer @opts)
+        } catch { $PSCmdlet.ThrowTerminatingError($_) }
         Write-Debug "Set highest version: $($sCache.HighestVersion)"
     }
     if ([Version]$sCache.HighestVersion -lt [Version]'1.7.5') {
@@ -49,7 +51,9 @@ function Get-IBSchema {
 
     # cache some base schema stuff that we'll potentially need later
     if (-not $sCache.SupportedVersions -or -not $sCache[$WAPIVersion]) {
-        $schema = Invoke-IBWAPI -Query '?_schema' @opts
+        try {
+            $schema = Invoke-IBWAPI -Query '?_schema' @opts -EA Stop
+        } catch { $PsCmdlet.ThrowTerminatingError($_) }
 
         # set supported versions
         $sCache.SupportedVersions = $schema.supported_versions | Sort-Object @{E={[Version]$_}}
@@ -134,7 +138,9 @@ function Get-IBSchema {
         $query += "&_schema_version=2&_schema_searchable=1&_get_doc=1"
     }
 
-    $schema = Invoke-IBWAPI -Query $query @opts
+    try {
+        $schema = Invoke-IBWAPI -Query $query @opts -EA Stop
+    } catch { $PsCmdlet.ThrowTerminatingError($_) }
 
     # check for the switches that will prevent additional output
     if ($Raw -or $LaunchHTML) {

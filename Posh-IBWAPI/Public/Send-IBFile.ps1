@@ -46,9 +46,11 @@ function Send-IBFile {
         $Path = $psCmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
 
         Write-Debug "Calling uploadinit"
-        $response = Invoke-IBFunction -ObjectRef 'fileop' -FunctionName 'uploadinit' @opts -EA Stop
-        $token = $response.token
-        $uploadUrl = $response.url
+        try {
+            $response = Invoke-IBFunction -ObjectRef 'fileop' -FunctionName 'uploadinit' @opts -EA Stop
+            $token = $response.token
+            $uploadUrl = $response.url
+        } catch { $PsCmdlet.ThrowTerminatingError($_) }
 
         # while we'd love to use the built-in support for multipart/file uploads in Invoke-RestMethod, it's
         # only available in PowerShell 6.1+ and the implementation currently has some bugs we'd need
@@ -99,8 +101,15 @@ function Send-IBFile {
 
         # finalize the upload with the actual requested function and arguments
         Write-Debug "Calling $FunctionName with associated arguments"
-        $response = Invoke-IBFunction -ObjectRef $ObjectRef -FunctionName $FunctionName `
-            -FunctionArgs $FunctionArgs @opts -EA Stop
+        $funcParams = @{
+            ObjectRef = $ObjectRef
+            FunctionName = $FunctionName
+            FunctionArgs = $FunctionArgs
+            ErrorAction = 'Stop'
+        }
+        try {
+            $response = Invoke-IBFunction @funcParams @opts
+        } catch { $PsCmdlet.ThrowTerminatingError($_) }
 
     }
 }

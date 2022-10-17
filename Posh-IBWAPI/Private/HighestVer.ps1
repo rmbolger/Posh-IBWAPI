@@ -19,6 +19,7 @@ function HighestVer
             WAPIVersion = '1.1'
             Credential = $Credential
             SkipCertificateCheck = $SkipCertificateCheck.IsPresent
+            ErrorAction = 'Stop'
         }
         $versions = (Invoke-IBWAPI -Query '?_schema' @opts).supported_versions
 

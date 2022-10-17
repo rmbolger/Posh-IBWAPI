@@ -36,6 +36,7 @@ function Invoke-IBFunction
         $queryParams = @{
             Query = '{0}?_function={1}' -f $ObjectRef,$FunctionName
             Method = 'POST'
+            ErrorAction = 'Stop'
         }
         if ($FunctionArgs) {
             $queryParams.Body = $FunctionArgs
@@ -43,7 +44,10 @@ function Invoke-IBFunction
 
         # make the call
         if ($PSCmdlet.ShouldProcess($queryParams.Uri, "POST")) {
-            Invoke-IBWAPI @queryParams @opts
+            try {
+                Invoke-IBWAPI @queryParams @opts
+            } catch { $PsCmdlet.WriteError($_) }
+
         }
 
     }

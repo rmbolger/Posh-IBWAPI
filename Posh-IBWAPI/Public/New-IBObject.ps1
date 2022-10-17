@@ -68,7 +68,10 @@ function New-IBObject
             Body = $IBObject
         }
         if ($PSCmdlet.ShouldProcess($queryParams.Uri, "POST")) {
-            Invoke-IBWAPI @queryParams @opts
+            try {
+                Invoke-IBWAPI @queryParams @opts -EA Stop
+            } catch { $PsCmdlet.WriteError($_) }
+
         }
     }
 
@@ -103,7 +106,9 @@ function New-IBObject
             }
 
             if ($PSCmdlet.ShouldProcess($opts.WAPIHost, 'POST')) {
-                Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
+                try {
+                    Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts -EA Stop
+                } catch { $PsCmdlet.WriteError($_) }
             }
         }
 

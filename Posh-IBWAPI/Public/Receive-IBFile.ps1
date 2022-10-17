@@ -34,8 +34,15 @@ function Receive-IBFile {
     Process {
 
         # requestion the download token and url
-        $response = Invoke-IBFunction -ObjectRef $ObjectRef `
-            -FunctionName $FunctionName -FunctionArgs $FunctionArgs @opts -EA Stop
+        $funcParams = @{
+            ObjectRef = $ObjectRef
+            FunctionName = $FunctionName
+            FunctionArgs = $FunctionArgs
+            ErrorAction = 'Stop'
+        }
+        try {
+            $response = Invoke-IBFunction @funcParams @opts
+        } catch { $PsCmdlet.ThrowTerminatingError($_) }
         $dlUrl = $response.url
 
         # try to download the file
@@ -74,11 +81,19 @@ function Receive-IBFile {
             Write-Debug "Downloading file"
             Invoke-IBWAPI @restOpts
         }
+        catch { $PSCmdlet.ThrowTerminatingError($_) }
         finally {
             # inform Infoblox that the download is complete
             if ($response.token) {
-                $null = Invoke-IBFunction -ObjectRef 'fileop' `
-                    -FunctionName 'downloadcomplete' -FunctionArgs @{token=$response.token} @opts
+                $funcParams = @{
+                    ObjectRef = 'fileop'
+                    FunctionName = 'downloadcomplete'
+                    FunctionArgs = @{ token = $response.token }
+                    ErrorAction = 'Stop'
+                }
+                try {
+                    $null = Invoke-IBFunction @funcParams @opts
+                } catch { $PsCmdlet.ThrowTerminatingError($_) }
             }
         }
 

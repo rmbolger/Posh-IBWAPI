@@ -185,8 +185,12 @@ function Get-IBObject
 
         # if we're not paging, just return the single call
         if (-not $UsePaging) {
-            $query = '{0}?{1}' -f $queryObj,($queryargs -join '&')
-            return (Invoke-IBWAPI -Query $query @opts)
+            $query = ('{0}?{1}' -f $queryObj,($queryargs -join '&')).TrimEnd('?')
+            try {
+                Invoke-IBWAPI -Query $query @opts -EA Stop
+            } catch { $PSCmdlet.WriteError($_) }
+
+            return
         }
 
         # By default, the WAPI will return an error if the result count exceeds 1000
@@ -223,18 +227,22 @@ function Get-IBObject
 
             $query = '{0}{1}' -f $queryObj,$querystring
 
-            $response = Invoke-IBWAPI -Query $query @opts
-            if ('result' -notin $response.PSObject.Properties.Name) {
-                # A normal response from WAPI will contain a 'result' object even
-                # if that object is empty because it couldn't find anything.
-                # But if there's no result object, something is wrong.
-                $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
-                    "No 'result' object found in server response",
-                    $null, [Management.Automation.ErrorCategory]::ObjectNotFound, $null
-                ))
+            try {
+                $response = Invoke-IBWAPI -Query $query @opts -EA Stop
+                if ('result' -notin $response.PSObject.Properties.Name) {
+                    # A normal response from WAPI will contain a 'result' object even
+                    # if that object is empty because it couldn't find anything.
+                    # But if there's no result object, something is wrong.
+                    $PSCmdlet.ThrowTerminatingError([Management.Automation.ErrorRecord]::new(
+                        "No 'result' object found in server response",
+                        $null, [Management.Automation.ErrorCategory]::ObjectNotFound, $null
+                    ))
+                }
+                $resultCount += $response.result.Count
+                $response.result
+            } catch {
+                $PSCmdlet.WriteError($_)
             }
-            $resultCount += $response.result.Count
-            $response.result
 
         } while ($response.next_page_id -and $resultCount -lt $MaxResults)
 
@@ -282,7 +290,9 @@ function Get-IBObject
                 }
             }
 
-            Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
+            try {
+                Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts -EA Stop
+            } catch { $PSCmdlet.WriteError($_) }
         }
 
     }

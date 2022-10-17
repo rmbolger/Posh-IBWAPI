@@ -49,7 +49,9 @@ function Remove-IBObject
 
         $query = '{0}{1}' -f $ObjectRef,$querystring
         if ($PSCmdlet.ShouldProcess($opts.WAPIHOST, 'DELETE')) {
-            Invoke-IBWAPI -Query $query -Method Delete @opts
+            try {
+                Invoke-IBWAPI -Query $query -Method Delete @opts -EA Stop
+            } catch { $PsCmdlet.WriteError($_) }
         }
     }
 
@@ -70,7 +72,9 @@ function Remove-IBObject
             }
 
             if ($PSCmdlet.ShouldProcess($opts.WAPIHost, 'POST')) {
-                Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts
+                try {
+                    Invoke-IBWAPI -Query 'request' -Method 'POST' -Body $body @opts -EA Stop
+                } catch { $PsCmdlet.WriteError($_) }
             }
         }
 
