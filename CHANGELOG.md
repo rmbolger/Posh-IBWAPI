@@ -1,3 +1,7 @@
+## 4.0.1 (2022-10-17)
+
+* Fixed error handling on public functions that were either throwing double errors in some cases or mis-attributing the function where the error occurred.
+
 ## 4.0.0 (2022-10-14)
 
 ### New Features
