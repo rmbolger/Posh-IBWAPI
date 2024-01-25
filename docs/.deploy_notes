@@ -21,7 +21,7 @@ mkdocs-material-extensions  1.0.3
 Pillow                      9.2.0
 
 !!! note
-    CairoSVG and Pillow are specifically for [socal card support][1] and kind of
+    CairoSVG and Pillow are specifically for [social card support][1] and kind of
     a pain to deal with because Cairo requires external GTK libraries which are
     hard to come by on Windows. The Cairo docs point to resources that no longer
     exist and GTK runtime libs are usually just embedded with the apps that use
