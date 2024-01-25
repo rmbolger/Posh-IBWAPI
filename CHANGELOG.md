@@ -1,3 +1,7 @@
+## 4.0.2 (2024-01-24)
+
+* Fixed url encoding for boolean values in Get-IBObject filters passed by hashtable
+
 ## 4.0.1 (2022-10-17)
 
 * Fixed error handling on public functions that were either throwing double errors in some cases or mis-attributing the function where the error occurred.
