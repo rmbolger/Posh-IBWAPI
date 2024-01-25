@@ -123,8 +123,10 @@ Accept wildcard characters: False
 ```
 
 ### -Filter
-A string array of search filter conditions (e.g. "name%7E=myhost","ipv4addr=10.10.10.10") or hashtable (e.g. @{'name~'='myhost';ipv4addr='10.10.10.10'}). All conditions must be satisfied to match an object.
-String based filters must be properly URL encoded. Hashtable filters will be automatically URL encoded.
+A hashtable with search filter conditions (e.g. `@{'name~'='myhost';ipv4addr='10.10.10.10'}`). All conditions must be satisfied to match an object. The filters can also be specified as an array of strings but the field names and values must be URL encoded by the caller in advance (e.g. `"name%7E=myhost","ipv4addr=10.10.10.10"`). With both methods, all conditions must be satisfied to match an object.
+
+NOTE: WAPI field names are case sensitive. The value specified for a field is also case sensitive unless using the case insensitive modififer, `:`, or accounting for case via regex.
+
 See Infoblox WAPI documentation for advanced usage details.
 
 ```yaml
