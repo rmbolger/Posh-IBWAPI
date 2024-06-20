@@ -1,6 +1,6 @@
 Change to the docs.dvolve.net repo root and then:
 
-    mike deploy --prefix Posh-IBWAPI --branch main --push --config-file ../Posh-IBWAPI/mkdocs.yml v4 latest
+    mike deploy --deploy-prefix Posh-IBWAPI --branch main --push --config-file ../Posh-IBWAPI/mkdocs.yml v4 latest
     git reset --hard
 
 `--push` is optional. If you want to self-host the versioned docs, leave it out and run:
@@ -12,13 +12,14 @@ Add `-a IP:PORT` to bind to specific ip and port instead of localhost:8000
 
 # Mkdocs + Material prereqs
 
-CairoSVG                    2.5.2
-mike                        1.1.2
-mkdocs                      1.4.0
+CairoSVG                    2.7.1
+mike                        2.1.1
+mkdocs                      1.6.0
 mkdocs-awesome-pages-plugin 2.8.0
-mkdocs-material             8.5.6
-mkdocs-material-extensions  1.0.3
-Pillow                      9.2.0
+mkdocs-get-deps             0.2.0
+mkdocs-material             9.5.27
+mkdocs-material-extensions  1.3.1
+pillow                      10.3.0
 
 !!! note
     CairoSVG and Pillow are specifically for [social card support][1] and kind of
