@@ -16,7 +16,7 @@ Retrieve objects from the Infoblox database.
 ### ByType (Default)
 ```powershell
 Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-MaxResults <Int32>] [-PageSize <Int32>]
- [-ReturnField <String[]>] [-ReturnBase] [-ReturnAll] [-ProxySearch] [-ProfileName <String>]
+ [-ReturnField <String[]>] [-ReturnBase] [-ReturnAll] [-ProxySearch] [-Inheritance] [-ProfileName <String>]
  [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck]
  [<CommonParameters>]
 ```
@@ -24,15 +24,15 @@ Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-MaxResults <Int32>] [-P
 ### ByTypeNoPaging
 ```powershell
 Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-NoPaging] [-ReturnField <String[]>] [-ReturnBase]
- [-ReturnAll] [-ProxySearch] [-ProfileName <String>] [-WAPIHost <String>] [-WAPIVersion <String>]
- [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
+ [-ReturnAll] [-ProxySearch] [-Inheritance] [-ProfileName <String>] [-WAPIHost <String>]
+ [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
 ```
 
 ### ByRef
 ```powershell
 Get-IBObject [-ObjectRef] <String> [-ReturnField <String[]>] [-ReturnBase] [-ReturnAll] [-BatchMode]
- [-BatchGroupSize <Int32>] [-ProxySearch] [-ProfileName <String>] [-WAPIHost <String>] [-WAPIVersion <String>]
- [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
+ [-BatchGroupSize <Int32>] [-ProxySearch] [-Inheritance] [-ProfileName <String>] [-WAPIHost <String>]
+ [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
 ```
 
 ## Description
@@ -133,6 +133,21 @@ See Infoblox WAPI documentation for advanced usage details.
 Type: Object
 Parameter Sets: ByType, ByTypeNoPaging
 Aliases: Filters
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Inheritance
+If specified, returned fields which support inheritance will display data properly. WARNING: This may change the structure of the field's output.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
 
 Required: False
 Position: Named

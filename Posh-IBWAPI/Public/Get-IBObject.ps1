@@ -38,6 +38,7 @@ function Get-IBObject
         [int]$BatchGroupSize = 1000,
 
         [switch]$ProxySearch,
+        [switch]$Inheritance,
 
         [ValidateScript({Test-ValidProfile $_ -ThrowOnFail})]
         [string]$ProfileName,
@@ -127,6 +128,12 @@ function Get-IBObject
         # only on vConnector grid members. The default is ‘LOCAL’.
         if ($ProxySearch) {
             $queryargs.Add("_proxy_search=GM")
+        }
+
+        # Deal with the Inheritance flag. From the WAPI docs
+        # If this option is set to True, fields which support inheritance, will display data properly.
+        if ($Inheritance) {
+            $queryargs.Add('_inheritance=True')
         }
 
         if ($BatchMode) {
