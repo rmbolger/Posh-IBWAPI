@@ -1,3 +1,10 @@
+## 4.1.0 (2025-02-06)
+
+* Added `-Inheritance` switch to `Get-IBObject` which requests WAPI to return inherited values for returned fields that support inheritance. This requires WAPI 2.10.2 or later.
+  * WARNING: Depending on the field, the structure of the field's data may be different than a non-inheritance request. Be sure to test both ways to understand the differences in your use-case.
+* Fixed a problem with BatchMode calls to `Get-IBObject` that wouldn't properly send the `-ProxySearch` flag to batched queries when specified.
+* Changed low level URL encoding method to use `[System.Uri]::EscapeDataString()` which removes the explicit dependency on System.Web that was needed in PowerShell 5.1.
+
 ## 4.0.2 (2024-01-24)
 
 * Fixed url encoding for boolean values in Get-IBObject filters passed by hashtable
