@@ -290,11 +290,18 @@ function Get-IBObject
 
             # build the json for this group's objects
             $body = $deferredObjects[$i..$groupEnd] | ForEach-Object {
-                @{
+                $req = @{
                     method = 'GET'
                     object = $_.object
                     args = if ($_.args) { $_.args } else { $retArgs }
                 }
+                if ($ProxySearch) {
+                    $req.args.'_proxy_search' = 'GM'
+                }
+                if ($Inheritance) {
+                    $req.args.'_inheritance' = 'True'
+                }
+                $req
             }
 
             try {
