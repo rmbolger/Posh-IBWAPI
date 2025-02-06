@@ -142,7 +142,7 @@ Accept wildcard characters: False
 ```
 
 ### -Inheritance
-If specified, returned fields which support inheritance will display data properly. WARNING: This may change the structure of the field's output.
+If specified, returned fields which support inheritance will display data properly. Requires WAPI 2.10.2+. WARNING: This may change the structure of the field's output.
 
 ```yaml
 Type: SwitchParameter

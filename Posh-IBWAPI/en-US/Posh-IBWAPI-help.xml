@@ -182,7 +182,7 @@
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Inheritance</maml:name>
           <maml:description>
-            <maml:para>If specified, returned fields which support inheritance will display data properly. WARNING: This may change the structure of the field's output.</maml:para>
+            <maml:para>If specified, returned fields which support inheritance will display data properly. Requires WAPI 2.10.2+. WARNING: This may change the structure of the field's output.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -326,7 +326,7 @@
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Inheritance</maml:name>
           <maml:description>
-            <maml:para>If specified, returned fields which support inheritance will display data properly. WARNING: This may change the structure of the field's output.</maml:para>
+            <maml:para>If specified, returned fields which support inheritance will display data properly. Requires WAPI 2.10.2+. WARNING: This may change the structure of the field's output.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -494,7 +494,7 @@
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Inheritance</maml:name>
           <maml:description>
-            <maml:para>If specified, returned fields which support inheritance will display data properly. WARNING: This may change the structure of the field's output.</maml:para>
+            <maml:para>If specified, returned fields which support inheritance will display data properly. Requires WAPI 2.10.2+. WARNING: This may change the structure of the field's output.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -661,7 +661,7 @@
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Inheritance</maml:name>
         <maml:description>
-          <maml:para>If specified, returned fields which support inheritance will display data properly. WARNING: This may change the structure of the field's output.</maml:para>
+          <maml:para>If specified, returned fields which support inheritance will display data properly. Requires WAPI 2.10.2+. WARNING: This may change the structure of the field's output.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
