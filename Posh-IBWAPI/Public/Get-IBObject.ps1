@@ -87,7 +87,7 @@ function Get-IBObject
                 # URL encode the pairs and join with '=' before adding
                 $Filter.GetEnumerator().foreach{
                     $queryargs.Add(
-                        ('{0}={1}' -f [Web.HttpUtility]::UrlEncode($_.Key),[Web.HttpUtility]::UrlEncode($_.Value.ToString()))
+                        ('{0}={1}' -f [uri]::EscapeDataString($_.Key),[uri]::EscapeDataString($_.Value.ToString()))
                     )
                 }
             }

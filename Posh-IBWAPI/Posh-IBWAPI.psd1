@@ -10,10 +10,6 @@ CompatiblePSEditions = @('Desktop','Core')
 PowerShellVersion = '5.1'
 DotNetFrameworkVersion = '4.5.2'
 
-RequiredAssemblies = @(
-    'System.Web'
-)
-
 FormatsToProcess = 'Posh-IBWAPI.Format.ps1xml'
 
 FunctionsToExport = @(
