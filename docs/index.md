@@ -31,7 +31,8 @@ Install-Module -Name Posh-IBWAPI -Scope AllUsers
 Install-Module -Name Posh-IBWAPI -Scope CurrentUser
 ```
 
-*NOTE: If you use PowerShell 5.1 or earlier, `Install-Module` may throw an error depending on your Windows and .NET version due to a change PowerShell Gallery made to their TLS settings. For more info and a workaround, see the [official blog post](https://devblogs.microsoft.com/powershell/powershell-gallery-tls-support/).*
+!!! warning
+    If you use PowerShell 5.1 or earlier, `Install-Module` may throw an error depending on your Windows and .NET version due to a change PowerShell Gallery made to their TLS settings. For more info and a workaround, see the [official blog post](https://devblogs.microsoft.com/powershell/powershell-gallery-tls-support/).
 
 ## Installation (Development)
 
