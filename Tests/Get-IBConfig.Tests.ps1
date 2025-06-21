@@ -13,6 +13,7 @@ Describe "Get-IBConfig" {
             WAPIVersion = '1.0'
             Credential = $fakeCred1
             SkipCertificateCheck = $false
+            NoSession = $true
         }
 
         $fakePass2 = ConvertTo-SecureString 'password2' -AsPlainText -Force
@@ -22,6 +23,7 @@ Describe "Get-IBConfig" {
             WAPIVersion = '2.0'
             Credential = $fakeCred2
             SkipCertificateCheck = $true
+            NoSession = $false
         }
     }
 
@@ -59,6 +61,7 @@ Describe "Get-IBConfig" {
             $config.WAPIVersion          | Should -Be '1.0'
             $config.Credential           | Should -Be $fakeCred1
             $config.SkipCertificateCheck | Should -BeFalse
+            $config.NoSession            | Should -BeTrue
         }
 
         It "Returns the profile with specific profile name" {
@@ -70,6 +73,7 @@ Describe "Get-IBConfig" {
             $config.WAPIVersion          | Should -Be '1.0'
             $config.Credential           | Should -Be $fakeCred1
             $config.SkipCertificateCheck | Should -BeFalse
+            $config.NoSession            | Should -BeTrue
         }
 
         It "Returns null with wrong profile name" {
@@ -85,6 +89,7 @@ Describe "Get-IBConfig" {
             $configs.WAPIVersion          | Should -Be '1.0'
             $configs.Credential           | Should -Be $fakeCred1
             $configs.SkipCertificateCheck | Should -BeFalse
+            $configs.NoSession            | Should -BeTrue
         }
     }
 
@@ -107,6 +112,7 @@ Describe "Get-IBConfig" {
             $config.WAPIVersion          | Should -Be '1.0'
             $config.Credential           | Should -Be $fakeCred1
             $config.SkipCertificateCheck | Should -BeFalse
+            $config.NoSession            | Should -BeTrue
         }
 
         It "Returns null with wrong profile name" {
@@ -122,6 +128,7 @@ Describe "Get-IBConfig" {
             $configs.WAPIVersion          | Should -Be '1.0'
             $configs.Credential           | Should -Be $fakeCred1
             $configs.SkipCertificateCheck | Should -BeFalse
+            $configs.NoSession            | Should -BeTrue
         }
     }
 
@@ -143,6 +150,7 @@ Describe "Get-IBConfig" {
             $config.WAPIVersion          | Should -Be '1.0'
             $config.Credential           | Should -Be $fakeCred1
             $config.SkipCertificateCheck | Should -BeFalse
+            $config.NoSession            | Should -BeTrue
         }
 
         It "Returns another profile with specific profile name" {
@@ -154,6 +162,7 @@ Describe "Get-IBConfig" {
             $config.WAPIVersion          | Should -Be '2.0'
             $config.Credential           | Should -Be $fakeCred2
             $config.SkipCertificateCheck | Should -BeTrue
+            $config.NoSession            | Should -BeFalse
         }
 
         It "Returns null with wrong profile name" {
@@ -170,6 +179,7 @@ Describe "Get-IBConfig" {
             $configs[0].WAPIVersion          | Should -Be '1.0'
             $configs[0].Credential           | Should -Be $fakeCred1
             $configs[0].SkipCertificateCheck | Should -BeFalse
+            $configs[0].NoSession            | Should -BeTrue
             $configs[1]                      | Should -Not -BeNullOrEmpty
             $configs[1].PSTypeNames          | Should -Contain PoshIBWAPI.IBConfig
             $configs[1].ProfileName          | Should -Be 'prof2'
@@ -177,6 +187,7 @@ Describe "Get-IBConfig" {
             $configs[1].WAPIVersion          | Should -Be '2.0'
             $configs[1].Credential           | Should -Be $fakeCred2
             $configs[1].SkipCertificateCheck | Should -BeTrue
+            $configs[1].NoSession            | Should -BeFalse
         }
     }
 }

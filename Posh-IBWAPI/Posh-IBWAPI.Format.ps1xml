@@ -13,6 +13,7 @@
                     <TableColumnHeader/>
                     <TableColumnHeader><Label>CredentialUser</Label></TableColumnHeader>
                     <TableColumnHeader/>
+                    <TableColumnHeader/>
                 </TableHeaders>
                 <TableRowEntries>
                     <TableRowEntry>
@@ -28,6 +29,7 @@
                                 </ScriptBlock>
                             </TableColumnItem>
                             <TableColumnItem><PropertyName>SkipCertificateCheck</PropertyName></TableColumnItem>
+                            <TableColumnItem><PropertyName>NoSession</PropertyName></TableColumnItem>
                         </TableColumnItems>
                     </TableRowEntry>
                 </TableRowEntries>

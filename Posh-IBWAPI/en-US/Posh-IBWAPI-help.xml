@@ -1689,6 +1689,17 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           <dev:defaultValue>Get</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, session related parameters will be ignored and no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>OutFile</maml:name>
           <maml:description>
             <maml:para>Specifies the output file that this cmdlet saves the response body. Enter a path and file name. If you omit the path, the default is the current location.</maml:para>
@@ -1833,6 +1844,17 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           <dev:defaultValue>Get</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, session related parameters will be ignored and no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>OutFile</maml:name>
           <maml:description>
             <maml:para>Specifies the output file that this cmdlet saves the response body. Enter a path and file name. If you omit the path, the default is the current location.</maml:para>
@@ -1951,6 +1973,18 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>Get</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>If set, session related parameters will be ignored and no sessions will be saved or used for this call.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>OutFile</maml:name>
@@ -3582,6 +3616,17 @@ $hostsToDelete | Remove-IBObject</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>When set, disables session use for this profile which causes explicit credentials to be sent with every call. This can decrease performance and cause extra audit logging against the WAPI endpoint, but may be desired in rare cases.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>NoSwitchProfile</maml:name>
           <maml:description>
             <maml:para>If set, the current profile will not switch to the specified -ProfileName if different.</maml:para>
@@ -3629,6 +3674,18 @@ $hostsToDelete | Remove-IBObject</dev:code>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>When set, disables session use for this profile which causes explicit credentials to be sent with every call. This can decrease performance and cause extra audit logging against the WAPI endpoint, but may be desired in rare cases.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>NoSwitchProfile</maml:name>

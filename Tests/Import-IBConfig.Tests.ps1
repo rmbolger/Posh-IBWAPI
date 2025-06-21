@@ -60,6 +60,7 @@ Describe "Import-IBConfig" {
                 Password = 'password1'
             }
             SkipCertificateCheck = $false
+            NoSession = $true
             Current = $true
         }
         $fakeVaultProfile2 = @{
@@ -70,7 +71,16 @@ Describe "Import-IBConfig" {
                 Password = 'password2'
             }
             SkipCertificateCheck = $true
+            NoSession = $false
             Current = $false
+        }
+        $fakeVaultProfile3 = @{
+            WAPIHost = 'gm3'
+            WAPIVersion = '3.0'
+            Credential = @{
+                Username = 'admin3'
+                Password = 'password3'
+            }
         }
 
     }
@@ -99,8 +109,8 @@ Describe "Import-IBConfig" {
         }
 
         It "Initializes everything (vault)" {
-            Mock -ModuleName Posh-IBWAPI Get-VaultConfig { $fakeVaultConfig }
-            Mock -ModuleName Posh-IBWAPI Get-VaultProfiles { }
+            Mock Get-VaultConfig -ModuleName Posh-IBWAPI { $fakeVaultConfig }
+            Mock Get-VaultProfiles -ModuleName Posh-IBWAPI { }
 
             InModuleScope Posh-IBWAPI {
 
@@ -190,10 +200,11 @@ Describe "Import-IBConfig" {
 
         It "Converts automatically (vault)" {
 
-            Mock -ModuleName Posh-IBWAPI Get-VaultConfig { $fakeVaultConfig }
-            Mock -ModuleName Posh-IBWAPI Get-VaultProfiles { return @{
+            Mock Get-VaultConfig -ModuleName Posh-IBWAPI { $fakeVaultConfig }
+            Mock Get-VaultProfiles -ModuleName Posh-IBWAPI { @{
                 prof1 = $fakeVaultProfile1
                 prof2 = $fakeVaultProfile2
+                prof3 = $fakeVaultProfile3
             } }
 
             InModuleScope Posh-IBWAPI {
@@ -201,7 +212,7 @@ Describe "Import-IBConfig" {
 
                 $script:CurrentProfile | Should -Be 'prof1'
 
-                $script:Profiles.Keys   | Should -HaveCount 2
+                $script:Profiles.Keys   | Should -HaveCount 3
                 $script:Profiles['prof1'] | Should -Not -BeNullOrEmpty
                 $script:Profiles['prof2'] | Should -Not -BeNullOrEmpty
 
@@ -211,6 +222,7 @@ Describe "Import-IBConfig" {
                 $prof1.Credential.Username | Should -Be 'admin1'
                 $prof1.Credential.GetNetworkCredential().Password | Should -Be 'password1'
                 $prof1.SkipCertificateCheck | Should -BeFalse
+                $prof1.NoSession | Should -BeTrue
 
                 $prof2 = $script:Profiles['prof2']
                 $prof2.WAPIHost | Should -Be 'gm2'
@@ -218,6 +230,11 @@ Describe "Import-IBConfig" {
                 $prof2.Credential.Username | Should -Be 'admin2'
                 $prof2.Credential.GetNetworkCredential().Password | Should -Be 'password2'
                 $prof2.SkipCertificateCheck | Should -BeTrue
+                $prof2.NoSession | Should -BeFalse
+
+                $prof3 = $script:Profiles['prof3']
+                $prof3.SkipCertificateCheck | Should -BeFalse
+                $prof3.NoSession | Should -BeFalse
             }
         }
 

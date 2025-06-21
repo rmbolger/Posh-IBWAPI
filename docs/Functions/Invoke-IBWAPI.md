@@ -17,15 +17,15 @@ Send a request to the Infoblox WAPI (REST API).
 ```powershell
 Invoke-IBWAPI [-Uri] <Uri> [-Method <WebRequestMethod>] [-Credential <PSCredential>] [-Body <Object>]
  [-ContentType <String>] [-OutFile <String>] [-SessionVariable <String>] [-WebSession <WebRequestSession>]
- [-SkipCertificateCheck] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-NoSession] [-SkipCertificateCheck] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### HostVersion
 ```powershell
 Invoke-IBWAPI [-WAPIHost] <String> [-WAPIVersion] <String> [-Query] <String> [-Method <WebRequestMethod>]
  [-Credential <PSCredential>] [-Body <Object>] [-ContentType <String>] [-OutFile <String>]
- [-SessionVariable <String>] [-WebSession <WebRequestSession>] [-SkipCertificateCheck] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+ [-SessionVariable <String>] [-WebSession <WebRequestSession>] [-NoSession] [-SkipCertificateCheck] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## Description
@@ -102,6 +102,21 @@ Accepted values: Default, Get, Head, Post, Put, Delete, Trace, Options, Merge, P
 Required: False
 Position: Named
 Default value: Get
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoSession
+If set, session related parameters will be ignored and no sessions will be saved or used for this call.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

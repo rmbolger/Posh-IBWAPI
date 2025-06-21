@@ -21,6 +21,7 @@ Describe "Initialize-CallVars" {
             WAPIVersion = '1.0'
             Credential = $cred1
             SkipCertificateCheck = $false
+            NoSession = $true
         }
         $pass2 = ConvertTo-SecureString 'pass2' -AsPlainText -Force
         $cred2 = New-Object PSCredential 'admin2',$pass2
@@ -29,6 +30,7 @@ Describe "Initialize-CallVars" {
             WAPIVersion = '2.0'
             Credential = $cred2
             SkipCertificateCheck = $true
+            NoSession = $false
         }
     }
 
@@ -54,6 +56,8 @@ Describe "Initialize-CallVars" {
             @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2 } }
             @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2; SkipCertificateCheck=$true } }
             @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2; SkipCertificateCheck=$false } }
+            @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2; NoSession=$true } }
+            @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2; NoSession=$false } }
             @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2; ProfileName='noexist' } }
         ) {
             InModuleScope Posh-IBWAPI -Parameters @{Splat=$splat} {
@@ -65,6 +69,7 @@ Describe "Initialize-CallVars" {
                 $result.WAPIVersion            | Should -Be $Splat.WAPIVersion
                 $result.Credential.Username    | Should -Be $Splat.Credential.Username
                 $result.SkipCertificateCheck   | Should -Be $Splat.SkipCertificateCheck
+                $result.NoSession              | Should -Be $Splat.NoSession
             }
         }
     }
@@ -91,6 +96,8 @@ Describe "Initialize-CallVars" {
             @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2; ProfileName='noexist' } }
             @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2; SkipCertificateCheck=$true; ProfileName='noexist' } }
             @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2; SkipCertificateCheck=$false; ProfileName='noexist' } }
+            @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2; NoSession=$true; ProfileName='noexist' } }
+            @{ splat = @{ WAPIHost='gm2'; WAPIVersion='2.0'; Credential=$cred2; NoSession=$false; ProfileName='noexist' } }
         ) {
             InModuleScope Posh-IBWAPI -Parameters @{Splat=$splat} {
                 param ($Splat)
@@ -100,6 +107,7 @@ Describe "Initialize-CallVars" {
                 $result.WAPIVersion            | Should -Be $Splat.WAPIVersion
                 $result.Credential.Username    | Should -Be $Splat.Credential.Username
                 $result.SkipCertificateCheck   | Should -Be $Splat.SkipCertificateCheck
+                $result.NoSession              | Should -Be $Splat.NoSession
             }
         }
 
@@ -109,6 +117,7 @@ Describe "Initialize-CallVars" {
             @{ splat = @{ WAPIVersion='2.0' } }
             @{ splat = @{ Credential=$cred2 } }
             @{ splat = @{ SkipCertificateCheck = $true } }
+            @{ splat = @{ NoSession = $false } }
         ) {
             InModuleScope Posh-IBWAPI -Parameters @{Splat=$splat} {
                 param($Splat)
@@ -134,6 +143,9 @@ Describe "Initialize-CallVars" {
                 if ('SkipCertificateCheck' -notin $Splat.Keys) {
                     $result.SkipCertificateCheck | Should -BeFalse
                 }
+                if ('NoSession' -notin $Splat.Keys) {
+                    $result.NoSession | Should -BeTrue
+                }
             }
         }
     }
@@ -151,6 +163,7 @@ Describe "Initialize-CallVars" {
             @{ splat = @{ WAPIVersion='3.0'; ProfileName='prof2' } }
             @{ splat = @{ Credential=$cred3; ProfileName='prof2' } }
             @{ splat = @{ SkipCertificateCheck=$false; ProfileName='prof2' } }
+            @{ splat = @{ NoSession=$true; ProfileName='prof2' } }
         ) {
             InModuleScope Posh-IBWAPI -Parameters @{Splat=$splat} {
                 param ($Splat)
@@ -174,6 +187,9 @@ Describe "Initialize-CallVars" {
                 }
                 if ('SkipCertificateCheck' -notin $Splat.Keys) {
                     $result.SkipCertificateCheck | Should -BeTrue
+                }
+                if ('NoSession' -notin $Splat.Keys) {
+                    $result.NoSession | Should -BeFalse
                 }
             }
         }

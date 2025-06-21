@@ -15,7 +15,7 @@ Save connection parameters to a profile to avoid needing to supply them to futur
 
 ```powershell
 Set-IBConfig [[-ProfileName] <String>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>]
- [[-Credential] <PSCredential>] [-SkipCertificateCheck] [[-NewName] <String>] [-NoSwitchProfile]
+ [[-Credential] <PSCredential>] [-SkipCertificateCheck] [-NoSession] [[-NewName] <String>] [-NoSwitchProfile]
  [<CommonParameters>]
 ```
 
@@ -78,6 +78,21 @@ Aliases:
 
 Required: False
 Position: 5
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoSession
+When set, disables session use for this profile which causes explicit credentials to be sent with every call. This can decrease performance and cause extra audit logging against the WAPI endpoint, but may be desired in rare cases.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

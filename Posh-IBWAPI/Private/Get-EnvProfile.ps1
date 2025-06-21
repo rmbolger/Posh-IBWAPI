@@ -46,5 +46,14 @@ function Get-EnvProfile {
         $prof.SkipCertificateCheck = $false
     }
 
+    # Check for optional skip cert check. Any value other than the explicit
+    # set of "no" strings will be treated as $true
+    $falseStrings = 'False','0','No'
+    if ($env:IBWAPI_NOSESSION -and $env:IBWAPI_NOSESSION -notin $falseStrings) {
+        $prof.NoSession = $true
+    } else {
+        $prof.NoSession = $false
+    }
+
     return $prof
 }
