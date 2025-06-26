@@ -35,7 +35,7 @@ PrivateData = @{
 
     PSData = @{
 
-        Prerelease = 'alpha1'
+        Prerelease = 'alpha2'
         Tags = 'Infoblox','IPAM','WAPI','REST','Linux','Mac'
         LicenseUri = 'https://github.com/rmbolger/Posh-IBWAPI/blob/main/LICENSE'
         ProjectUri = 'https://github.com/rmbolger/Posh-IBWAPI'

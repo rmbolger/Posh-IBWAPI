@@ -16,7 +16,7 @@ Delete an object from Infoblox.
 ```powershell
 Remove-IBObject [-ObjectRef] <String> [[-DeleteArgs] <String[]>] [-BatchMode] [-BatchGroupSize <Int32>]
  [[-ProfileName] <String>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>]
- [-SkipCertificateCheck] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-SkipCertificateCheck] [-NoSession] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## Description
@@ -100,6 +100,21 @@ Aliases: args
 
 Required: False
 Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoSession
+If set, no sessions will be saved or used for this call.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

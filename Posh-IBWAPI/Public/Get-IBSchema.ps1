@@ -21,7 +21,8 @@ function Get-IBSchema {
         [Alias('version')]
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck
+        [switch]$SkipCertificateCheck,
+        [switch]$NoSession
     )
 
     # grab the variables we'll be using for our REST calls

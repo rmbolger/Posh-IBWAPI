@@ -16,7 +16,7 @@ Upload a file to Infoblox using one of the fileop upload functions.
 ```powershell
 Send-IBFile [-FunctionName] <String> [-Path] <String> [-FunctionArgs <IDictionary>] [-ObjectRef <String>]
  [-OverrideTransferHost] [-ProfileName <String>] [-WAPIHost <String>] [-WAPIVersion <String>]
- [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
+ [-Credential <PSCredential>] [-SkipCertificateCheck] [-NoSession] [<CommonParameters>]
 ```
 
 ## Description
@@ -75,6 +75,21 @@ Aliases: name
 
 Required: True
 Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoSession
+If set, no sessions will be saved or used for this call.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

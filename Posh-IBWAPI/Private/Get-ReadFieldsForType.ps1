@@ -6,7 +6,8 @@ function Get-ReadFieldsForType {
         [string]$WAPIHost,
         [string]$WAPIVersion,
         [PSCredential]$Credential,
-        [switch]$SkipCertificateCheck
+        [switch]$SkipCertificateCheck,
+        [switch]$NoSession
     )
 
     $opts = [hashtable]::new($PSBoundParameters)

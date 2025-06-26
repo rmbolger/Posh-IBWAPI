@@ -17,7 +17,7 @@ Query the schema of an object or the base appliance.
 Get-IBSchema [[-ObjectType] <String>] [-Raw] [-LaunchHTML] [[-Fields] <String[]>] [[-Operations] <String[]>]
  [-NoFields] [[-Functions] <String[]>] [-NoFunctions] [-Detailed] [[-ProfileName] <String>]
  [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>] [-SkipCertificateCheck]
- [<CommonParameters>]
+ [-NoSession] [<CommonParameters>]
 ```
 
 ## Description
@@ -169,6 +169,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoSession
+If set, no sessions will be saved or used for this call.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
