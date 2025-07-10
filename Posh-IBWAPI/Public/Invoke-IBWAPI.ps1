@@ -19,6 +19,7 @@ function Invoke-IBWAPI
         [string]$OutFile,
         [string]$SessionVariable,
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
+        [switch]$NoSession,
         [switch]$SkipCertificateCheck
     )
 
@@ -36,6 +37,20 @@ function Invoke-IBWAPI
     # a period of time after the initial call even if validation is turned
     # back on. This issue only affects the Desktop edition.
     ###########################################################################
+
+    # Wipe session params if NoSession was specified
+    if ($NoSession) {
+        if ('WebSession' -in $PSBoundParameters.Keys) {
+            Write-Warning "Ignoring WebSession parameter because NoSession switch was passed."
+            $null = $PSBoundParameters.Remove('WebSession')
+            $WebSession = $null
+        }
+        if ('SessionVariable' -in $PSBoundParameters.Keys) {
+            Write-Warning "Ignoring SessionVariable parameter because NoSession switch was passed."
+            $null = $PSBoundParameters.Remove('SessionVariable')
+            $SessionVariable = $null
+        }
+    }
 
     # Built the URI if they passed individual Host+Version
     if ('HostVersion' -eq $PSCmdlet.ParameterSetName) {
@@ -94,14 +109,16 @@ function Invoke-IBWAPI
     }
 
     # deal with session stuff
-    if ($opts.WebSession) {
-        Write-Debug "using explicit session"
-    } elseif ($savedSession = Get-IBSession $opts.Uri $opts.Credential) {
-        $opts.WebSession = $savedSession
-    } else {
-        Write-Debug "creating new session"
-        # prepare to save the session for later
-        $opts.SessionVariable = 'innerSession'
+    if (-not $NoSession) {
+        if ($opts.WebSession) {
+            Write-Debug "using explicit session"
+        } elseif ($savedSession = Get-IBSession $opts.Uri $opts.Credential) {
+            $opts.WebSession = $savedSession
+        } else {
+            Write-Debug "creating new session"
+            # prepare to save the session for later
+            $opts.SessionVariable = 'innerSession'
+        }
     }
 
     try
@@ -135,20 +152,21 @@ function Invoke-IBWAPI
                     Write-Output $response
                 }
 
-                # make sure to send our session variable up to the caller scope if defined
-                if ($savedSession) {
-                    if ($SessionVariable) {
-                        Set-Variable -Name $SessionVariable -Value $savedSession -Scope 2
-                    }
-                } else {
-                    if ((-not $opts.WebSession) -and $SessionVariable) {
-                        Set-Variable -Name $SessionVariable -Value $innerSession -Scope 2
-                    }
+                if (-not $NoSession) {
+                    # send our session variable up to the caller scope if defined
+                    if ($savedSession) {
+                        if ($SessionVariable) {
+                            Set-Variable -Name $SessionVariable -Value $savedSession -Scope 2
+                        }
+                    } else {
+                        if ((-not $opts.WebSession) -and $SessionVariable) {
+                            Set-Variable -Name $SessionVariable -Value $innerSession -Scope 2
+                        }
 
-                    # save the session variable internally to re-use later
-                    Set-IBSession $opts.Uri $opts.Credential $innerSession
+                        # save the session variable internally to re-use later
+                        Set-IBSession $opts.Uri $opts.Credential $innerSession
+                    }
                 }
-
             }
         }
         finally {

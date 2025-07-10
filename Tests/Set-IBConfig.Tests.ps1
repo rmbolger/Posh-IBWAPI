@@ -53,11 +53,12 @@ Describe "Set-IBConfig" {
         $config.WAPIVersion          | Should -Be '1.0'
         $config.Credential.Username  | Should -Be 'admin1'
         $config.SkipCertificateCheck | Should -BeFalse
+        $config.NoSession            | Should -BeFalse
     }
 
     It "Writes second profile with all values specified" {
 
-        Set-IBConfig -ProfileName 'prof2' -WAPIHost 'gm2' -WAPIVersion '2.0' -Credential $fakeCred2 -SkipCertificateCheck
+        Set-IBConfig -ProfileName 'prof2' -WAPIHost 'gm2' -WAPIVersion '2.0' -Credential $fakeCred2 -SkipCertificateCheck -NoSession
 
         # make sure active profile is the one we just set
         $config = Get-IBConfig
@@ -68,6 +69,7 @@ Describe "Set-IBConfig" {
         $config.WAPIVersion          | Should -Be '2.0'
         $config.Credential.Username  | Should -Be 'admin2'
         $config.SkipCertificateCheck | Should -BeTrue
+        $config.NoSession            | Should -BeTrue
 
         # make sure original profile still exists
         $config = Get-IBConfig -ProfileName 'prof1'
@@ -78,6 +80,7 @@ Describe "Set-IBConfig" {
         $config.WAPIVersion          | Should -Be '1.0'
         $config.Credential.Username  | Should -Be 'admin1'
         $config.SkipCertificateCheck | Should -BeFalse
+        $config.NoSession            | Should -BeFalse
     }
 
     It "It obeys NoSwitchProfile flag" {
@@ -93,6 +96,7 @@ Describe "Set-IBConfig" {
         $config.WAPIVersion          | Should -Be '2.0'
         $config.Credential.Username  | Should -Be 'admin2'
         $config.SkipCertificateCheck | Should -BeTrue
+        $config.NoSession            | Should -BeTrue
 
         # prof1 profile should have updated version
         $config = Get-IBConfig -ProfileName 'prof1'
@@ -127,6 +131,7 @@ Describe "Set-IBConfig" {
         $config.WAPIVersion          | Should -Be '1.11'
         $config.Credential.Username  | Should -Be 'admin1'
         $config.SkipCertificateCheck | Should -BeFalse
+        $config.NoSession            | Should -BeFalse
     }
 
     It "Can set individual value on the active profile" {
@@ -142,6 +147,9 @@ Describe "Set-IBConfig" {
 
         Set-IBConfig -SkipCertificateCheck
         (Get-IBConfig).SkipCertificateCheck | Should -BeTrue
+
+        Set-IBConfig -NoSession
+        (Get-IBConfig).NoSession | Should -BeTrue
     }
 
     It "Can use 'latest' for WAPIVersion" {

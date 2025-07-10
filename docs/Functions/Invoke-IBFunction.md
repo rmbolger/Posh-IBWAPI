@@ -16,7 +16,7 @@ Call a WAPI function
 ```powershell
 Invoke-IBFunction [-ObjectRef] <String> [-FunctionName] <String> [[-FunctionArgs] <PSObject>]
  [[-ProfileName] <String>] [[-WAPIHost] <String>] [[-WAPIVersion] <String>] [[-Credential] <PSCredential>]
- [-SkipCertificateCheck] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-SkipCertificateCheck] [-NoSession] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## Description
@@ -77,6 +77,21 @@ Aliases: name
 
 Required: True
 Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoSession
+If set, no sessions will be saved or used for this call.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -7,6 +7,7 @@ function HighestVer
         [Parameter(Mandatory)]
         [pscredential]$Credential,
         [switch]$SkipCertificateCheck,
+        [switch]$NoSession,
         [Parameter(ValueFromRemainingArguments=$true)]
         $ExtraParams
     )
@@ -19,6 +20,7 @@ function HighestVer
             WAPIVersion = '1.1'
             Credential = $Credential
             SkipCertificateCheck = $SkipCertificateCheck.IsPresent
+            NoSession = $NoSession.IsPresent
             ErrorAction = 'Stop'
         }
         $versions = (Invoke-IBWAPI -Query '?_schema' @opts).supported_versions

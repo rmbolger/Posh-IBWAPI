@@ -17,7 +17,7 @@ Retrieve objects from the Infoblox database.
 ```powershell
 Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-MaxResults <Int32>] [-PageSize <Int32>]
  [-ReturnField <String[]>] [-ReturnBase] [-ReturnAll] [-ProxySearch] [-Inheritance] [-ProfileName <String>]
- [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck]
+ [-WAPIHost <String>] [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck] [-NoSession]
  [<CommonParameters>]
 ```
 
@@ -25,14 +25,14 @@ Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-MaxResults <Int32>] [-P
 ```powershell
 Get-IBObject [-ObjectType] <String> [-Filter <Object>] [-NoPaging] [-ReturnField <String[]>] [-ReturnBase]
  [-ReturnAll] [-ProxySearch] [-Inheritance] [-ProfileName <String>] [-WAPIHost <String>]
- [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
+ [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck] [-NoSession] [<CommonParameters>]
 ```
 
 ### ByRef
 ```powershell
 Get-IBObject [-ObjectRef] <String> [-ReturnField <String[]>] [-ReturnBase] [-ReturnAll] [-BatchMode]
  [-BatchGroupSize <Int32>] [-ProxySearch] [-Inheritance] [-ProfileName <String>] [-WAPIHost <String>]
- [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck] [<CommonParameters>]
+ [-WAPIVersion <String>] [-Credential <PSCredential>] [-SkipCertificateCheck] [-NoSession] [<CommonParameters>]
 ```
 
 ## Description
@@ -182,6 +182,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoSession
+If set, no sessions will be saved or used for this call.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

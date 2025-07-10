@@ -46,6 +46,10 @@ function Import-IBConfig
                 WAPIVersion = $profRaw.WAPIVersion
                 Credential  = $profCred
                 SkipCertificateCheck = $profRaw.SkipCertificateCheck
+                NoSession   = $profRaw.NoSession
+            }
+            if (-not $profRaw.NoSession) {
+                $profiles.$profName.NoSession = $false
             }
 
             # set it as current if appropriate
@@ -88,12 +92,16 @@ function Import-IBConfig
                 WAPIVersion = $json.Profiles.$_.WAPIVersion
                 Credential  = $null
                 SkipCertificateCheck = $false
+                NoSession   = $false
             }
             if ('Credential' -in $json.Profiles.$_.PSObject.Properties.Name) {
                 $profiles.$_.Credential = (Import-IBCred $json.Profiles.$_.Credential $_)
             }
             if ($json.Profiles.$_.SkipCertificateCheck) {
                 $profiles.$_.SkipCertificateCheck = $true
+            }
+            if ($json.Profiles.$_.NoSession) {
+                $profiles.$_.NoSession = $true
             }
         }
     }

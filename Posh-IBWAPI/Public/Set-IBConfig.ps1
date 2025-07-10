@@ -13,6 +13,7 @@ function Set-IBConfig
         [string]$WAPIVersion,
         [PSCredential]$Credential,
         [switch]$SkipCertificateCheck,
+        [switch]$NoSession,
         [ValidateScript({Test-NonEmptyString $_ -ThrowOnFail})]
         [string]$NewName,
         [switch]$NoSwitchProfile
@@ -92,6 +93,15 @@ function Set-IBConfig
         Write-Debug "SkipCertificateCheck set to $($cfg.SkipCertificateCheck)"
     } elseif (-not ('SkipCertificateCheck' -in $cfg.Keys)) {
         $cfg.SkipCertificateCheck = $false
+    }
+
+    # NoSession defaults to false, but can also be explicitly set to false
+    # so don't just assume it's true if the flag was specified.
+    if ('NoSession' -in $PSBoundParameters.Keys) {
+        $cfg.NoSession = $NoSession.IsPresent
+        Write-Debug "NoSession set to $($cfg.NoSession)"
+    } elseif (-not ('NoSession' -in $cfg.Keys)) {
+        $cfg.NoSession = $false
     }
 
     if ($WAPIVersion) {

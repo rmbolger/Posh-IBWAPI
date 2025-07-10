@@ -20,6 +20,7 @@ Describe "Export-IBConfig" {
             WAPIVersion = '1.0'
             Credential = $fakeCred1
             SkipCertificateCheck = $false
+            NoSession = $true
         }
 
         $fakePass2 = ConvertTo-SecureString 'password2' -AsPlainText -Force
@@ -29,6 +30,7 @@ Describe "Export-IBConfig" {
             WAPIVersion = '2.0'
             Credential = $fakeCred2
             SkipCertificateCheck = $true
+            NoSession = $false
         }
 
         $fakeVaultConfig = @{
@@ -43,6 +45,7 @@ Describe "Export-IBConfig" {
                 Password = 'password1'
             }
             SkipCertificateCheck = $false
+            NoSession = $true
             Current = $true
         }
         $fakeVaultProfile2 = @{
@@ -53,6 +56,7 @@ Describe "Export-IBConfig" {
                 Password = 'password2'
             }
             SkipCertificateCheck = $true
+            NoSession = $false
             Current = $false
         }
     }
@@ -122,6 +126,7 @@ Describe "Export-IBConfig" {
                 $prof.WAPIHost    | Should -Be 'gm1'
                 $prof.WAPIVersion | Should -Be '1.0'
                 $prof.SkipCertificateCheck | Should -BeFalse
+                $prof.NoSession | Should -BeTrue
                 $prof.Credential.Username | Should -Be 'admin1'
                 if ($IsWindows -or (-not $PSEdition) -or $PSEdition -eq 'Desktop') {
                     $secPass = $prof.Credential.Password | ConvertTo-SecureString
@@ -246,6 +251,7 @@ Describe "Export-IBConfig" {
                 $prof.WAPIHost    | Should -Be 'gm1'
                 $prof.WAPIVersion | Should -Be '1.0'
                 $prof.SkipCertificateCheck | Should -BeFalse
+                $prof.NoSession | Should -BeTrue
                 $prof.Credential.Username | Should -Be 'admin1'
                 if ($IsWindows -or (-not $PSEdition) -or $PSEdition -eq 'Desktop') {
                     $secPass = $prof.Credential.Password | ConvertTo-SecureString
@@ -316,6 +322,7 @@ Describe "Export-IBConfig" {
                 $prof1.WAPIHost    | Should -Be 'gm1'
                 $prof1.WAPIVersion | Should -Be '1.0'
                 $prof1.SkipCertificateCheck | Should -BeFalse
+                $prof1.NoSession | Should -BeTrue
                 $prof1.Credential.Username | Should -Be 'admin1'
                 if ($IsWindows -or (-not $PSEdition) -or $PSEdition -eq 'Desktop') {
                     $secPass = $prof1.Credential.Password | ConvertTo-SecureString
@@ -332,6 +339,7 @@ Describe "Export-IBConfig" {
                 $prof2.WAPIHost    | Should -Be 'gm2'
                 $prof2.WAPIVersion | Should -Be '2.0'
                 $prof2.SkipCertificateCheck | Should -BeTrue
+                $prof2.NoSession | Should -BeFalse
                 $prof2.Credential.Username | Should -Be 'admin2'
                 if ($IsWindows -or (-not $PSEdition) -or $PSEdition -eq 'Desktop') {
                     $secPass = $prof2.Credential.Password | ConvertTo-SecureString

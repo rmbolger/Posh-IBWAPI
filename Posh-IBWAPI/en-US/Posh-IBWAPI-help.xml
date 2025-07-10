@@ -191,6 +191,17 @@
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ProfileName</maml:name>
           <maml:description>
             <maml:para>The name of a specific config profile to use instead of the currently active one.</maml:para>
@@ -345,6 +356,17 @@
             <maml:uri />
           </dev:type>
           <dev:defaultValue>2147483647</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>PageSize</maml:name>
@@ -506,6 +528,17 @@
           <maml:name>NoPaging</maml:name>
           <maml:description>
             <maml:para>If specified, automatic paging will not be used. This is occasionally necessary for some object type queries that return a single object reference such as dhcp:statistics.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -686,6 +719,18 @@
         <maml:name>NoPaging</maml:name>
         <maml:description>
           <maml:para>If specified, automatic paging will not be used. This is occasionally necessary for some object type queries that return a single object reference such as dhcp:statistics.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -1042,6 +1087,17 @@
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Raw</maml:name>
           <maml:description>
             <maml:para>If set, the schema object will be returned as-is rather than pretty printing the output. All additional display parameters are ignored except -LaunchHTML.</maml:para>
@@ -1142,6 +1198,18 @@
         <maml:name>NoFunctions</maml:name>
         <maml:description>
           <maml:para>If set, the object's functions will not be included in the output.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -1393,6 +1461,17 @@
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>SkipCertificateCheck</maml:name>
           <maml:description>
             <maml:para>If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.</maml:para>
@@ -1463,6 +1542,18 @@
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="1" aliases="_ref, ref">
         <maml:name>ObjectRef</maml:name>
@@ -1689,6 +1780,17 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           <dev:defaultValue>Get</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, session related parameters will be ignored and no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>OutFile</maml:name>
           <maml:description>
             <maml:para>Specifies the output file that this cmdlet saves the response body. Enter a path and file name. If you omit the path, the default is the current location.</maml:para>
@@ -1833,6 +1935,17 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           <dev:defaultValue>Get</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, session related parameters will be ignored and no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>OutFile</maml:name>
           <maml:description>
             <maml:para>Specifies the output file that this cmdlet saves the response body. Enter a path and file name. If you omit the path, the default is the current location.</maml:para>
@@ -1951,6 +2064,18 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>Get</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>If set, session related parameters will be ignored and no sessions will be saved or used for this call.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>OutFile</maml:name>
@@ -2213,6 +2338,17 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           </dev:type>
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="base, ReturnBaseFields">
           <maml:name>ReturnBase</maml:name>
           <maml:description>
@@ -2319,6 +2455,18 @@ $grid | Invoke-IBFunction -name restartservices -args $restartArgs</dev:code>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="type">
         <maml:name>ObjectType</maml:name>
@@ -2612,6 +2760,17 @@ New-IBObject 'record:host' $myhost -ReturnField 'comment','configure_for_dns' -R
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>OverrideTransferHost</maml:name>
           <maml:description>
             <maml:para>If set, the hostname in the transfer URL returned by WAPI will be overridden to match the original WAPIHost if they don't already match. The SkipCertificateCheck switch will also be updated to match the passed in value instead of always being set to true for the call.</maml:para>
@@ -2671,6 +2830,18 @@ New-IBObject 'record:host' $myhost -ReturnField 'comment','configure_for_dns' -R
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="4" aliases="_ref, ref, ObjectType, type">
         <maml:name>ObjectRef</maml:name>
@@ -3005,6 +3176,17 @@ New-IBObject 'record:host' $myhost -ReturnField 'comment','configure_for_dns' -R
           <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>SkipCertificateCheck</maml:name>
           <maml:description>
             <maml:para>If set, SSL/TLS certificate validation will be disabled. Overrides value stored with Set-IBConfig.</maml:para>
@@ -3087,6 +3269,18 @@ New-IBObject 'record:host' $myhost -ReturnField 'comment','configure_for_dns' -R
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="1" aliases="_ref, ref">
         <maml:name>ObjectRef</maml:name>
@@ -3285,6 +3479,17 @@ $hostsToDelete | Remove-IBObject</dev:code>
           </dev:type>
           <dev:defaultValue>@{}</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="_ref, ref, ObjectType, type">
           <maml:name>ObjectRef</maml:name>
           <maml:description>
@@ -3393,6 +3598,18 @@ $hostsToDelete | Remove-IBObject</dev:code>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="_ref, ref, ObjectType, type">
         <maml:name>ObjectRef</maml:name>
@@ -3582,6 +3799,17 @@ $hostsToDelete | Remove-IBObject</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>When set, disables session use for this profile which causes explicit credentials to be sent with every call. This can decrease performance and cause extra audit logging against the WAPI endpoint, but may be desired in rare cases.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>NoSwitchProfile</maml:name>
           <maml:description>
             <maml:para>If set, the current profile will not switch to the specified -ProfileName if different.</maml:para>
@@ -3629,6 +3857,18 @@ $hostsToDelete | Remove-IBObject</dev:code>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>When set, disables session use for this profile which causes explicit credentials to be sent with every call. This can decrease performance and cause extra audit logging against the WAPI endpoint, but may be desired in rare cases.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>NoSwitchProfile</maml:name>
@@ -3800,6 +4040,17 @@ $hostsToDelete | Remove-IBObject</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ProfileName</maml:name>
           <maml:description>
             <maml:para>The name of a specific config profile to use instead of the currently active one.</maml:para>
@@ -3928,6 +4179,17 @@ $hostsToDelete | Remove-IBObject</dev:code>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSession</maml:name>
+          <maml:description>
+            <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="named" aliases="_ref, ref">
           <maml:name>ObjectRef</maml:name>
@@ -4095,6 +4357,18 @@ $hostsToDelete | Remove-IBObject</dev:code>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSession</maml:name>
+        <maml:description>
+          <maml:para>If set, no sessions will be saved or used for this call.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="named" aliases="_ref, ref">
         <maml:name>ObjectRef</maml:name>

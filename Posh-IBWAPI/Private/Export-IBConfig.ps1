@@ -39,6 +39,7 @@ function Export-IBConfig
             WAPIVersion          = $profiles.$profName.WAPIVersion
             Credential           = $null
             SkipCertificateCheck = $profiles.$profName.SkipCertificateCheck
+            NoSession            = $profiles.$profName.NoSession
         }
 
         if ($vaultCfg) {
@@ -93,6 +94,7 @@ function Export-IBConfig
                 $profRaw.Credential.Username  -ne $vaultProf.Credential.Username -or
                 $profRaw.Credential.Password  -ne $vaultProf.Credential.Password -or
                 $profRaw.SkipCertificateCheck -ne $vaultProf.SkipCertificateCheck -or
+                $profRaw.NoSession            -ne $vaultProf.NoSession -or
                 $profRaw.Current              -ne $vaultProf.Current
             ) {
 

@@ -8,6 +8,7 @@ function Initialize-CallVars
         [string]$WAPIVersion,
         [PSCredential]$Credential,
         [switch]$SkipCertificateCheck,
+        [switch]$NoSession,
         [string]$ProfileName,
         [Parameter(ValueFromRemainingArguments=$true)]
         $ExtraParams
@@ -24,10 +25,10 @@ function Initialize-CallVars
     # - Explicit params override implicit and explicit profile params.
 
     # Remove any non-connection related parameters we were passed
-    $connParams = 'WAPIHost','WAPIVersion','Credential','SkipCertificateCheck'
+    $connParams = 'WAPIHost','WAPIVersion','Credential','SkipCertificateCheck','NoSession'
     foreach ($key in @($psb.Keys)) {
         if ($key -notin $connParams) {
-            $psb.Remove($key) | Out-Null
+            $null = $psb.Remove($key)
         }
     }
 
@@ -83,6 +84,14 @@ function Initialize-CallVars
     } else {
         # use the saved value
         $psb.SkipCertificateCheck = $prof.SkipCertificateCheck
+    }
+
+    # deal with NoSession
+    if ('NoSession' -in $psb.Keys) {
+        Write-Debug "Overriding saved NoSession with $($psb.NoSession.IsPresent)"
+    } else {
+        # use the saved value
+        $psb.NoSession = $prof.NoSession
     }
 
     # return our modified PSBoundParameters
