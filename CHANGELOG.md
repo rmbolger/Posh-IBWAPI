@@ -1,3 +1,11 @@
+## 4.2.0 (2025-07-09)
+
+* Added the option to disable session re-use via the `-NoSession` switch on config profiles and individual public functions. This can negatively affect performance and increase audit log verbosity for large numbers of WAPI calls but is useful in certain edge cases.
+  * When used with `Set-IBConfig` all subsequent function calls using that profile will no longer create or save sessions with the WAPI host. Use `-NoSession:$false` to unset.
+  * When a profile has sessions enabled, you can still disable session re-use on a per-call basis by adding the `-NoSession` switch to the function you're using.
+  * Per-call functions include Get/New/Remove/Set-IBObject, Get-IBSchema, Invoke-IBFunction/IBWAPI, and Receive/Send-IBFile.
+* Added support for IBWAPI_NOSESSION environment variable when using stateless mode.
+
 ## 4.1.0 (2025-02-06)
 
 * Added `-Inheritance` switch to `Get-IBObject` which requests WAPI to return inherited values for returned fields that support inheritance. This requires WAPI 2.10.2 or later.
