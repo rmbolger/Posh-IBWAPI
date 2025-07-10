@@ -2,7 +2,7 @@
 
 ## Does Posh-IBWAPI work cross platform on PowerShell (Core)?
 
-YES! The current minimum supported version of PowerShell (Core) is 7.0. Things may still work on 6.x, but I'm not actively testing against it anymore. All OS platforms supported by PowerShell are supported by the module.
+YES! While I will likely only be actively testing on the latest released PowerShell version, any version still supported by Microsoft according to the [PowerShell Support Lifecycle](https://learn.microsoft.com/en-us/powershell/scripting/install/powershell-support-lifecycle) will continue to be supported. All OS platforms supported by a given PowerShell version are supported by the module.
 
 ## The underlying connection was closed: Cloud not establish trust relationship for the SSL/TLS secure channel.
 
