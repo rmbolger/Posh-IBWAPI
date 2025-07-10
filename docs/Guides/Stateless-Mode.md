@@ -17,7 +17,8 @@ The rules for these values mimic the rules for the equivalent parameters in `Set
 | IBWAPI_VERSION       | 2.12.1         | (Required) A valid WAPI version string |
 | IBWAPI_USERNAME      | admin          | (Required) The account username |
 | IBWAPI_PASSWORD      | infoblox       | (Required) The plaintext password |
-| IBWAPI_SKIPCERTCHECK | False          | (Optional) False if not defined, empty, or equal to 'False', 'No', or '0' |
+| IBWAPI_SKIPCERTCHECK | True           | (Optional) False if not defined, empty, or equal to 'False', 'No', or '0' |
+| IBWAPI_NOSESSION     | True           | (Optional) False if not defined, empty, or equal to 'False', 'No', or '0' |
 
 The values are read during module import. So if you set them after the module is already loaded or need to change the values, you will need to force re-load the module for them to take effect.
 
